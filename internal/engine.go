@@ -65,7 +65,7 @@ func (e *engine) RegisterConstant(name string, val any) error {
 	return e.registeredConstants[name].validate()
 }
 
-func (e *engine) RegisterEnum(name string, val Enum) error {
+func (e *engine) RegisterEnum(name string, enum Enum) error {
 	_, ok := e.registeredEnums[name]
 	if !ok {
 		e.registeredEnums[name] = &enumType{
@@ -82,9 +82,9 @@ func (e *engine) RegisterEnum(name string, val Enum) error {
 	}
 
 	registeredEnum.registeredInGo = true
-	registeredEnum.goValue = val.Type()
+	registeredEnum.goValue = enum.Type()
 
-	values := val.Values()
+	values := enum.Values()
 	for i := range values {
 		_, ok = registeredEnum.valuesByName[i]
 		if !ok {
@@ -114,13 +114,13 @@ func (e *engine) RegisterSymbol(name string, symbol any) error {
 	return nil
 }
 
-func (e *engine) RegisterClass(name string, goStruct any) error {
-	if _, ok := goStruct.(IEmvalClassBase); !ok {
-		return fmt.Errorf("could not register class %s with type %T, it does not embed embind.EmvalClassBase", name, goStruct)
+func (e *engine) RegisterClass(name string, class any) error {
+	if _, ok := class.(IEmvalClassBase); !ok {
+		return fmt.Errorf("could not register class %s with type %T, it does not embed embind.EmvalClassBase", name, class)
 	}
 
-	if reflect.TypeOf(goStruct).Kind() != reflect.Ptr {
-		return fmt.Errorf("could not register class %s with type %T, given value should be a pointer type", name, goStruct)
+	if reflect.TypeOf(class).Kind() != reflect.Ptr {
+		return fmt.Errorf("could not register class %s with type %T, given value should be a pointer type", name, class)
 	}
 
 	existingClass, ok := e.registeredClasses[name]
@@ -136,7 +136,7 @@ func (e *engine) RegisterClass(name string, goStruct any) error {
 		}
 	}
 
-	e.registeredClasses[name].goStruct = goStruct
+	e.registeredClasses[name].goStruct = class
 	e.registeredClasses[name].hasGoStruct = true
 
 	err := e.registeredClasses[name].validate()
@@ -146,6 +146,14 @@ func (e *engine) RegisterClass(name string, goStruct any) error {
 	}
 
 	return err
+}
+
+func (e *engine) EmvalToHandle(value any) int32 {
+	return e.emvalEngine.toHandle(value)
+}
+
+func (e *engine) EmvalToValue(handle int32) (any, error) {
+	return e.emvalEngine.toValue(handle)
 }
 
 func (e *engine) newInvokeFunc(signaturePtr, rawInvoker int32, expectedParamTypes, expectedResultTypes []api.ValueType) (api.Function, error) {

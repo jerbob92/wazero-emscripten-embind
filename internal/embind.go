@@ -11,9 +11,11 @@ type Engine interface {
 	Attach(ctx context.Context) context.Context
 	CallPublicSymbol(ctx context.Context, name string, arguments ...any) (any, error)
 	RegisterConstant(name string, val any) error
-	RegisterEnum(name string, val Enum) error
+	RegisterEnum(name string, enum Enum) error
 	RegisterSymbol(name string, symbol any) error
-	RegisterClass(name string, symbol any) error
+	RegisterClass(name string, class any) error
+	EmvalToHandle(value any) int32
+	EmvalToValue(handle int32) (any, error)
 }
 
 func GetEngineFromContext(ctx context.Context) (Engine, error) {

@@ -244,7 +244,6 @@ var RegisterEmval = api.GoModuleFunc(func(ctx context.Context, mod api.Module, s
 			name:           name,
 			argPackAdvance: 8,
 		},
-		engine: engine,
 	}, &registerTypeOptions{
 		ignoreDuplicateRegistrations: true,
 	})

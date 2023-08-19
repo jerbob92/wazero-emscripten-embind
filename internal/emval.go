@@ -18,16 +18,16 @@ type EmvalFunctionMapper interface {
 
 type emvalType struct {
 	baseType
-	engine *engine
 }
 
 func (et *emvalType) FromWireType(ctx context.Context, mod api.Module, value uint64) (any, error) {
-	rv, err := et.engine.emvalEngine.toValue(api.DecodeI32(value))
+	e := MustGetEngineFromContext(ctx, mod).(*engine)
+	rv, err := e.emvalEngine.toValue(api.DecodeI32(value))
 	if err != nil {
 		return nil, err
 	}
 
-	err = et.engine.emvalEngine.allocator.decref(api.DecodeI32(value))
+	err = e.emvalEngine.allocator.decref(api.DecodeI32(value))
 	if err != nil {
 		return nil, err
 	}
@@ -36,7 +36,8 @@ func (et *emvalType) FromWireType(ctx context.Context, mod api.Module, value uin
 }
 
 func (et *emvalType) ToWireType(ctx context.Context, mod api.Module, destructors *[]*destructorFunc, o any) (uint64, error) {
-	return api.EncodeI32(et.engine.emvalEngine.toHandle(o)), nil
+	e := MustGetEngineFromContext(ctx, mod).(*engine)
+	return api.EncodeI32(e.emvalEngine.toHandle(o)), nil
 }
 
 func (et *emvalType) ReadValueFromPointer(ctx context.Context, mod api.Module, pointer uint32) (any, error) {
