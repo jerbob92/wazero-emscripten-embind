@@ -78,6 +78,10 @@ type publicSymbol struct {
 	className     string
 }
 
+type PublicSymbol interface {
+	Call(ctx context.Context, this any, arguments ...any) (any, error)
+}
+
 type registeredPointer struct {
 	pointerType      *registeredPointerType
 	constPointerType *registeredPointerType

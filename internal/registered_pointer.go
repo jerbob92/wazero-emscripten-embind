@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/tetratelabs/wazero/api"
+	"reflect"
 )
 
 type registeredPointerType struct {
@@ -108,14 +109,14 @@ func (rpt *registeredPointerType) FromWireType(ctx context.Context, mod api.Modu
 	}
 
 	if registeredInstance != nil {
-		if registeredInstance.RegisteredPtrTypeRecord().count.value == 0 {
-			registeredInstance.RegisteredPtrTypeRecord().ptr = rawPointer
-			registeredInstance.RegisteredPtrTypeRecord().smartPtr = ptr
-			return registeredInstance.ClassType().clone(registeredInstance)
+		if registeredInstance.getRegisteredPtrTypeRecord().count.value == 0 {
+			registeredInstance.getRegisteredPtrTypeRecord().ptr = rawPointer
+			registeredInstance.getRegisteredPtrTypeRecord().smartPtr = ptr
+			return registeredInstance.getClassType().clone(registeredInstance)
 		} else {
 			// else, just increment reference count on existing object
 			// it already has a reference to the smart pointer
-			rv, err := registeredInstance.ClassType().clone(registeredInstance)
+			rv, err := registeredInstance.getClassType().clone(registeredInstance)
 			if err != nil {
 				return nil, err
 			}
@@ -203,7 +204,215 @@ func (rpt *registeredPointerType) FromWireType(ctx context.Context, mod api.Modu
 }
 
 func (rpt *registeredPointerType) ToWireType(ctx context.Context, mod api.Module, destructors *[]*destructorFunc, o any) (uint64, error) {
-	return 0, fmt.Errorf("unknown registered pointer toWireType")
+	if !rpt.isSmartPointer && rpt.registeredClass.baseClass == nil {
+		// @todo: what to do with this?
+		//rpt.destructorFunction = null
+
+		if rpt.isConst {
+			return rpt.constNoSmartPtrRawPointerToWireType(ctx, mod, destructors, o)
+		}
+
+		return rpt.nonConstNoSmartPtrRawPointerToWireType(ctx, mod, destructors, o)
+	}
+
+	// Here we must leave this.destructorFunction undefined, since whether genericPointerToWireType returns
+	// a pointer that needs to be freed up is runtime-dependent, and cannot be evaluated at registration time.
+	// TODO: Create an alternative mechanism that allows removing the use of var destructors = []; array in
+	//       craftInvokerFunction altogether.
+
+	return rpt.genericPointerToWireType(ctx, mod, destructors, o)
+}
+
+func (rpt *registeredPointerType) constNoSmartPtrRawPointerToWireType(ctx context.Context, mod api.Module, destructors *[]*destructorFunc, o any) (uint64, error) {
+	if o == nil {
+		if rpt.isReference {
+			return 0, fmt.Errorf("nil is not a valid %s", rpt.name)
+		}
+
+		return 0, nil
+	}
+
+	handle := o.(IEmvalClassBase)
+
+	// @todo: can we do this without reflection?
+	if !handle.isValid() || reflect.ValueOf(handle).Elem().FieldByName("EmvalClassBase").IsNil() {
+		return 0, fmt.Errorf("invalid %s, check whether you constructed it properly through embind", rpt.name)
+	}
+
+	registeredPtrTypeRecord := handle.getRegisteredPtrTypeRecord()
+
+	if registeredPtrTypeRecord == nil {
+		return 0, fmt.Errorf("cannot pass \"%T\" as a %s", o, rpt.name)
+	}
+
+	if registeredPtrTypeRecord.ptr == 0 {
+		return 0, fmt.Errorf("cannot pass deleted object as a pointer of type %s", rpt.name)
+	}
+
+	handleClass := registeredPtrTypeRecord.ptrType.registeredClass
+	ptr, err := rpt.upcastPointer(ctx, registeredPtrTypeRecord.ptr, handleClass, rpt.registeredClass)
+	if err != nil {
+		return 0, err
+	}
+
+	return api.EncodeU32(ptr), nil
+}
+
+func (rpt *registeredPointerType) nonConstNoSmartPtrRawPointerToWireType(ctx context.Context, mod api.Module, destructors *[]*destructorFunc, o any) (uint64, error) {
+	if o == nil {
+		if rpt.isReference {
+			return 0, fmt.Errorf("nil is not a valid %s", rpt.name)
+		}
+
+		return 0, nil
+	}
+
+	handle := o.(IEmvalClassBase)
+
+	// @todo: can we do this without reflection?
+	if !handle.isValid() || reflect.ValueOf(handle).Elem().FieldByName("EmvalClassBase").IsNil() {
+		return 0, fmt.Errorf("invalid %s, check whether you constructed it properly through embind", rpt.name)
+	}
+
+	registeredPtrTypeRecord := handle.getRegisteredPtrTypeRecord()
+
+	if registeredPtrTypeRecord == nil {
+		return 0, fmt.Errorf("cannot pass \"%T\" as a %s", o, rpt.name)
+	}
+
+	if registeredPtrTypeRecord.ptr == 0 {
+		return 0, fmt.Errorf("cannot pass deleted object as a pointer of type %s", rpt.name)
+	}
+
+	if registeredPtrTypeRecord.ptrType.isConst {
+		return 0, fmt.Errorf("cannot convert argument of type %s to parameter type %s", registeredPtrTypeRecord.ptrType.name, rpt.name)
+	}
+
+	handleClass := registeredPtrTypeRecord.ptrType.registeredClass
+	ptr, err := rpt.upcastPointer(ctx, registeredPtrTypeRecord.ptr, handleClass, rpt.registeredClass)
+	if err != nil {
+		return 0, err
+	}
+	return api.EncodeU32(ptr), nil
+}
+
+func (rpt *registeredPointerType) genericPointerToWireType(ctx context.Context, mod api.Module, destructors *[]*destructorFunc, o any) (uint64, error) {
+	var ptr uint32
+	if o == nil {
+		if rpt.isReference {
+			return 0, fmt.Errorf("nil is not a valid %s", rpt.name)
+		}
+
+		if rpt.isSmartPointer {
+			res, err := rpt.rawConstructor.Call(ctx)
+			if err != nil {
+				ptr = api.DecodeU32(res[0])
+			}
+			if destructors != nil {
+				destructorsRef := *destructors
+				destructorsRef = append(destructorsRef, &destructorFunc{
+					apiFunction: rpt.rawDestructor,
+					args:        []uint64{api.EncodeU32(ptr)},
+				})
+			}
+			return api.EncodeU32(ptr), nil
+		} else {
+			return 0, nil
+		}
+	}
+
+	handle := o.(IEmvalClassBase)
+
+	// @todo: can we do this without reflection?
+	if !handle.isValid() || reflect.ValueOf(handle).Elem().FieldByName("EmvalClassBase").IsNil() {
+		return 0, fmt.Errorf("invalid %s, check whether you constructed it properly through embind", rpt.name)
+	}
+
+	registeredPtrTypeRecord := handle.getRegisteredPtrTypeRecord()
+	if registeredPtrTypeRecord == nil {
+		return 0, fmt.Errorf("cannot pass \"%T\" as a %s", o, rpt.name)
+	}
+
+	if registeredPtrTypeRecord.ptr == 0 {
+		return 0, fmt.Errorf("cannot pass deleted object as a pointer of type %s", rpt.name)
+	}
+
+	if !rpt.isConst && registeredPtrTypeRecord.ptrType.isConst {
+		typeName := registeredPtrTypeRecord.ptrType.name
+		if registeredPtrTypeRecord.smartPtrType != nil {
+			typeName = registeredPtrTypeRecord.smartPtrType.name
+		}
+		return 0, fmt.Errorf("cannot convert argument of type %s to parameter type %s", typeName, rpt.name)
+	}
+
+	handleClass := registeredPtrTypeRecord.ptrType.registeredClass
+	var err error
+	ptr, err = rpt.upcastPointer(ctx, registeredPtrTypeRecord.ptr, handleClass, rpt.registeredClass)
+	if err != nil {
+		return 0, err
+	}
+
+	if rpt.isSmartPointer {
+		// TODO: this is not strictly true
+		// We could support BY_EMVAL conversions from raw pointers to smart pointers
+		// because the smart pointer can hold a reference to the handle
+		if registeredPtrTypeRecord.smartPtr == 0 {
+			return 0, fmt.Errorf("passing raw pointer to smart pointer is illegal")
+		}
+
+		switch rpt.sharingPolicy {
+		case 0:
+			// no upcasting
+			if registeredPtrTypeRecord.smartPtrType == rpt {
+				ptr = registeredPtrTypeRecord.smartPtr
+			} else {
+				typeName := registeredPtrTypeRecord.ptrType.name
+				if registeredPtrTypeRecord.smartPtrType != nil {
+					typeName = registeredPtrTypeRecord.smartPtrType.name
+				}
+				return 0, fmt.Errorf("cannot convert argument of type %s to parameter type %s", typeName, rpt.name)
+			}
+			break
+
+		case 1: // INTRUSIVE
+			ptr = registeredPtrTypeRecord.smartPtr
+			break
+		case 2: // BY_EMVAL
+			if registeredPtrTypeRecord.smartPtrType == rpt {
+				ptr = registeredPtrTypeRecord.smartPtr
+			} else {
+				e := MustGetEngineFromContext(ctx, nil)
+				clonedHandle, err := handle.getClassType().clone(handle)
+				if err != nil {
+					return 0, err
+				}
+
+				deleteCallbackHandle := e.(*engine).emvalEngine.toHandle(func() {
+					// @todo: do something with this error?
+					_ = clonedHandle.getClassType().delete(ctx, clonedHandle)
+				})
+
+				res, err := rpt.rawShare.Call(ctx, api.EncodeU32(ptr), api.EncodeI32(deleteCallbackHandle))
+				if err != nil {
+					return 0, err
+				}
+				ptr = api.DecodeU32(res[0])
+				if destructors != nil {
+					destructorsRef := *destructors
+					destructorsRef = append(destructorsRef, &destructorFunc{
+						apiFunction: rpt.rawDestructor,
+						args:        []uint64{api.EncodeU32(ptr)},
+					})
+					*destructors = destructorsRef
+				}
+			}
+			break
+		default:
+			return 0, fmt.Errorf("unsupporting sharing policy")
+		}
+	}
+
+	return api.EncodeU32(ptr), nil
 }
 
 func (rpt *registeredPointerType) ReadValueFromPointer(ctx context.Context, mod api.Module, pointer uint32) (any, error) {
@@ -236,7 +445,7 @@ func (rpt *registeredPointerType) HasDeleteObject() bool {
 func (rpt *registeredPointerType) DeleteObject(ctx context.Context, mod api.Module, handle any) error {
 	if handle != nil {
 		casted := handle.(IEmvalClassBase)
-		return casted.ClassType().delete(ctx, casted)
+		return casted.getClassType().delete(ctx, casted)
 	}
 	return nil
 }
@@ -338,10 +547,6 @@ func (rpt *registeredPointerType) makeClassHandle(class *classType, record *regi
 func (rpt *registeredPointerType) attachFinalizer(classHandle any) {
 	// @todo: attach Go GC for garbage collection?
 	/**
-	  if ('undefined' === typeof FinalizationRegistry) {
-	    attachFinalizer = (handle) => handle;
-	    return handle;
-	  }
 	  // If the running environment has a FinalizationRegistry (see
 	  // https://github.com/tc39/proposal-weakrefs), then attach finalizers
 	  // for class handles.  We check for the presence of FinalizationRegistry
@@ -375,4 +580,22 @@ func (rpt *registeredPointerType) attachFinalizer(classHandle any) {
 	  detachFinalizer = (handle) => finalizationRegistry.unregister(handle);
 	  return attachFinalizer(handle);
 	*/
+}
+
+func (rpt *registeredPointerType) upcastPointer(ctx context.Context, ptr uint32, ptrClass *classType, desiredClass *classType) (uint32, error) {
+	for ptrClass != desiredClass {
+		if ptrClass.upcast == nil {
+			return 0, fmt.Errorf("expected null or instance of %s, got an instance of %s", desiredClass.name, ptrClass.name)
+		}
+		res, err := ptrClass.upcast.Call(ctx, api.EncodeU32(ptr))
+		if err != nil {
+			return 0, err
+		}
+
+		ptr = api.DecodeU32(res[0])
+
+		ptrClass = ptrClass.baseClass
+	}
+
+	return ptr, nil
 }

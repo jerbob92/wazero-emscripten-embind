@@ -9,7 +9,7 @@ import (
 
 type Engine interface {
 	Attach(ctx context.Context) context.Context
-	CallFunction(ctx context.Context, name string, arguments ...any) (any, error)
+	CallPublicSymbol(ctx context.Context, name string, arguments ...any) (any, error)
 	RegisterConstant(name string, val any) error
 	RegisterEnum(name string, val Enum) error
 	RegisterSymbol(name string, symbol any) error
@@ -37,13 +37,15 @@ func MustGetEngineFromContext(ctx context.Context, mod api.Module) Engine {
 	}
 
 	if e.(*engine).mod != nil {
-		if e.(*engine).mod != mod {
+		if mod != nil && e.(*engine).mod != mod {
 			panic(fmt.Errorf("could not get embind engine from context, this engine was created for another Wazero api.Module"))
 		}
 	}
 
-	// Make sure we have the api module set.
-	e.(*engine).mod = mod
+	if mod != nil {
+		// Make sure we have the api module set.
+		e.(*engine).mod = mod
+	}
 
 	return e
 }

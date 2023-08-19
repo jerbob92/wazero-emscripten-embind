@@ -909,6 +909,7 @@ var RegisterClass = api.GoModuleFunc(func(ctx context.Context, mod api.Module, s
 			}
 		}
 
+		engine.registeredClasses[name].hasCppClass = true
 		engine.registeredClasses[name].rawDestructor = rawDestructorFunc
 		engine.registeredClasses[name].getActualType = getActualTypeFunc
 		engine.registeredClasses[name].upcast = upcastFunc
@@ -978,14 +979,14 @@ var RegisterClass = api.GoModuleFunc(func(ctx context.Context, mod api.Module, s
 
 			fn, ok := engine.registeredClasses[name].constructors[int32(len(arguments))]
 			if !ok {
-				availableLengths := make([]string, len(engine.registeredClasses[name].constructors))
+				availableLengths := make([]string, 0)
 				for i := range engine.registeredClasses[name].constructors {
-					availableLengths[i] = strconv.Itoa(int(i))
+					availableLengths = append(availableLengths, strconv.Itoa(int(i)))
 				}
 				return nil, fmt.Errorf("tried to invoke ctor of %s with invalid number of parameters (%d) - expected (%s) parameters instead", name, len(arguments), strings.Join(availableLengths, " or "))
 			}
 
-			return fn(ctx, mod, this, arguments)
+			return fn(ctx, this, arguments...)
 		}, nil)
 
 		if err != nil {

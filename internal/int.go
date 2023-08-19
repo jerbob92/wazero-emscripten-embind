@@ -46,7 +46,7 @@ func (it *intType) ToWireType(ctx context.Context, mod api.Module, destructors *
 				return uint64(uint8Val), nil
 			}
 
-			return 0, fmt.Errorf("value must be of type uint8")
+			return 0, fmt.Errorf("value must be of type uint8, is %T", o)
 		}
 
 		int8Val, ok := o.(int8)
@@ -54,7 +54,7 @@ func (it *intType) ToWireType(ctx context.Context, mod api.Module, destructors *
 			return uint64(int8Val), nil
 		}
 
-		return 0, fmt.Errorf("value must be of type int8")
+		return 0, fmt.Errorf("value must be of type int8, is %T", o)
 	} else if it.size == 2 {
 		if !it.signed {
 			uint16Val, ok := o.(uint16)
@@ -62,7 +62,7 @@ func (it *intType) ToWireType(ctx context.Context, mod api.Module, destructors *
 				return uint64(uint16Val), nil
 			}
 
-			return 0, fmt.Errorf("value must be of type uint16")
+			return 0, fmt.Errorf("value must be of type uint16, is %T", o)
 		}
 
 		int16Val, ok := o.(int16)
@@ -70,7 +70,7 @@ func (it *intType) ToWireType(ctx context.Context, mod api.Module, destructors *
 			return uint64(int16Val), nil
 		}
 
-		return 0, fmt.Errorf("value must be of type int16")
+		return 0, fmt.Errorf("value must be of type int16, is %T", o)
 	} else if it.size == 4 {
 		if !it.signed {
 			uint32Val, ok := o.(uint32)
@@ -78,7 +78,7 @@ func (it *intType) ToWireType(ctx context.Context, mod api.Module, destructors *
 				return api.EncodeU32(uint32Val), nil
 			}
 
-			return 0, fmt.Errorf("value must be of type uint32")
+			return 0, fmt.Errorf("value must be of type uint32, is %T", o)
 		}
 
 		int32Val, ok := o.(int32)
@@ -86,10 +86,10 @@ func (it *intType) ToWireType(ctx context.Context, mod api.Module, destructors *
 			return api.EncodeI32(int32Val), nil
 		}
 
-		return 0, fmt.Errorf("value must be of type int32")
+		return 0, fmt.Errorf("value must be of type int32, is %T", o)
 	}
 
-	return 0, fmt.Errorf("unknown integer size")
+	return 0, fmt.Errorf("unknown integer size for %T", o)
 }
 
 func (it *intType) ReadValueFromPointer(ctx context.Context, mod api.Module, pointer uint32) (any, error) {

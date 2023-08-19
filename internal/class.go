@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"github.com/tetratelabs/wazero/api"
+	"log"
+	"reflect"
 )
 
 type classProperty struct {
@@ -23,6 +25,7 @@ type classType struct {
 	derivedClasses       []*classType
 	goStruct             any
 	hasGoStruct          bool
+	hasCppClass          bool
 	pureVirtualFunctions []string
 	methods              map[string]*publicSymbol
 	properties           map[string]*classProperty
@@ -30,29 +33,39 @@ type classType struct {
 }
 
 func (erc *classType) FromWireType(ctx context.Context, mod api.Module, value uint64) (any, error) {
-	panic("should not be called")
+	panic("FromWireType should not be called on classes")
 }
 
 func (erc *classType) ToWireType(ctx context.Context, mod api.Module, destructors *[]*destructorFunc, o any) (uint64, error) {
-	panic("should not be called")
+	panic("ToWireType should not be called on classes")
 }
 
 func (erc *classType) ReadValueFromPointer(ctx context.Context, mod api.Module, pointer uint32) (any, error) {
-	panic("should not be called")
+	panic("ReadValueFromPointer should not be called on classes")
 }
 
 func (erc *classType) validate() error {
+	if !erc.hasGoStruct || !erc.hasCppClass {
+		return nil
+	}
+
 	// @todo: implement validator here.
 	// @todo: we want to check if the Go struct implements everything we need.
+	log.Printf("Running validator on %T", erc.goStruct)
+
+	log.Println(erc.constructors)
+	log.Println(erc.methods)
+	log.Println(erc.properties)
+
 	return nil
 }
 
 func (erc *classType) isDeleted(handle IEmvalClassBase) bool {
-	return handle.RegisteredPtrTypeRecord().ptr == 0
+	return handle.getRegisteredPtrTypeRecord().ptr == 0
 }
 
 func (erc *classType) deleteLater(handle IEmvalClassBase) (any, error) {
-	registeredPtrTypeRecord := handle.RegisteredPtrTypeRecord()
+	registeredPtrTypeRecord := handle.getRegisteredPtrTypeRecord()
 	if registeredPtrTypeRecord.ptr == 0 {
 		return nil, fmt.Errorf("class handle already deleted")
 	}
@@ -75,10 +88,10 @@ func (erc *classType) deleteLater(handle IEmvalClassBase) (any, error) {
 }
 
 func (erc *classType) isAliasOf(ctx context.Context, first, second IEmvalClassBase) (bool, error) {
-	leftClass := first.RegisteredPtrTypeRecord().ptrType.registeredClass
-	left := first.RegisteredPtrTypeRecord().ptr
-	rightClass := second.RegisteredPtrTypeRecord().ptrType.registeredClass
-	right := second.RegisteredPtrTypeRecord().ptr
+	leftClass := first.getRegisteredPtrTypeRecord().ptrType.registeredClass
+	left := first.getRegisteredPtrTypeRecord().ptr
+	rightClass := second.getRegisteredPtrTypeRecord().ptrType.registeredClass
+	right := second.getRegisteredPtrTypeRecord().ptr
 
 	for leftClass.baseClass != nil {
 		leftRes, err := leftClass.upcast.Call(ctx, api.EncodeU32(left))
@@ -102,7 +115,7 @@ func (erc *classType) isAliasOf(ctx context.Context, first, second IEmvalClassBa
 }
 
 func (erc *classType) clone(from IEmvalClassBase) (IEmvalClassBase, error) {
-	registeredPtrTypeRecord := from.RegisteredPtrTypeRecord()
+	registeredPtrTypeRecord := from.getRegisteredPtrTypeRecord()
 	if registeredPtrTypeRecord.ptr == 0 {
 		return nil, fmt.Errorf("class handle already deleted")
 	}
@@ -117,13 +130,13 @@ func (erc *classType) clone(from IEmvalClassBase) (IEmvalClassBase, error) {
 		return nil, err
 	}
 
-	clone.RegisteredPtrTypeRecord().count.value += 1
-	clone.RegisteredPtrTypeRecord().deleteScheduled = false
+	clone.getRegisteredPtrTypeRecord().count.value += 1
+	clone.getRegisteredPtrTypeRecord().deleteScheduled = false
 	return clone, nil
 }
 
 func (erc *classType) delete(ctx context.Context, handle IEmvalClassBase) error {
-	registeredPtrTypeRecord := handle.RegisteredPtrTypeRecord()
+	registeredPtrTypeRecord := handle.getRegisteredPtrTypeRecord()
 	if registeredPtrTypeRecord.ptr == 0 {
 		return fmt.Errorf("class handle already deleted")
 	}
@@ -155,14 +168,23 @@ func (erc *classType) getInstanceFromGoStruct(record *registeredPointerTypeRecor
 		return nil, fmt.Errorf("no Go struct registered for class %s", erc.name)
 	}
 
-	// @todo: create new instance of Go struct here.
-	classHandle := &EmvalClassBase{
+	classBase := &EmvalClassBase{
+		classType:               erc,
 		ptr:                     record.ptr,
 		ptrType:                 record.ptrType,
 		registeredPtrTypeRecord: record,
 	}
 
-	return classHandle, nil
+	typeElem := reflect.TypeOf(erc.goStruct).Elem()
+	newElem := reflect.New(typeElem)
+	f := newElem.Elem().FieldByName("EmvalClassBase")
+	if f.IsValid() && f.CanSet() {
+		f.Set(reflect.ValueOf(classBase))
+	}
+
+	result := newElem.Interface()
+
+	return result.(IEmvalClassBase), nil
 }
 
 type EmvalClassBase struct {
@@ -172,25 +194,40 @@ type EmvalClassBase struct {
 	registeredPtrTypeRecord *registeredPointerTypeRecord
 }
 
-func (ecb *EmvalClassBase) ClassType() *classType {
+func (ecb *EmvalClassBase) getClassType() *classType {
 	return ecb.classType
 }
 
-func (ecb *EmvalClassBase) Ptr() uint32 {
+func (ecb *EmvalClassBase) getPtr() uint32 {
 	return ecb.ptr
 }
 
-func (ecb *EmvalClassBase) PtrType() *registeredPointerType {
+func (ecb *EmvalClassBase) getPtrType() *registeredPointerType {
 	return ecb.ptrType
 }
 
-func (ecb *EmvalClassBase) RegisteredPtrTypeRecord() *registeredPointerTypeRecord {
+func (ecb *EmvalClassBase) getRegisteredPtrTypeRecord() *registeredPointerTypeRecord {
 	return ecb.registeredPtrTypeRecord
 }
 
+func (ecb *EmvalClassBase) isValid() bool {
+	return ecb != nil
+}
+
+func (ecb *EmvalClassBase) Clone(from IEmvalClassBase) (IEmvalClassBase, error) {
+	return ecb.classType.clone(from)
+}
+
+func (ecb *EmvalClassBase) Delete(ctx context.Context, handle IEmvalClassBase) error {
+	return ecb.classType.delete(ctx, handle)
+}
+
 type IEmvalClassBase interface {
-	ClassType() *classType
-	Ptr() uint32
-	PtrType() *registeredPointerType
-	RegisteredPtrTypeRecord() *registeredPointerTypeRecord
+	getClassType() *classType
+	getPtr() uint32
+	getPtrType() *registeredPointerType
+	getRegisteredPtrTypeRecord() *registeredPointerTypeRecord
+	isValid() bool
+	Clone(from IEmvalClassBase) (IEmvalClassBase, error)
+	Delete(ctx context.Context, handle IEmvalClassBase) error
 }

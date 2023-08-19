@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"reflect"
 	"regexp"
 	"strconv"
 	"strings"
@@ -32,7 +33,7 @@ func (e *engine) Attach(ctx context.Context) context.Context {
 	return context.WithValue(ctx, EngineKey{}, e)
 }
 
-func (e *engine) CallFunction(ctx context.Context, name string, arguments ...any) (any, error) {
+func (e *engine) CallPublicSymbol(ctx context.Context, name string, arguments ...any) (any, error) {
 	_, ok := e.publicSymbols[name]
 	if !ok {
 		return nil, fmt.Errorf("could not find public symbol %s", name)
@@ -115,6 +116,10 @@ func (e *engine) RegisterSymbol(name string, symbol any) error {
 func (e *engine) RegisterClass(name string, goStruct any) error {
 	if _, ok := goStruct.(IEmvalClassBase); !ok {
 		return fmt.Errorf("could not register class %s with type %T, it does not embed embind.EmvalClassBase", name, goStruct)
+	}
+
+	if reflect.TypeOf(goStruct).Kind() != reflect.Ptr {
+		return fmt.Errorf("could not register class %s with type %T, given value should be a pointer type", name, goStruct)
 	}
 
 	existingClass, ok := e.registeredClasses[name]
@@ -707,12 +712,12 @@ func (e *engine) validateThis(ctx context.Context, this any, classType *register
 		return 0, fmt.Errorf("given value of type %T is not based on IEmvalClassBase", this)
 	}
 
-	if based.Ptr() == 0 {
+	if based.getPtr() == 0 {
 		return 0, fmt.Errorf("cannot call emscripten binding method %s on deleted object", humanName)
 	}
 
 	// @todo: check if based.ptrType.registeredClass is or extends classType.registeredClass
 
 	// todo: kill this
-	return e.upcastPointer(ctx, based.Ptr(), based.PtrType().registeredClass, classType.registeredClass)
+	return e.upcastPointer(ctx, based.getPtr(), based.getPtrType().registeredClass, classType.registeredClass)
 }

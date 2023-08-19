@@ -33,7 +33,7 @@ func (at *arrayType) FromWireType(ctx context.Context, mod api.Module, ptr uint6
 func (at *arrayType) ToWireType(ctx context.Context, mod api.Module, destructors *[]*destructorFunc, o any) (uint64, error) {
 	arr, ok := o.([]any)
 	if !ok {
-		return 0, fmt.Errorf("incorrect input, not an array")
+		return 0, fmt.Errorf("incorrect input, not an array, make sure that the input is of type []any")
 	}
 
 	if at.elementsLength != len(arr) {
