@@ -102,3 +102,7 @@ func (sst *stdStringType) DestructorFunction(ctx context.Context, mod api.Module
 		args:        []uint64{api.EncodeU32(pointer)},
 	}, nil
 }
+
+func (sst *stdStringType) GoType() string {
+	return "string"
+}

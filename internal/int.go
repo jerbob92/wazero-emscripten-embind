@@ -115,3 +115,22 @@ func (it *intType) ReadValueFromPointer(ctx context.Context, mod api.Module, poi
 
 	return nil, fmt.Errorf("unknown integer type: %s", it.name)
 }
+
+func (it *intType) GoType() string {
+	if it.size == 1 {
+		if !it.signed {
+			return "uint8"
+		}
+		return "int8"
+	} else if it.size == 2 {
+		if !it.signed {
+			return "uint16"
+		}
+		return "int16"
+	}
+
+	if !it.signed {
+		return "uint32"
+	}
+	return "int32"
+}

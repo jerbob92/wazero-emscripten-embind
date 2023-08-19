@@ -3,7 +3,6 @@ package embind
 import (
 	"context"
 	"fmt"
-
 	"github.com/tetratelabs/wazero/api"
 )
 
@@ -101,4 +100,8 @@ func (bt *boolType) ReadValueFromPointer(ctx context.Context, mod api.Module, po
 	} else {
 		return nil, fmt.Errorf("unknown boolean type size %d: %s", bt.size, bt.name)
 	}
+}
+
+func (bt *boolType) GoType() string {
+	return "bool"
 }

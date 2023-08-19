@@ -78,3 +78,29 @@ func (mvt *memoryViewType) ToWireType(ctx context.Context, mod api.Module, destr
 func (mvt *memoryViewType) ReadValueFromPointer(ctx context.Context, mod api.Module, pointer uint32) (any, error) {
 	return mvt.FromWireType(ctx, mod, api.EncodeU32(pointer))
 }
+
+func (mvt *memoryViewType) GoType() string {
+	if mvt.dataTypeIndex == 0 {
+		return "[]int8"
+	} else if mvt.dataTypeIndex == 1 {
+		return "[]uint8"
+	} else if mvt.dataTypeIndex == 2 {
+		return "[]int16"
+	} else if mvt.dataTypeIndex == 3 {
+		return "[]uint16"
+	} else if mvt.dataTypeIndex == 4 {
+		return "[]int32"
+	} else if mvt.dataTypeIndex == 5 {
+		return "[]uint8"
+	} else if mvt.dataTypeIndex == 6 {
+		return "[]float32"
+	} else if mvt.dataTypeIndex == 7 {
+		return "[]float64"
+	} else if mvt.dataTypeIndex == 8 {
+		return "[]int64"
+	} else if mvt.dataTypeIndex == 9 {
+		return "[]uint64"
+	}
+
+	return "[]uint64"
+}

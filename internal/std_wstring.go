@@ -61,3 +61,7 @@ func (swst *stdWStringType) DestructorFunction(ctx context.Context, mod api.Modu
 		args:        []uint64{api.EncodeU32(pointer)},
 	}, nil
 }
+
+func (swst *stdWStringType) GoType() string {
+	return "string"
+}

@@ -82,8 +82,9 @@ func (e *engine) RegisterEnum(name string, val Enum) error {
 	}
 
 	registeredEnum.registeredInGo = true
+	registeredEnum.goValue = val.Type()
 
-	values := val.EmbindEnumValues()
+	values := val.Values()
 	for i := range values {
 		_, ok = registeredEnum.valuesByName[i]
 		if !ok {

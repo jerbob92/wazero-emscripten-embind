@@ -83,3 +83,7 @@ func (at *arrayType) DestructorFunction(ctx context.Context, mod api.Module, poi
 		args:        []uint64{api.EncodeU32(pointer)},
 	}, nil
 }
+
+func (at *arrayType) GoType() string {
+	return "[]any"
+}

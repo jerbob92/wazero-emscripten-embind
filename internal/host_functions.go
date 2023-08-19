@@ -977,7 +977,7 @@ var RegisterClass = api.GoModuleFunc(func(ctx context.Context, mod api.Module, s
 				return nil, fmt.Errorf("%s has no accessible constructor", name)
 			}
 
-			fn, ok := engine.registeredClasses[name].constructors[int32(len(arguments))]
+			constructor, ok := engine.registeredClasses[name].constructors[int32(len(arguments))]
 			if !ok {
 				availableLengths := make([]string, 0)
 				for i := range engine.registeredClasses[name].constructors {
@@ -986,7 +986,7 @@ var RegisterClass = api.GoModuleFunc(func(ctx context.Context, mod api.Module, s
 				return nil, fmt.Errorf("tried to invoke ctor of %s with invalid number of parameters (%d) - expected (%s) parameters instead", name, len(arguments), strings.Join(availableLengths, " or "))
 			}
 
-			return fn(ctx, this, arguments...)
+			return constructor.fn(ctx, this, arguments...)
 		}, nil)
 
 		if err != nil {
@@ -1020,15 +1020,17 @@ var RegisterClassConstructor = api.GoModuleFunc(func(ctx context.Context, mod ap
 		humanName := "constructor " + classType.name
 
 		if classType.registeredClass.constructors == nil {
-			classType.registeredClass.constructors = map[int32]publicSymbolFn{}
+			classType.registeredClass.constructors = map[int32]*classConstructor{}
 		}
 
 		if _, ok := classType.registeredClass.constructors[argCount-1]; ok {
 			return nil, fmt.Errorf("cannot register multiple constructors with identical number of parameters (%d) for class '%s'! Overload resolution is currently only performed using the parameter count, not actual type info", argCount-1, classType.name)
 		}
 
-		classType.registeredClass.constructors[argCount-1] = func(ctx context.Context, this any, arguments ...any) (any, error) {
-			return nil, engine.createUnboundTypeError(ctx, fmt.Sprintf("Cannot call %s due to unbound types", classType.name), rawArgTypes)
+		classType.registeredClass.constructors[argCount-1] = &classConstructor{
+			fn: func(ctx context.Context, this any, arguments ...any) (any, error) {
+				return nil, engine.createUnboundTypeError(ctx, fmt.Sprintf("Cannot call %s due to unbound types", classType.name), rawArgTypes)
+			},
 		}
 
 		err := engine.whenDependentTypesAreResolved([]int32{}, rawArgTypes, func(argTypes []registeredType) ([]registeredType, error) {
@@ -1038,18 +1040,22 @@ var RegisterClassConstructor = api.GoModuleFunc(func(ctx context.Context, mod ap
 				newArgTypes = append(newArgTypes, argTypes[1:]...)
 			}
 
+			goTypes := make([]string, len(newArgTypes[2:]))
 			expectedParamTypes := make([]api.ValueType, len(newArgTypes[2:])+1)
 			expectedParamTypes[0] = api.ValueTypeI32 // fn
 			for i := range newArgTypes[2:] {
 				expectedParamTypes[i+1] = newArgTypes[i+2].NativeType()
+				goTypes[i] = newArgTypes[i+2].GoType()
 			}
 
 			invokerFunc, err := engine.newInvokeFunc(invokerSignature, invoker, expectedParamTypes, []api.ValueType{argTypes[0].NativeType()})
 			if err != nil {
-				panic(fmt.Errorf("could not create invoke func: %w", err))
+				return nil, fmt.Errorf("could not create invoke func: %w", err)
 			}
 
-			classType.registeredClass.constructors[argCount-1] = engine.craftInvokerFunction(humanName, newArgTypes, nil, invokerFunc, rawConstructor, false)
+			classType.registeredClass.constructors[argCount-1].resultType = argTypes[0].GoType()
+			classType.registeredClass.constructors[argCount-1].argTypes = goTypes
+			classType.registeredClass.constructors[argCount-1].fn = engine.craftInvokerFunction(humanName, newArgTypes, nil, invokerFunc, rawConstructor, false)
 			return []registeredType{}, err
 		})
 

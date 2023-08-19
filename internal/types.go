@@ -61,6 +61,7 @@ type registeredType interface {
 	HasDeleteObject() bool
 	DeleteObject(ctx context.Context, mod api.Module, handle any) error
 	NativeType() api.ValueType
+	GoType() string
 }
 
 type registerTypeOptions struct {

@@ -63,3 +63,10 @@ func (bt *bigintType) ReadValueFromPointer(ctx context.Context, mod api.Module, 
 func (bt *bigintType) NativeType() api.ValueType {
 	return api.ValueTypeI64
 }
+
+func (bt *bigintType) GoType() string {
+	if !bt.signed {
+		return "uint64"
+	}
+	return "int64"
+}

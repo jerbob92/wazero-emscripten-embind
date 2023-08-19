@@ -47,6 +47,10 @@ func (et *emvalType) ReadValueFromPointer(ctx context.Context, mod api.Module, p
 	return et.FromWireType(ctx, mod, api.EncodeU32(value))
 }
 
+func (et *emvalType) GoType() string {
+	return "int32"
+}
+
 type emvalHandle struct {
 	value    any
 	refCount int

@@ -62,3 +62,11 @@ func (ft *floatType) NativeType() api.ValueType {
 
 	return api.ValueTypeF64
 }
+
+func (ft *floatType) GoType() string {
+	if ft.size == 4 {
+		return "float32"
+	}
+
+	return "float64"
+}

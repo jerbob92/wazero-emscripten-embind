@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"github.com/tetratelabs/wazero/api"
-	"log"
 	"reflect"
 )
 
@@ -13,6 +12,12 @@ type classProperty struct {
 	configurable bool
 	set          func(ctx context.Context, mod api.Module, this any, v any) error
 	get          func(ctx context.Context, mod api.Module, this any) (any, error)
+}
+
+type classConstructor struct {
+	fn         publicSymbolFn
+	argTypes   []string
+	resultType string
 }
 
 type classType struct {
@@ -29,7 +34,7 @@ type classType struct {
 	pureVirtualFunctions []string
 	methods              map[string]*publicSymbol
 	properties           map[string]*classProperty
-	constructors         map[int32]publicSymbolFn
+	constructors         map[int32]*classConstructor
 }
 
 func (erc *classType) FromWireType(ctx context.Context, mod api.Module, value uint64) (any, error) {
@@ -44,6 +49,10 @@ func (erc *classType) ReadValueFromPointer(ctx context.Context, mod api.Module, 
 	panic("ReadValueFromPointer should not be called on classes")
 }
 
+func (erc *classType) GoType() string {
+	return erc.name
+}
+
 func (erc *classType) validate() error {
 	if !erc.hasGoStruct || !erc.hasCppClass {
 		return nil
@@ -51,11 +60,16 @@ func (erc *classType) validate() error {
 
 	// @todo: implement validator here.
 	// @todo: we want to check if the Go struct implements everything we need.
-	log.Printf("Running validator on %T", erc.goStruct)
+	//log.Printf("Running validator on %T", erc.goStruct)
 
-	log.Println(erc.constructors)
-	log.Println(erc.methods)
-	log.Println(erc.properties)
+	//for i := range erc.constructors {
+	//	log.Println(erc.constructors[i].argTypes)
+	//	log.Println(erc.constructors[i].resultType)
+	//}
+
+	//log.Println(erc.constructors)
+	///log.Println(erc.methods)
+	//log.Println(erc.properties)
 
 	return nil
 }

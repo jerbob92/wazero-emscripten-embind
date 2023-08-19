@@ -2,7 +2,6 @@ package embind
 
 import (
 	"context"
-
 	"github.com/tetratelabs/wazero/api"
 )
 
@@ -21,4 +20,8 @@ func (vt *voidType) ToWireType(ctx context.Context, mod api.Module, destructors 
 
 func (vt *voidType) NativeType() api.ValueType {
 	return 0
+}
+
+func (vt *voidType) GoType() string {
+	return ""
 }

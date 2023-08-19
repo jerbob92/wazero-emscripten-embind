@@ -223,6 +223,10 @@ func (rpt *registeredPointerType) ToWireType(ctx context.Context, mod api.Module
 	return rpt.genericPointerToWireType(ctx, mod, destructors, o)
 }
 
+func (rpt *registeredPointerType) GoType() string {
+	return "*" + rpt.registeredClass.GoType()
+}
+
 func (rpt *registeredPointerType) constNoSmartPtrRawPointerToWireType(ctx context.Context, mod api.Module, destructors *[]*destructorFunc, o any) (uint64, error) {
 	if o == nil {
 		if rpt.isReference {

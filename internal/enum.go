@@ -7,7 +7,8 @@ import (
 )
 
 type Enum interface {
-	EmbindEnumValues() map[string]any
+	Type() any
+	Values() map[string]any
 }
 
 type enumValue struct {
@@ -36,6 +37,7 @@ type enumType struct {
 	valuesByCppValue map[any]*enumValue
 	valuesByGoValue  map[any]*enumValue
 	registeredInGo   bool
+	goValue          any
 }
 
 func (et *enumType) validate() error {
@@ -94,4 +96,9 @@ func (et *enumType) mapToGoEnum(value any) (any, error) {
 	}
 
 	return val.goValue, nil
+}
+
+func (et *enumType) GoType() string {
+	// @todo: use Go name when registered?
+	return et.name
 }

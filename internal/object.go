@@ -83,3 +83,7 @@ func (ot *objectType) DestructorFunction(ctx context.Context, mod api.Module, po
 		args:        []uint64{api.EncodeU32(pointer)},
 	}, nil
 }
+
+func (ot *objectType) GoType() string {
+	return "map[string]any"
+}
