@@ -231,12 +231,12 @@ func (ecb *EmvalClassBase) isValid() bool {
 	return ecb != nil
 }
 
-func (ecb *EmvalClassBase) Clone(from IEmvalClassBase) (IEmvalClassBase, error) {
-	return ecb.classType.clone(from)
+func (ecb *EmvalClassBase) Clone(this IEmvalClassBase) (IEmvalClassBase, error) {
+	return ecb.classType.clone(this)
 }
 
-func (ecb *EmvalClassBase) Delete(ctx context.Context, handle IEmvalClassBase) error {
-	return ecb.classType.delete(ctx, handle)
+func (ecb *EmvalClassBase) Delete(ctx context.Context, this IEmvalClassBase) error {
+	return ecb.classType.delete(ctx, this)
 }
 
 func (ecb *EmvalClassBase) CallMethod(ctx context.Context, this any, name string, arguments ...any) (any, error) {
@@ -281,8 +281,8 @@ type IEmvalClassBase interface {
 	getPtrType() *registeredPointerType
 	getRegisteredPtrTypeRecord() *registeredPointerTypeRecord
 	isValid() bool
-	Clone(from IEmvalClassBase) (IEmvalClassBase, error)
-	Delete(ctx context.Context, handle IEmvalClassBase) error
+	Clone(this IEmvalClassBase) (IEmvalClassBase, error)
+	Delete(ctx context.Context, this IEmvalClassBase) error
 	CallMethod(ctx context.Context, this any, name string, arguments ...any) (any, error)
 	SetProperty(ctx context.Context, this any, name string, value any) error
 	GetProperty(ctx context.Context, this any, name string) (any, error)

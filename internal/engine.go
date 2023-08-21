@@ -107,7 +107,7 @@ func (e *engine) RegisterEnum(name string, enum Enum) error {
 	return e.registeredEnums[name].validate()
 }
 
-func (e *engine) RegisterSymbol(name string, symbol any) error {
+func (e *engine) RegisterEmvalSymbol(name string, symbol any) error {
 	existingSymbol, ok := e.emvalEngine.globals[name]
 	if ok {
 		return fmt.Errorf("could not register symbol %s, already registered as type %T", name, existingSymbol)

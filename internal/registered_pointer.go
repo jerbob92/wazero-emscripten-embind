@@ -32,7 +32,7 @@ type registeredPointerTypeRecord struct {
 	ptr                     uint32
 	smartPtrType            *registeredPointerType
 	smartPtr                uint32
-	count                   *registeredPointerTypeRecordCount
+	count                   *registeredPointerTypeRecordCount // The reason this is a reference to another struct is to easily pass a reference around when cloning classes.
 	preservePointerOnDelete bool
 	deleteScheduled         bool
 }

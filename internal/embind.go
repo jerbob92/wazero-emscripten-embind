@@ -11,8 +11,8 @@ type IEngine interface {
 	CallPublicSymbol(ctx context.Context, name string, arguments ...any) (any, error)
 	RegisterConstant(name string, val any) error
 	RegisterEnum(name string, enum Enum) error
-	RegisterSymbol(name string, symbol any) error
 	RegisterClass(name string, class any) error
+	RegisterEmvalSymbol(name string, symbol any) error
 	EmvalToHandle(value any) int32
 	EmvalToValue(handle int32) (any, error)
 }
