@@ -1291,6 +1291,7 @@ var RegisterClassProperty = api.GoModuleFunc(func(ctx context.Context, mod api.M
 				return engine.createUnboundTypeError(ctx, fmt.Sprintf("Cannot access %s due to unbound types", humanName), []int32{getterReturnType, setterArgumentType})
 			}
 		} else {
+			desc.readOnly = true
 			desc.set = func(ctx context.Context, this any, v any) error {
 				return fmt.Errorf("%s is a read-only property", humanName)
 			}

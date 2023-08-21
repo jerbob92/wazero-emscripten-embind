@@ -10,6 +10,7 @@ import (
 type classProperty struct {
 	enumerable   bool
 	configurable bool
+	readOnly     bool
 	set          func(ctx context.Context, this any, v any) error
 	get          func(ctx context.Context, this any) (any, error)
 }
