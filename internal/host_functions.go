@@ -966,12 +966,7 @@ var RegisterClass = api.GoModuleFunc(func(ctx context.Context, mod api.Module, s
 			return nil, err
 		}
 
-		err = engine.replacePublicSymbol(legalFunctionName, func(ctx context.Context, this any, arguments ...any) (any, error) {
-			// @todo: implement me somehow?
-			// if (Object.getPrototypeOf(this) !== instancePrototype) {
-			// 	throw new BindingError("Use 'new' to construct " + name);
-			// }
-
+		err = engine.replacePublicSymbol(legalFunctionName, func(ctx context.Context, _ any, arguments ...any) (any, error) {
 			if engine.registeredClasses[name].constructors == nil {
 				return nil, fmt.Errorf("%s has no accessible constructor", name)
 			}
@@ -985,7 +980,7 @@ var RegisterClass = api.GoModuleFunc(func(ctx context.Context, mod api.Module, s
 				return nil, fmt.Errorf("tried to invoke ctor of %s with invalid number of parameters (%d) - expected (%s) parameters instead", name, len(arguments), strings.Join(availableLengths, " or "))
 			}
 
-			return constructor.fn(ctx, this, arguments...)
+			return constructor.fn(ctx, nil, arguments...)
 		}, nil)
 
 		if err != nil {

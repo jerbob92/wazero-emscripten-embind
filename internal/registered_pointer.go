@@ -205,9 +205,6 @@ func (rpt *registeredPointerType) FromWireType(ctx context.Context, mod api.Modu
 
 func (rpt *registeredPointerType) ToWireType(ctx context.Context, mod api.Module, destructors *[]*destructorFunc, o any) (uint64, error) {
 	if !rpt.isSmartPointer && rpt.registeredClass.baseClass == nil {
-		// @todo: what to do with this?
-		//rpt.destructorFunction = null
-
 		if rpt.isConst {
 			return rpt.constNoSmartPtrRawPointerToWireType(ctx, mod, destructors, o)
 		}
@@ -428,6 +425,9 @@ func (rpt *registeredPointerType) ReadValueFromPointer(ctx context.Context, mod 
 }
 
 func (rpt *registeredPointerType) HasDestructorFunction() bool {
+	if !rpt.isSmartPointer && rpt.registeredClass.baseClass == nil {
+		return false
+	}
 	return true
 }
 
