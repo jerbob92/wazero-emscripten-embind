@@ -1,28 +1,59 @@
 package embind
 
 import (
+	"fmt"
 	internal "github.com/jerbob92/wazero-emscripten-embind/internal"
 	"github.com/tetratelabs/wazero"
 	"github.com/tetratelabs/wazero/api"
 )
+
+type wazeroEngine struct {
+	internal.IEngine
+	config internal.IEngineConfig
+}
+
+func (we *wazeroEngine) NewFunctionExporterForModule(guest wazero.CompiledModule) FunctionExporter {
+	return &functionExporter{
+		config: we.config,
+		guest:  guest,
+	}
+}
 
 // FunctionExporter configures the functions in the "env" module used by
 // Emscripten embind.
 type FunctionExporter interface {
 	// ExportFunctions builds functions to export with a wazero.HostModuleBuilder
 	// named "env".
-	ExportFunctions(wazero.HostModuleBuilder)
+	ExportFunctions(wazero.HostModuleBuilder) error
 }
 
-// NewFunctionExporter returns a FunctionExporter object with trace disabled.
-func NewFunctionExporter() FunctionExporter {
-	return &functionExporter{}
+type functionExporter struct {
+	config internal.IEngineConfig
+	guest  wazero.CompiledModule
 }
 
-type functionExporter struct{}
+type unexportedFunctionError struct {
+	name string
+}
+
+func (e unexportedFunctionError) Error() string {
+	return fmt.Sprintf("you need to export the \"%s\" function to make embind work, you can do this using the \"EXPORTED_FUNCTIONS\" option in Emscripten during compilation, you will need to prepend exports with an underscore, so you have to add \"_%s\" to the list", e.name, e.name)
+}
 
 // ExportFunctions implements FunctionExporter.ExportFunctions
-func (functionExporter) ExportFunctions(b wazero.HostModuleBuilder) {
+func (e functionExporter) ExportFunctions(b wazero.HostModuleBuilder) error {
+	// First validate whether required functions are available.
+	requiredFunctions := []string{"free", "malloc", "__getTypeName"}
+	exportedFunctions := e.guest.ExportedFunctions()
+	for i := range requiredFunctions {
+		requiredFunction := requiredFunctions[i]
+		if _, ok := exportedFunctions[requiredFunction]; !ok {
+			return unexportedFunctionError{
+				name: requiredFunction,
+			}
+		}
+	}
+
 	b.NewFunctionBuilder().
 		WithName("_embind_register_function").
 		WithParameterNames("name", "argCount", "rawArgTypesAddr", "signature", "rawInvoker", "fn", "isAsync").
@@ -323,4 +354,6 @@ func (functionExporter) ExportFunctions(b wazero.HostModuleBuilder) {
 		WithParameterNames("structType").
 		WithGoModuleFunction(internal.FinalizeValueObject, []api.ValueType{api.ValueTypeI32}, []api.ValueType{}).
 		Export("_embind_finalize_value_object")
+
+	return nil
 }

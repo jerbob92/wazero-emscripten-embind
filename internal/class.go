@@ -139,7 +139,7 @@ func (erc *classType) clone(from IEmvalClassBase) (IEmvalClassBase, error) {
 		return from, nil
 	}
 
-	clone, err := erc.getInstanceFromGoStruct(registeredPtrTypeRecord.shallowCopyInternalPointer())
+	clone, err := erc.getNewInstance(registeredPtrTypeRecord.shallowCopyInternalPointer())
 	if err != nil {
 		return nil, err
 	}
@@ -177,11 +177,7 @@ func (erc *classType) delete(ctx context.Context, handle IEmvalClassBase) error 
 	return nil
 }
 
-func (erc *classType) getInstanceFromGoStruct(record *registeredPointerTypeRecord) (IEmvalClassBase, error) {
-	if !erc.hasGoStruct {
-		return nil, fmt.Errorf("no Go struct registered for class %s", erc.name)
-	}
-
+func (erc *classType) getNewInstance(record *registeredPointerTypeRecord) (IEmvalClassBase, error) {
 	classBase := &EmvalClassBase{
 		classType:               erc,
 		ptr:                     record.ptr,
@@ -189,19 +185,25 @@ func (erc *classType) getInstanceFromGoStruct(record *registeredPointerTypeRecor
 		registeredPtrTypeRecord: record,
 	}
 
-	typeElem := reflect.TypeOf(erc.goStruct).Elem()
-	newElem := reflect.New(typeElem)
-	f := newElem.Elem().FieldByName("EmvalClassBase")
-	if f.IsValid() && f.CanSet() {
-		f.Set(reflect.ValueOf(classBase))
+	// If we have a Go struct, wrap the resulting class in it.
+	if erc.hasGoStruct {
+		typeElem := reflect.TypeOf(erc.goStruct).Elem()
+		newElem := reflect.New(typeElem)
+		f := newElem.Elem().FieldByName("EmvalClassBase")
+		if f.IsValid() && f.CanSet() {
+			f.Set(reflect.ValueOf(classBase))
+		}
+
+		result := newElem.Interface()
+
+		return result.(IEmvalClassBase), nil
 	}
 
-	result := newElem.Interface()
-
-	return result.(IEmvalClassBase), nil
+	return classBase, nil
 }
 
 type EmvalClassBase struct {
+	engine                  *engine
 	classType               *classType
 	ptr                     uint32
 	ptrType                 *registeredPointerType

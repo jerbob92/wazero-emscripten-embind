@@ -83,7 +83,7 @@ func (et *enumType) ReadValueFromPointer(ctx context.Context, mod api.Module, po
 
 func (et *enumType) mapToGoEnum(value any) (any, error) {
 	if !et.registeredInGo {
-		return nil, fmt.Errorf("could not map enum value %v, enum not registered as Go enum", value)
+		return value, nil
 	}
 
 	val, ok := et.valuesByCppValue[value]
@@ -92,7 +92,7 @@ func (et *enumType) mapToGoEnum(value any) (any, error) {
 	}
 
 	if !val.hasGoValue {
-		return nil, fmt.Errorf("could not map enum value %v, enum value has no registered Go value", value)
+		return value, nil
 	}
 
 	return val.goValue, nil

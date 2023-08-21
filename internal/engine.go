@@ -14,6 +14,7 @@ import (
 )
 
 type engine struct {
+	config               IEngineConfig
 	mod                  api.Module
 	publicSymbols        map[string]*publicSymbol
 	registeredTypes      map[int32]registeredType
@@ -39,6 +40,7 @@ func (e *engine) CallPublicSymbol(ctx context.Context, name string, arguments ..
 		return nil, fmt.Errorf("could not find public symbol %s", name)
 	}
 
+	ctx = e.Attach(ctx)
 	res, err := e.publicSymbols[name].fn(ctx, nil, arguments...)
 	if err != nil {
 		return nil, fmt.Errorf("error while calling embind function %s: %w", name, err)

@@ -534,11 +534,7 @@ func (rpt *registeredPointerType) makeClassHandle(class *classType, record *regi
 		value: 1,
 	}
 
-	if !class.hasGoStruct {
-		return nil, fmt.Errorf("no struct registered for class %s", class.name)
-	}
-
-	classHandle, err := class.getInstanceFromGoStruct(record)
+	classHandle, err := class.getNewInstance(record)
 	if err != nil {
 		return nil, err
 	}

@@ -8,11 +8,11 @@ import (
 	"unicode"
 )
 
-type EmvalConstructor interface {
+type IEmvalConstructor interface {
 	New(argTypes []string, args ...any) (any, error)
 }
 
-type EmvalFunctionMapper interface {
+type IEmvalFunctionMapper interface {
 	MapFunction(name string, returnType string, argTypes []string) (string, error)
 }
 
@@ -269,7 +269,7 @@ func (e *emvalEngine) callMethod(ctx context.Context, mod api.Module, registered
 	var matchedMethod *reflect.Method
 	st := reflect.TypeOf(handle)
 
-	c, ok := handle.(EmvalFunctionMapper)
+	c, ok := handle.(IEmvalFunctionMapper)
 	if ok {
 		argCount := len(registeredMethod.argTypes)
 		argTypeNames := make([]string, argCount-1)

@@ -555,7 +555,7 @@ var EmvalNew = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack 
 	}
 
 	var res any
-	c, ok := handle.(EmvalConstructor)
+	c, ok := handle.(IEmvalConstructor)
 	if ok {
 		res, err = c.New(argTypeNames, args...)
 		if err != nil {

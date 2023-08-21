@@ -3,11 +3,10 @@ package embind
 import (
 	"context"
 	"fmt"
-
 	"github.com/tetratelabs/wazero/api"
 )
 
-type Engine interface {
+type IEngine interface {
 	Attach(ctx context.Context) context.Context
 	CallPublicSymbol(ctx context.Context, name string, arguments ...any) (any, error)
 	RegisterConstant(name string, val any) error
@@ -18,21 +17,27 @@ type Engine interface {
 	EmvalToValue(handle int32) (any, error)
 }
 
-func GetEngineFromContext(ctx context.Context) (Engine, error) {
+type IEngineConfig interface {
+}
+
+type EngineConfig struct {
+}
+
+func GetEngineFromContext(ctx context.Context) (IEngine, error) {
 	raw := ctx.Value(EngineKey{})
 	if raw == nil {
 		return nil, fmt.Errorf("embind engine not found in context")
 	}
 
-	value, ok := raw.(Engine)
+	value, ok := raw.(IEngine)
 	if !ok {
-		return nil, fmt.Errorf("context value %v not of type %T", value, new(Engine))
+		return nil, fmt.Errorf("context value %v not of type %T", value, new(IEngine))
 	}
 
 	return value, nil
 }
 
-func MustGetEngineFromContext(ctx context.Context, mod api.Module) Engine {
+func MustGetEngineFromContext(ctx context.Context, mod api.Module) IEngine {
 	e, err := GetEngineFromContext(ctx)
 	if err != nil {
 		panic(fmt.Errorf("could not get embind engine from context: %w, make sure to create an engine with embind.CreateEngine() and to attach it to the context with \"ctx = context.WithValue(ctx, embind.EngineKey{}, engine)\"", err))
@@ -59,8 +64,9 @@ type EngineKey struct{}
 // CreateEngine returns a new embind engine to attach to your context.
 // Be sure to attach it before you run InstantiateModule on the runtime, unless
 // you run the _start/_initialize function manually.
-func CreateEngine() Engine {
+func CreateEngine(config IEngineConfig) IEngine {
 	return &engine{
+		config:               config,
 		publicSymbols:        map[string]*publicSymbol{},
 		registeredTypes:      map[int32]registeredType{},
 		typeDependencies:     map[int32][]int32{},
