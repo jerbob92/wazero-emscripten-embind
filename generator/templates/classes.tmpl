@@ -27,14 +27,38 @@ func (class *{{ $class.GoName }}) Set{{ $property.GoName }}(ctx context.Context,
 {{ end }}
 {{ end }}
 {{ range $index, $method := $class.Methods }}
-func (class *{{ $class.GoName }}) {{ $method.GoName }}(ctx context.Context) ({{ $method.ReturnType }}, error)  {
-    res, err := class.CallMethod(ctx, class, "{{ $method.Name }}")
+{{ if $method.ReturnType }}
+func (class *{{ $class.GoName }}) {{ $method.GoName }}(ctx context.Context{{ range $index, $argumentType := $method.ArgumentTypes -}}, arg{{ $index }} {{ $argumentType }}{{ end }}) ({{ $method.ReturnType }}, error)  {
+    res, err := class.CallMethod(ctx, class, "{{ $method.Name }}"{{ range $index, $argumentType := $method.ArgumentTypes -}}, arg{{ $index }}{{ end }})
     if err != nil {
         return {{ $method.ErrorValue }}, err
     }
 
     return res.({{ $method.ReturnType }}), nil
 }
+{{ else }}
+func (class *{{ $class.GoName }}) {{ $method.GoName }}(ctx context.Context{{ range $index, $argumentType := $method.ArgumentTypes -}}, arg{{ $index }} {{ $argumentType }}{{ end }}) error {
+    _, err := class.CallMethod(ctx, class, "{{ $method.Name }}"{{ range $index, $argumentType := $method.ArgumentTypes -}}, arg{{ $index }}{{ end }})
+    return err
+}
+{{ end }}
+{{ end }}
+{{ range $index, $method := $class.StaticMethods }}
+{{ if $method.ReturnType }}
+func {{ $class.GoName }}Static{{ $method.GoName }}(e embind.Engine, ctx context.Context{{ range $index, $argumentType := $method.ArgumentTypes -}}, arg{{ $index }} {{ $argumentType }}{{ end }}) ({{ $method.ReturnType }}, error)  {
+    res, err := e.CallPublicSymbol(ctx, "{{ $method.Name }}"{{ range $index, $argumentType := $method.ArgumentTypes -}}, arg{{ $index }}{{ end }})
+    if err != nil {
+        return {{ $method.ErrorValue }}, err
+    }
+
+    return res.({{ $method.ReturnType }}), nil
+}
+{{ else }}
+func {{ $class.GoName }}Static{{ $method.GoName }}(e embind.Engine, ctx context.Context{{ range $index, $argumentType := $method.ArgumentTypes -}}, arg{{ $index }} {{ $argumentType }}{{ end }}) error {
+    _, err := e.CallPublicSymbol(ctx, "{{ $method.Name }}"{{ range $index, $argumentType := $method.ArgumentTypes -}}, arg{{ $index }}{{ end }})
+    return err
+}
+{{ end }}
 {{ end }}
 {{ range $index, $constructor := $class.Constructors }}
 func New{{ $class.GoName }}{{ $constructor.Name }}(e embind.Engine, ctx context.Context{{ range $index, $argumentType := $constructor.ArgumentTypes -}}, arg{{ $index }} {{ $argumentType }}{{ end }}) (*{{ $class.GoName }}, error) {

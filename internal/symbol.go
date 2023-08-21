@@ -19,6 +19,7 @@ type publicSymbol struct {
 	className     string
 	argumentTypes []registeredType
 	resultType    registeredType
+	isStatic      bool
 }
 
 func (ps *publicSymbol) Symbol() string {

@@ -233,6 +233,8 @@ type IClass interface {
 	Type() IType
 	Properties() []IClassProperty
 	Constructors() []IClassConstructor
+	Methods() []IClassMethod
+	StaticMethods() []IClassMethod
 }
 
 type IClassConstructor interface {
@@ -246,6 +248,12 @@ type IClassProperty interface {
 	GetterType() IType
 	SetterType() IType
 	ReadOnly() bool
+}
+
+type IClassMethod interface {
+	Symbol() string
+	ReturnType() IType
+	ArgumentTypes() []IType
 }
 
 func (erc *classType) Name() string {
@@ -264,6 +272,32 @@ func (erc *classType) Properties() []IClassProperty {
 	}
 
 	return properties
+}
+
+func (erc *classType) Methods() []IClassMethod {
+	methods := make([]IClassMethod, 0)
+
+	for i := range erc.methods {
+		if erc.methods[i].isStatic {
+			continue
+		}
+		methods = append(methods, erc.methods[i])
+	}
+
+	return methods
+}
+
+func (erc *classType) StaticMethods() []IClassMethod {
+	methods := make([]IClassMethod, 0)
+
+	for i := range erc.methods {
+		if !erc.methods[i].isStatic {
+			continue
+		}
+		methods = append(methods, erc.methods[i])
+	}
+
+	return methods
 }
 
 type exposedClassConstructor struct {

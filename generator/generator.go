@@ -146,6 +146,9 @@ func main() {
 	}
 
 	generateGoName := func(name string) string {
+		if len(name) == 0 {
+			return name
+		}
 		upperFirst := string(unicode.ToUpper(rune(name[0]))) + name[1:]
 		return upperFirst
 	}
@@ -274,6 +277,10 @@ func main() {
 			class.Constructors = append(class.Constructors, constructor)
 		}
 
+		sort.Slice(class.Constructors, func(i, j int) bool {
+			return class.Constructors[i].Name < class.Constructors[j].Name
+		})
+
 		properties := classes[i].Properties()
 		for pi := range properties {
 			property := TemplateClassProperty{
@@ -290,6 +297,56 @@ func main() {
 
 			class.Properties = append(class.Properties, property)
 		}
+
+		sort.Slice(class.Properties, func(i, j int) bool {
+			return class.Properties[i].GoName < class.Properties[j].GoName
+		})
+
+		methods := classes[i].Methods()
+		for mi := range methods {
+			exposedArgumentTypes := methods[mi].ArgumentTypes()
+			argumentTypes := make([]string, len(exposedArgumentTypes))
+			for i := range exposedArgumentTypes {
+				argumentTypes[i] = typeNameToGeneratedName(exposedArgumentTypes[i].Type(), exposedArgumentTypes[i].IsClass(), exposedArgumentTypes[i].IsEnum())
+			}
+
+			method := TemplateClassMethod{
+				Name:          methods[mi].Symbol(),
+				GoName:        generateGoName(methods[mi].Symbol()),
+				ArgumentTypes: argumentTypes,
+				ReturnType:    typeNameToGeneratedName(methods[mi].ReturnType().Type(), methods[mi].ReturnType().IsClass(), methods[mi].ReturnType().IsEnum()),
+				ErrorValue:    typeNameToErrorValue(methods[mi].ReturnType().Type(), methods[mi].ReturnType().IsClass(), methods[mi].ReturnType().IsEnum()),
+			}
+
+			class.Methods = append(class.Methods, method)
+		}
+
+		sort.Slice(class.Methods, func(i, j int) bool {
+			return class.Methods[i].GoName < class.Methods[j].GoName
+		})
+
+		staticMethods := classes[i].StaticMethods()
+		for smi := range staticMethods {
+			exposedArgumentTypes := staticMethods[smi].ArgumentTypes()
+			argumentTypes := make([]string, len(exposedArgumentTypes))
+			for i := range exposedArgumentTypes {
+				argumentTypes[i] = typeNameToGeneratedName(exposedArgumentTypes[i].Type(), exposedArgumentTypes[i].IsClass(), exposedArgumentTypes[i].IsEnum())
+			}
+
+			method := TemplateClassMethod{
+				Name:          staticMethods[smi].Symbol(),
+				GoName:        generateGoName(staticMethods[smi].Symbol()),
+				ArgumentTypes: argumentTypes,
+				ReturnType:    typeNameToGeneratedName(staticMethods[smi].ReturnType().Type(), staticMethods[smi].ReturnType().IsClass(), staticMethods[smi].ReturnType().IsEnum()),
+				ErrorValue:    typeNameToErrorValue(staticMethods[smi].ReturnType().Type(), staticMethods[smi].ReturnType().IsClass(), staticMethods[smi].ReturnType().IsEnum()),
+			}
+
+			class.StaticMethods = append(class.StaticMethods, method)
+		}
+
+		sort.Slice(class.StaticMethods, func(i, j int) bool {
+			return class.StaticMethods[i].GoName < class.StaticMethods[j].GoName
+		})
 
 		data.Classes = append(data.Classes, class)
 	}
@@ -370,11 +427,12 @@ type TemplateEnumValue struct {
 }
 
 type TemplateClass struct {
-	Name         string
-	GoName       string
-	Constructors []TemplateClassConstructor
-	Properties   []TemplateClassProperty
-	Methods      []TemplateClassMethods
+	Name          string
+	GoName        string
+	Constructors  []TemplateClassConstructor
+	Properties    []TemplateClassProperty
+	Methods       []TemplateClassMethod
+	StaticMethods []TemplateClassMethod
 }
 
 type TemplateClassProperty struct {
@@ -386,7 +444,7 @@ type TemplateClassProperty struct {
 	ErrorValue string
 }
 
-type TemplateClassMethods struct {
+type TemplateClassMethod struct {
 	GoName        string
 	Name          string
 	ArgumentTypes []string

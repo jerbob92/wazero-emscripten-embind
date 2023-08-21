@@ -244,9 +244,12 @@ func (e *engine) ensureOverloadTable(registry map[string]*publicSymbol, methodNa
 		// Move the previous function into the overload table.
 		registry[methodName].overloadTable = map[int32]*publicSymbol{}
 		registry[methodName].overloadTable[*prevArgCount] = &publicSymbol{
-			name:     methodName,
-			argCount: prevArgCount,
-			fn:       prevFunc,
+			name:          methodName,
+			resultType:    registry[methodName].resultType,
+			argumentTypes: registry[methodName].argumentTypes,
+			argCount:      prevArgCount,
+			fn:            prevFunc,
+			isStatic:      registry[methodName].isStatic,
 		}
 	}
 }

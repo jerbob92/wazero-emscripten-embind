@@ -1129,7 +1129,10 @@ var RegisterClassFunction = api.GoModuleFunc(func(ctx context.Context, mod api.M
 			}
 
 			memberFunction := &publicSymbol{
-				fn: engine.craftInvokerFunction(humanName, argTypes, classType, rawInvokerFunc, contextPtr, isAsync > 0),
+				name:          methodName,
+				resultType:    argTypes[0],
+				argumentTypes: argTypes[2:],
+				fn:            engine.craftInvokerFunction(humanName, argTypes, classType, rawInvokerFunc, contextPtr, isAsync > 0),
 			}
 
 			// Replace the initial unbound-handler-stub function with the appropriate member function, now that all types
@@ -1217,7 +1220,11 @@ var RegisterClassClassFunction = api.GoModuleFunc(func(ctx context.Context, mod 
 			}
 
 			memberFunction := &publicSymbol{
-				fn: engine.craftInvokerFunction(humanName, invokerArgsArray, nil, rawInvokerFunc, fn, isAsync > 0),
+				name:          methodName,
+				argumentTypes: argTypes[1:],
+				resultType:    argTypes[0],
+				isStatic:      true,
+				fn:            engine.craftInvokerFunction(humanName, invokerArgsArray, nil, rawInvokerFunc, fn, isAsync > 0),
 			}
 
 			// Replace the initial unbound-handler-stub function with the appropriate member function, now that all types
