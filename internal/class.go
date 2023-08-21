@@ -257,10 +257,6 @@ func (ecb *EmvalClassBase) SetProperty(ctx context.Context, this any, name strin
 		return fmt.Errorf("property %s is not found on %T", name, this)
 	}
 
-	if property.set == nil {
-		return fmt.Errorf("property %s on %T does not have a setter", name, this)
-	}
-
 	// Ensure that the engine is attached. Allows setting properties on the
 	// class without keeping track of the engine.
 	ctx = ecb.engine.Attach(ctx)
@@ -276,11 +272,6 @@ func (ecb *EmvalClassBase) GetProperty(ctx context.Context, this any, name strin
 	// Ensure that the engine is attached. Allows setting properties on the
 	// class without keeping track of the engine.
 	ctx = ecb.engine.Attach(ctx)
-
-	if property.get == nil {
-		return nil, fmt.Errorf("property %s on %T does not have a getter", name, this)
-	}
-
 	return property.get(ctx, this)
 }
 
