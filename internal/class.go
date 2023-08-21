@@ -10,8 +10,8 @@ import (
 type classProperty struct {
 	enumerable   bool
 	configurable bool
-	set          func(ctx context.Context, mod api.Module, this any, v any) error
-	get          func(ctx context.Context, mod api.Module, this any) (any, error)
+	set          func(ctx context.Context, this any, v any) error
+	get          func(ctx context.Context, this any) (any, error)
 }
 
 type classConstructor struct {
@@ -238,6 +238,51 @@ func (ecb *EmvalClassBase) Delete(ctx context.Context, handle IEmvalClassBase) e
 	return ecb.classType.delete(ctx, handle)
 }
 
+func (ecb *EmvalClassBase) CallMethod(ctx context.Context, this any, name string, arguments ...any) (any, error) {
+	method, ok := ecb.classType.methods[name]
+	if !ok {
+		return nil, fmt.Errorf("method %s is not found on %T", name, this)
+	}
+
+	// Ensure that the engine is attached. Allows calling methods on the class
+	// without keeping track of the engine.
+	ctx = ecb.engine.Attach(ctx)
+	return method.fn(ctx, this, arguments)
+}
+
+func (ecb *EmvalClassBase) SetProperty(ctx context.Context, this any, name string, value any) error {
+	property, ok := ecb.classType.properties[name]
+	if !ok {
+		return fmt.Errorf("property %s is not found on %T", name, this)
+	}
+
+	if property.set == nil {
+		return fmt.Errorf("property %s on %T does not have a setter", name, this)
+	}
+
+	// Ensure that the engine is attached. Allows setting properties on the
+	// class without keeping track of the engine.
+	ctx = ecb.engine.Attach(ctx)
+	return property.set(ctx, this, value)
+}
+
+func (ecb *EmvalClassBase) GetProperty(ctx context.Context, this any, name string) (any, error) {
+	property, ok := ecb.classType.properties[name]
+	if !ok {
+		return nil, fmt.Errorf("property %s is not found on %T", name, this)
+	}
+
+	// Ensure that the engine is attached. Allows setting properties on the
+	// class without keeping track of the engine.
+	ctx = ecb.engine.Attach(ctx)
+
+	if property.get == nil {
+		return nil, fmt.Errorf("property %s on %T does not have a getter", name, this)
+	}
+
+	return property.get(ctx, this)
+}
+
 type IEmvalClassBase interface {
 	getClassType() *classType
 	getPtr() uint32
@@ -246,4 +291,7 @@ type IEmvalClassBase interface {
 	isValid() bool
 	Clone(from IEmvalClassBase) (IEmvalClassBase, error)
 	Delete(ctx context.Context, handle IEmvalClassBase) error
+	CallMethod(ctx context.Context, this any, name string, arguments ...any) (any, error)
+	SetProperty(ctx context.Context, this any, name string, value any) error
+	GetProperty(ctx context.Context, this any, name string) (any, error)
 }
