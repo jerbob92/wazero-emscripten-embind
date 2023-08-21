@@ -3,9 +3,10 @@ package embind
 import (
 	"context"
 	"fmt"
-	"github.com/tetratelabs/wazero/api"
 	"reflect"
 	"unicode"
+
+	"github.com/tetratelabs/wazero/api"
 )
 
 type IEmvalConstructor interface {

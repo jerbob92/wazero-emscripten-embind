@@ -117,7 +117,7 @@ func (e functionExporter) ExportFunctions(b wazero.HostModuleBuilder) error {
 	b.NewFunctionBuilder().
 		WithName("_embind_register_constant").
 		WithParameterNames("rawType", "type", "value").
-		WithGoModuleFunction(internal.Constant, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeF64}, []api.ValueType{}).
+		WithGoModuleFunction(internal.RegisterConstant, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeF64}, []api.ValueType{}).
 		Export("_embind_register_constant")
 
 	b.NewFunctionBuilder().

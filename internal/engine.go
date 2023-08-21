@@ -34,21 +34,6 @@ func (e *engine) Attach(ctx context.Context) context.Context {
 	return context.WithValue(ctx, EngineKey{}, e)
 }
 
-func (e *engine) CallPublicSymbol(ctx context.Context, name string, arguments ...any) (any, error) {
-	_, ok := e.publicSymbols[name]
-	if !ok {
-		return nil, fmt.Errorf("could not find public symbol %s", name)
-	}
-
-	ctx = e.Attach(ctx)
-	res, err := e.publicSymbols[name].fn(ctx, nil, arguments...)
-	if err != nil {
-		return nil, fmt.Errorf("error while calling embind function %s: %w", name, err)
-	}
-
-	return res, nil
-}
-
 func (e *engine) RegisterConstant(name string, val any) error {
 	_, ok := e.registeredConstants[name]
 	if !ok {
@@ -238,27 +223,28 @@ func (e *engine) registerType(rawType int32, registeredInstance registeredType, 
 }
 
 func (e *engine) ensureOverloadTable(registry map[string]*publicSymbol, methodName, humanName string) {
-	if e.publicSymbols[methodName].overloadTable == nil {
-		prevFunc := e.publicSymbols[methodName].fn
-		prevArgCount := e.publicSymbols[methodName].argCount
+	if registry[methodName].overloadTable == nil {
+		prevFunc := registry[methodName].fn
+		prevArgCount := registry[methodName].argCount
 
 		// Inject an overload resolver function that routes to the appropriate overload based on the number of arguments.
-		e.publicSymbols[methodName].fn = func(ctx context.Context, this any, arguments ...any) (any, error) {
-			_, ok := e.publicSymbols[methodName].overloadTable[int32(len(arguments))]
+		registry[methodName].fn = func(ctx context.Context, this any, arguments ...any) (any, error) {
+			_, ok := registry[methodName].overloadTable[int32(len(arguments))]
 			if !ok {
-				possibleOverloads := make([]string, len(e.publicSymbols[methodName].overloadTable))
-				for i := range e.publicSymbols[methodName].overloadTable {
+				possibleOverloads := make([]string, len(registry[methodName].overloadTable))
+				for i := range registry[methodName].overloadTable {
 					possibleOverloads = append(possibleOverloads, strconv.Itoa(int(i)))
 				}
 				return nil, fmt.Errorf("function '%s' called with an invalid number of arguments (%d) - expects one of (%s)", humanName, len(arguments), strings.Join(possibleOverloads, ", "))
 			}
 
-			return e.publicSymbols[methodName].overloadTable[int32(len(arguments))].fn(ctx, e.mod, this, arguments)
+			return registry[methodName].overloadTable[int32(len(arguments))].fn(ctx, e.mod, this, arguments)
 		}
 
 		// Move the previous function into the overload table.
-		e.publicSymbols[methodName].overloadTable = map[int32]*publicSymbol{}
-		e.publicSymbols[methodName].overloadTable[*prevArgCount] = &publicSymbol{
+		registry[methodName].overloadTable = map[int32]*publicSymbol{}
+		registry[methodName].overloadTable[*prevArgCount] = &publicSymbol{
+			name:     methodName,
 			argCount: prevArgCount,
 			fn:       prevFunc,
 		}
@@ -286,12 +272,14 @@ func (e *engine) exposePublicSymbol(name string, value publicSymbolFn, numArgume
 
 		// Add the new function into the overload table.
 		e.publicSymbols[name].overloadTable[*numArguments] = &publicSymbol{
+			name:     name,
 			argCount: numArguments,
 			fn:       value,
 		}
 	} else {
 		e.publicSymbols[name] = &publicSymbol{
-			fn: value,
+			name: name,
+			fn:   value,
 		}
 
 		if numArguments != nil {
@@ -302,7 +290,7 @@ func (e *engine) exposePublicSymbol(name string, value publicSymbolFn, numArgume
 	return nil
 }
 
-func (e *engine) replacePublicSymbol(name string, value func(ctx context.Context, this any, arguments ...any) (any, error), numArguments *int32) error {
+func (e *engine) replacePublicSymbol(name string, value func(ctx context.Context, this any, arguments ...any) (any, error), numArguments *int32, argumentTypes []registeredType, resultType registeredType) error {
 	_, ok := e.publicSymbols[name]
 	if !ok {
 		return fmt.Errorf("tried to replace a nonexistant public symbol %s", name)
@@ -311,13 +299,19 @@ func (e *engine) replacePublicSymbol(name string, value func(ctx context.Context
 	// If there's an overload table for this symbol, replace the symbol in the overload table instead.
 	if e.publicSymbols[name].overloadTable != nil && numArguments != nil {
 		e.publicSymbols[name].overloadTable[*numArguments] = &publicSymbol{
-			argCount: numArguments,
-			fn:       value,
+			name:          name,
+			argCount:      numArguments,
+			fn:            value,
+			argumentTypes: argumentTypes,
+			resultType:    resultType,
 		}
 	} else {
 		e.publicSymbols[name] = &publicSymbol{
-			argCount: numArguments,
-			fn:       value,
+			name:          name,
+			argCount:      numArguments,
+			fn:            value,
+			argumentTypes: argumentTypes,
+			resultType:    resultType,
 		}
 	}
 

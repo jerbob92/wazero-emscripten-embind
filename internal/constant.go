@@ -1,6 +1,14 @@
 package embind
 
-import "fmt"
+import (
+	"fmt"
+)
+
+type IConstant interface {
+	Name() string
+	Value() any
+	Type() IType
+}
 
 type registeredConstant struct {
 	registeredType registeredType
@@ -20,4 +28,24 @@ func (rc *registeredConstant) validate() error {
 	}
 
 	return nil
+}
+
+func (rc *registeredConstant) Name() string {
+	return rc.name
+}
+
+func (rc *registeredConstant) Value() any {
+	return rc.cppValue
+}
+
+func (rc *registeredConstant) Type() IType {
+	return &exposedType{registeredType: rc.registeredType}
+}
+
+func (e *engine) GetConstants() []IConstant {
+	constants := make([]IConstant, 0)
+	for i := range e.registeredConstants {
+		constants = append(constants, e.registeredConstants[i])
+	}
+	return constants
 }

@@ -64,23 +64,41 @@ type registeredType interface {
 	GoType() string
 }
 
+type IType interface {
+	Name() string
+	Type() string
+	IsClass() bool
+	IsEnum() bool
+}
+
+type exposedType struct {
+	registeredType registeredType
+}
+
+func (et *exposedType) Type() string {
+	return et.registeredType.GoType()
+}
+
+func (et *exposedType) Name() string {
+	return et.registeredType.Name()
+}
+
+func (et *exposedType) IsClass() bool {
+	_, ok := et.registeredType.(*registeredPointerType)
+	return ok
+}
+
+func (et *exposedType) IsEnum() bool {
+	_, ok := et.registeredType.(*enumType)
+	return ok
+}
+
 type registerTypeOptions struct {
 	ignoreDuplicateRegistrations bool
 }
 
 type awaitingDependency struct {
 	cb func() error
-}
-
-type publicSymbol struct {
-	argCount      *int32
-	overloadTable map[int32]*publicSymbol
-	fn            publicSymbolFn
-	className     string
-}
-
-type PublicSymbol interface {
-	Call(ctx context.Context, this any, arguments ...any) (any, error)
 }
 
 type registeredPointer struct {

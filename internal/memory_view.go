@@ -3,8 +3,9 @@ package embind
 import (
 	"context"
 	"fmt"
-	"github.com/tetratelabs/wazero/api"
 	"unsafe"
+
+	"github.com/tetratelabs/wazero/api"
 )
 
 type memoryViewType struct {

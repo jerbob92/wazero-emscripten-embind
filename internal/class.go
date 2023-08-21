@@ -3,26 +3,51 @@ package embind
 import (
 	"context"
 	"fmt"
-	"github.com/tetratelabs/wazero/api"
 	"reflect"
+
+	"github.com/tetratelabs/wazero/api"
 )
 
 type classProperty struct {
+	name         string
 	enumerable   bool
 	configurable bool
 	readOnly     bool
+	setterType   registeredType
+	getterType   registeredType
 	set          func(ctx context.Context, this any, v any) error
 	get          func(ctx context.Context, this any) (any, error)
 }
 
+func (cp *classProperty) Name() string {
+	return cp.name
+}
+
+func (cp *classProperty) GetterType() IType {
+	return &exposedType{
+		registeredType: cp.getterType,
+	}
+}
+
+func (cp *classProperty) SetterType() IType {
+	return &exposedType{
+		registeredType: cp.setterType,
+	}
+}
+
+func (cp *classProperty) ReadOnly() bool {
+	return cp.readOnly
+}
+
 type classConstructor struct {
-	fn         publicSymbolFn
-	argTypes   []string
-	resultType string
+	fn            publicSymbolFn
+	argumentTypes []registeredType
+	resultType    registeredType
 }
 
 type classType struct {
 	baseType
+	legalFunctionName    string
 	baseClass            *classType
 	rawDestructor        api.Function
 	getActualType        api.Function
@@ -51,7 +76,7 @@ func (erc *classType) ReadValueFromPointer(ctx context.Context, mod api.Module, 
 }
 
 func (erc *classType) GoType() string {
-	return erc.name
+	return erc.legalFunctionName
 }
 
 func (erc *classType) validate() error {
@@ -201,6 +226,92 @@ func (erc *classType) getNewInstance(record *registeredPointerTypeRecord) (IEmva
 	}
 
 	return classBase, nil
+}
+
+type IClass interface {
+	Name() string
+	Type() IType
+	Properties() []IClassProperty
+	Constructors() []IClassConstructor
+}
+
+type IClassConstructor interface {
+	Name() string
+	Symbol() string
+	ArgumentTypes() []IType
+}
+
+type IClassProperty interface {
+	Name() string
+	GetterType() IType
+	SetterType() IType
+	ReadOnly() bool
+}
+
+func (erc *classType) Name() string {
+	return erc.legalFunctionName
+}
+
+func (erc *classType) Type() IType {
+	return &exposedType{registeredType: erc}
+}
+
+func (erc *classType) Properties() []IClassProperty {
+	properties := make([]IClassProperty, 0)
+
+	for i := range erc.properties {
+		properties = append(properties, erc.properties[i])
+	}
+
+	return properties
+}
+
+type exposedClassConstructor struct {
+	name             string
+	classConstructor *classConstructor
+}
+
+func (ecc *exposedClassConstructor) Name() string {
+	return ecc.name
+}
+
+func (ecc *exposedClassConstructor) Symbol() string {
+	return ecc.name
+}
+
+func (ecc *exposedClassConstructor) ArgumentTypes() []IType {
+	exposedTypes := make([]IType, len(ecc.classConstructor.argumentTypes))
+	for i := range ecc.classConstructor.argumentTypes {
+		exposedTypes[i] = &exposedType{ecc.classConstructor.argumentTypes[i]}
+	}
+	return exposedTypes
+}
+
+func (erc *classType) Constructors() []IClassConstructor {
+	constructors := make([]IClassConstructor, 0)
+
+	for i := range erc.constructors {
+		constructor := &exposedClassConstructor{
+			name:             "",
+			classConstructor: erc.constructors[i],
+		}
+
+		if len(erc.constructors) > 1 {
+			constructor.name = fmt.Sprintf("%d", i)
+		}
+
+		constructors = append(constructors, constructor)
+	}
+
+	return constructors
+}
+
+func (e *engine) GetClasses() []IClass {
+	classes := make([]IClass, 0)
+	for i := range e.registeredClasses {
+		classes = append(classes, e.registeredClasses[i])
+	}
+	return classes
 }
 
 type EmvalClassBase struct {

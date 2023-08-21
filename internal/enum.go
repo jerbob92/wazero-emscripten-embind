@@ -3,6 +3,7 @@ package embind
 import (
 	"context"
 	"fmt"
+
 	"github.com/tetratelabs/wazero/api"
 )
 
@@ -20,6 +21,14 @@ type enumValue struct {
 	goValue     any
 }
 
+func (ev *enumValue) Name() string {
+	return ev.name
+}
+
+func (ev *enumValue) Value() any {
+	return ev.cppValue
+}
+
 func (ev *enumValue) validate() error {
 	if ev.hasGoValue && ev.hasCppValue {
 		if ev.goValue != ev.cppValue {
@@ -28,6 +37,17 @@ func (ev *enumValue) validate() error {
 	}
 
 	return nil
+}
+
+type IEnum interface {
+	Name() string
+	Type() IType
+	Values() []IEnumValue
+}
+
+type IEnumValue interface {
+	Name() string
+	Value() any
 }
 
 type enumType struct {
@@ -101,4 +121,28 @@ func (et *enumType) mapToGoEnum(value any) (any, error) {
 func (et *enumType) GoType() string {
 	// @todo: use Go name when registered?
 	return et.name
+}
+
+func (et *enumType) Type() IType {
+	return &exposedType{registeredType: &et.intHelper}
+}
+
+func (et *enumType) Name() string {
+	return et.name
+}
+
+func (et *enumType) Values() []IEnumValue {
+	values := make([]IEnumValue, 0)
+	for i := range et.valuesByName {
+		values = append(values, et.valuesByName[i])
+	}
+	return values
+}
+
+func (e *engine) GetEnums() []IEnum {
+	enums := make([]IEnum, 0)
+	for i := range e.registeredEnums {
+		enums = append(enums, e.registeredEnums[i])
+	}
+	return enums
 }

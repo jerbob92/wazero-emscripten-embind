@@ -59,7 +59,7 @@ var RegisterFunction = api.GoModuleFunc(func(ctx context.Context, mod api.Module
 			return nil, fmt.Errorf("could not create _embind_register_function invoke func: %w", err)
 		}
 
-		err = engine.replacePublicSymbol(name, engine.craftInvokerFunction(name, invokerArgsArray, nil /* no class 'this'*/, invokerFunc, fn, isAsync), &publicSymbolArgs)
+		err = engine.replacePublicSymbol(name, engine.craftInvokerFunction(name, invokerArgsArray, nil /* no class 'this'*/, invokerFunc, fn, isAsync), &publicSymbolArgs, argTypes[1:], argTypes[0])
 		if err != nil {
 			return nil, err
 		}
@@ -309,7 +309,7 @@ var RegisterMemoryView = api.GoModuleFunc(func(ctx context.Context, mod api.Modu
 	}
 })
 
-var Constant = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
+var RegisterConstant = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
 	engine := MustGetEngineFromContext(ctx, mod).(*engine)
 
 	name, err := engine.readCString(uint32(api.DecodeI32(stack[0])))
@@ -339,6 +339,7 @@ var Constant = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack 
 			}
 		}
 
+		engine.registeredConstants[name].registeredType = registeredType
 		engine.registeredConstants[name].hasCppValue = true
 		engine.registeredConstants[name].cppValue = val
 		engine.registeredConstants[name].rawCppValue = constantValue
@@ -909,6 +910,7 @@ var RegisterClass = api.GoModuleFunc(func(ctx context.Context, mod api.Module, s
 		}
 
 		engine.registeredClasses[name].hasCppClass = true
+		engine.registeredClasses[name].legalFunctionName = legalFunctionName
 		engine.registeredClasses[name].rawDestructor = rawDestructorFunc
 		engine.registeredClasses[name].getActualType = getActualTypeFunc
 		engine.registeredClasses[name].upcast = upcastFunc
@@ -981,7 +983,7 @@ var RegisterClass = api.GoModuleFunc(func(ctx context.Context, mod api.Module, s
 			}
 
 			return constructor.fn(ctx, nil, arguments...)
-		}, nil)
+		}, nil, nil, referenceConverter)
 
 		if err != nil {
 			panic(fmt.Errorf("could not replace public symbol: %w", err))
@@ -1034,12 +1036,10 @@ var RegisterClassConstructor = api.GoModuleFunc(func(ctx context.Context, mod ap
 				newArgTypes = append(newArgTypes, argTypes[1:]...)
 			}
 
-			goTypes := make([]string, len(newArgTypes[2:]))
 			expectedParamTypes := make([]api.ValueType, len(newArgTypes[2:])+1)
 			expectedParamTypes[0] = api.ValueTypeI32 // fn
 			for i := range newArgTypes[2:] {
 				expectedParamTypes[i+1] = newArgTypes[i+2].NativeType()
-				goTypes[i] = newArgTypes[i+2].GoType()
 			}
 
 			invokerFunc, err := engine.newInvokeFunc(invokerSignature, invoker, expectedParamTypes, []api.ValueType{argTypes[0].NativeType()})
@@ -1047,8 +1047,8 @@ var RegisterClassConstructor = api.GoModuleFunc(func(ctx context.Context, mod ap
 				return nil, fmt.Errorf("could not create invoke func: %w", err)
 			}
 
-			classType.registeredClass.constructors[argCount-1].resultType = argTypes[0].GoType()
-			classType.registeredClass.constructors[argCount-1].argTypes = goTypes
+			classType.registeredClass.constructors[argCount-1].resultType = argTypes[0]
+			classType.registeredClass.constructors[argCount-1].argumentTypes = argTypes[1:]
 			classType.registeredClass.constructors[argCount-1].fn = engine.craftInvokerFunction(humanName, newArgTypes, nil, invokerFunc, rawConstructor, false)
 			return []registeredType{}, err
 		})
@@ -1274,6 +1274,7 @@ var RegisterClassProperty = api.GoModuleFunc(func(ctx context.Context, mod api.M
 		humanName := classType.Name() + "." + fieldName
 
 		desc := &classProperty{
+			name: fieldName,
 			get: func(ctx context.Context, this any) (any, error) {
 				return nil, engine.createUnboundTypeError(ctx, fmt.Sprintf("Cannot access %s due to unbound types", humanName), []int32{getterReturnType, setterArgumentType})
 			},
@@ -1308,6 +1309,8 @@ var RegisterClassProperty = api.GoModuleFunc(func(ctx context.Context, mod api.M
 			}
 
 			desc := &classProperty{
+				name:       fieldName,
+				getterType: getterReturnType,
 				get: func(ctx context.Context, this any) (any, error) {
 					ptr, err := engine.validateThis(ctx, this, classType, humanName+" getter")
 					if err != nil {
@@ -1330,6 +1333,7 @@ var RegisterClassProperty = api.GoModuleFunc(func(ctx context.Context, mod api.M
 					return nil, fmt.Errorf("could not create _embind_register_class_property setterFunc: %w", err)
 				}
 
+				desc.setterType = setterArgumentType
 				desc.set = func(ctx context.Context, this any, v any) error {
 					ptr, err := engine.validateThis(ctx, this, classType, humanName+" setter")
 					if err != nil {

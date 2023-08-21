@@ -9,9 +9,13 @@ import (
 type IEngine interface {
 	Attach(ctx context.Context) context.Context
 	CallPublicSymbol(ctx context.Context, name string, arguments ...any) (any, error)
+	GetSymbols() []ISymbol
 	RegisterConstant(name string, val any) error
+	GetConstants() []IConstant
 	RegisterEnum(name string, enum Enum) error
+	GetEnums() []IEnum
 	RegisterClass(name string, class any) error
+	GetClasses() []IClass
 	RegisterEmvalSymbol(name string, symbol any) error
 	EmvalToHandle(value any) int32
 	EmvalToValue(handle int32) (any, error)

@@ -3,8 +3,9 @@ package embind
 import (
 	"context"
 	"fmt"
-	"github.com/tetratelabs/wazero/api"
 	"reflect"
+
+	"github.com/tetratelabs/wazero/api"
 )
 
 type registeredPointerType struct {
