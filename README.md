@@ -258,9 +258,9 @@ A few things to note:
 * If your function returns an error, the whole call where the Emval call originated from will fail
 * You can use the `embind_arg` tag to tell the Engine which argument index should end up in which property in
   case `.new_()` is used on the C++ side
-* You can implement the `embind.EmvalConstructor` interface on the struct to make your own constructor
-* You can use the `embind_property` tag to tell the Engine which property should be access when a set or get is done in
-  C++
+* Or you can implement the `embind.EmvalConstructor` interface on the struct to make your own constructor
+* You can use the `embind_property` tag to tell the Engine which property should be accessed when a set or get is done 
+  in C++
 * You can implement the `embind.EmvalFunctionMapper` interface on the struct to map function calls on your struct based
   on the arguments (and/or length) and name
 
