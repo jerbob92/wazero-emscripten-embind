@@ -33,6 +33,9 @@ jobs:
       - name: Test all packages
         run: |
           go test -timeout 30m ./... -v
+      - name: Test generation of examples
+        run: |
+          go generate ./...
       - name: Test implementation for coverage
         if: matrix.os == 'ubuntu-latest' && matrix.go == env.COVERAGE_GO_VERSION
         run: |
