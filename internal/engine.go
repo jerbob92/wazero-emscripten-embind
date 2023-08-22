@@ -89,7 +89,7 @@ func (e *engine) RegisterEnum(name string, enum Enum) error {
 		registeredEnum.valuesByGoValue[values[i]] = registeredEnum.valuesByName[i]
 	}
 
-	return e.registeredEnums[name].validate()
+	return nil
 }
 
 func (e *engine) RegisterEmvalSymbol(name string, symbol any) error {

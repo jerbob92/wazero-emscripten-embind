@@ -5,7 +5,7 @@ type {{ $enum.GoName }} {{ $enum.GoType }}
 
 const (
     {{- range $index, $value := $enum.Values }}
-    {{ $enum.GoName }}_{{ $value.GoName }} {{ $enum.GoType }} = {{ $value.Value -}}
+    {{ $enum.GoName }}_{{ $value.GoName }} {{ $enum.GoName }} = {{ $value.Value -}}
     {{ end }}
 )
 

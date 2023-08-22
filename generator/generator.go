@@ -1,16 +1,13 @@
 package main
 
 import (
+	"bytes"
 	"context"
 	"embed"
 	"flag"
 	"fmt"
-	"github.com/jerbob92/wazero-emscripten-embind"
-	"github.com/tetratelabs/wazero"
-	"github.com/tetratelabs/wazero/imports/emscripten"
-	"github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1"
+	"go/format"
 	"go/token"
-	"golang.org/x/tools/go/packages"
 	"log"
 	"os"
 	"path"
@@ -19,6 +16,13 @@ import (
 	"strings"
 	"text/template"
 	"unicode"
+
+	"github.com/jerbob92/wazero-emscripten-embind"
+
+	"github.com/tetratelabs/wazero"
+	"github.com/tetratelabs/wazero/imports/emscripten"
+	"github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1"
+	"golang.org/x/tools/go/packages"
 )
 
 var (
@@ -167,7 +171,7 @@ func main() {
 
 	typeNameToErrorValue := func(name string, isClass, isEnum bool) string {
 		convertedName := typeNameToGeneratedName(name, isClass, isEnum)
-		if isClass || strings.HasPrefix(convertedName, "[]") || strings.HasPrefix(convertedName, "map[") {
+		if isClass || convertedName == "any" || strings.HasPrefix(convertedName, "[]") || strings.HasPrefix(convertedName, "map[") {
 			return "nil"
 		}
 
@@ -215,7 +219,7 @@ func main() {
 
 		symbol := TemplateSymbol{
 			Symbol:        symbols[i].Symbol(),
-			GoName:        "Symbol" + generateGoName(symbols[i].Symbol()),
+			GoName:        generateGoName(symbols[i].Symbol()),
 			ArgumentTypes: argumentTypes,
 			ReturnType:    typeNameToGeneratedName(symbols[i].ReturnType().Type(), symbols[i].ReturnType().IsClass(), symbols[i].ReturnType().IsEnum()),
 			ErrorValue:    typeNameToErrorValue(symbols[i].ReturnType().Type(), symbols[i].ReturnType().IsClass(), symbols[i].ReturnType().IsEnum()),
@@ -366,9 +370,9 @@ func main() {
 		_ = os.Remove(path.Join(dir, "constants.go"))
 	}
 	if len(data.Symbols) > 0 {
-		ExecuteTemplate(templates, "symbols.tmpl", path.Join(dir, "symbols.go"), data)
+		ExecuteTemplate(templates, "functions.tmpl", path.Join(dir, "functions.go"), data)
 	} else {
-		_ = os.Remove(path.Join(dir, "symbols.go"))
+		_ = os.Remove(path.Join(dir, "functions.go"))
 	}
 	if len(data.Enums) > 0 {
 		ExecuteTemplate(templates, "enums.tmpl", path.Join(dir, "enums.go"), data)
@@ -383,13 +387,24 @@ var TemplateFunctions = template.FuncMap{
 }
 
 func ExecuteTemplate(tmpl *template.Template, name string, path string, data TemplateData) {
-	writer, err := os.Create(path)
+	writer := bytes.NewBuffer(nil)
+	err := tmpl.ExecuteTemplate(writer, name, data)
 	if err != nil {
 		panic(err)
 	}
-	defer writer.Close()
 
-	err = tmpl.ExecuteTemplate(writer, name, data)
+	fileBytes := writer.Bytes()
+	formattedSource, err := format.Source(fileBytes)
+	if err != nil {
+		panic(err)
+	}
+
+	fileWriter, err := os.Create(path)
+	if err != nil {
+		panic(err)
+	}
+	defer fileWriter.Close()
+	_, err = fileWriter.Write(formattedSource)
 	if err != nil {
 		panic(err)
 	}

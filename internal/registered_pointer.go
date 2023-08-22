@@ -235,10 +235,12 @@ func (rpt *registeredPointerType) constNoSmartPtrRawPointerToWireType(ctx contex
 	}
 
 	handle := o.(IEmvalClassBase)
-
-	// @todo: can we do this without reflection?
-	if !handle.isValid() || reflect.ValueOf(handle).Elem().FieldByName("EmvalClassBase").IsNil() {
-		return 0, fmt.Errorf("invalid %s, check whether you constructed it properly through embind", rpt.name)
+	_, isBaseClass := o.(*EmvalClassBase)
+	if !isBaseClass {
+		// @todo: can we do this without reflection?
+		if !handle.isValid() || reflect.ValueOf(handle).Elem().FieldByName("EmvalClassBase").IsNil() {
+			return 0, fmt.Errorf("invalid %s, check whether you constructed it properly through embind", rpt.name)
+		}
 	}
 
 	registeredPtrTypeRecord := handle.getRegisteredPtrTypeRecord()
@@ -270,10 +272,12 @@ func (rpt *registeredPointerType) nonConstNoSmartPtrRawPointerToWireType(ctx con
 	}
 
 	handle := o.(IEmvalClassBase)
-
-	// @todo: can we do this without reflection?
-	if !handle.isValid() || reflect.ValueOf(handle).Elem().FieldByName("EmvalClassBase").IsNil() {
-		return 0, fmt.Errorf("invalid %s, check whether you constructed it properly through embind", rpt.name)
+	_, isBaseClass := o.(*EmvalClassBase)
+	if !isBaseClass {
+		// @todo: can we do this without reflection?
+		if !handle.isValid() || reflect.ValueOf(handle).Elem().FieldByName("EmvalClassBase").IsNil() {
+			return 0, fmt.Errorf("invalid %s, check whether you constructed it properly through embind", rpt.name)
+		}
 	}
 
 	registeredPtrTypeRecord := handle.getRegisteredPtrTypeRecord()
@@ -324,10 +328,12 @@ func (rpt *registeredPointerType) genericPointerToWireType(ctx context.Context, 
 	}
 
 	handle := o.(IEmvalClassBase)
-
-	// @todo: can we do this without reflection?
-	if !handle.isValid() || reflect.ValueOf(handle).Elem().FieldByName("EmvalClassBase").IsNil() {
-		return 0, fmt.Errorf("invalid %s, check whether you constructed it properly through embind", rpt.name)
+	_, isBaseClass := o.(*EmvalClassBase)
+	if !isBaseClass {
+		// @todo: can we do this without reflection?
+		if !handle.isValid() || reflect.ValueOf(handle).Elem().FieldByName("EmvalClassBase").IsNil() {
+			return 0, fmt.Errorf("invalid %s, check whether you constructed it properly through embind", rpt.name)
+		}
 	}
 
 	registeredPtrTypeRecord := handle.getRegisteredPtrTypeRecord()

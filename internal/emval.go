@@ -50,7 +50,7 @@ func (et *emvalType) ReadValueFromPointer(ctx context.Context, mod api.Module, p
 }
 
 func (et *emvalType) GoType() string {
-	return "int32"
+	return "any"
 }
 
 type emvalHandle struct {

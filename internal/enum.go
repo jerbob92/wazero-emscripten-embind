@@ -29,16 +29,6 @@ func (ev *enumValue) Value() any {
 	return ev.cppValue
 }
 
-func (ev *enumValue) validate() error {
-	if ev.hasGoValue && ev.hasCppValue {
-		if ev.goValue != ev.cppValue {
-			return fmt.Errorf("enum value %s has a different value in Go than in C++ (go: %v (%T), cpp: %v (%T))", ev.name, ev.goValue, ev.goValue, ev.cppValue, ev.cppValue)
-		}
-	}
-
-	return nil
-}
-
 type IEnum interface {
 	Name() string
 	Type() IType
@@ -60,16 +50,6 @@ type enumType struct {
 	goValue          any
 }
 
-func (et *enumType) validate() error {
-	for i := range et.valuesByName {
-		if err := et.valuesByName[i].validate(); err != nil {
-			return fmt.Errorf("error while validating enum %s: %w", et.name, err)
-		}
-	}
-
-	return nil
-}
-
 func (et *enumType) FromWireType(ctx context.Context, mod api.Module, value uint64) (any, error) {
 	val, err := et.intHelper.FromWireType(ctx, mod, value)
 	if err != nil {
@@ -80,16 +60,15 @@ func (et *enumType) FromWireType(ctx context.Context, mod api.Module, value uint
 }
 
 func (et *enumType) ToWireType(ctx context.Context, mod api.Module, destructors *[]*destructorFunc, o any) (uint64, error) {
-	if !et.registeredInGo {
-		return 0, fmt.Errorf("could not map enum value %v, enum not registered as Go enum", o)
-	}
-
 	val, ok := et.valuesByGoValue[o]
 	if !ok {
-		return 0, fmt.Errorf("could not map enum value %v, enum value not registered as Go enum", o)
+		val, ok = et.valuesByCppValue[o]
+		if !ok {
+			return 0, fmt.Errorf("could not map enum value %v, enum value not registered as Go or C++ enum", o)
+		}
 	}
 
-	return et.intHelper.ToWireType(ctx, mod, destructors, val.goValue)
+	return et.intHelper.ToWireType(ctx, mod, destructors, val.cppValue)
 }
 
 func (et *enumType) ReadValueFromPointer(ctx context.Context, mod api.Module, pointer uint32) (any, error) {
