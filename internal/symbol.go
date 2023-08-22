@@ -57,6 +57,26 @@ func (e *engine) CallPublicSymbol(ctx context.Context, name string, arguments ..
 	return res, nil
 }
 
+func (e *engine) CallStaticClassMethod(ctx context.Context, className, name string, arguments ...any) (any, error) {
+	_, ok := e.publicSymbols[className]
+	if !ok {
+		return nil, fmt.Errorf("could not find class %s", className)
+	}
+
+	_, ok = e.registeredClasses[className].methods[name]
+	if !ok {
+		return nil, fmt.Errorf("could not find method %s on class %s", name, className)
+	}
+
+	ctx = e.Attach(ctx)
+	res, err := e.registeredClasses[className].methods[name].fn(ctx, nil, arguments...)
+	if err != nil {
+		return nil, fmt.Errorf("error while calling embind function %s on class %s: %w", name, className, err)
+	}
+
+	return res, nil
+}
+
 func (e *engine) GetSymbols() []ISymbol {
 	symbols := make([]ISymbol, 0)
 

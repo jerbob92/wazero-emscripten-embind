@@ -238,7 +238,7 @@ func (e *engine) ensureOverloadTable(registry map[string]*publicSymbol, methodNa
 				return nil, fmt.Errorf("function '%s' called with an invalid number of arguments (%d) - expects one of (%s)", humanName, len(arguments), strings.Join(possibleOverloads, ", "))
 			}
 
-			return registry[methodName].overloadTable[int32(len(arguments))].fn(ctx, e.mod, this, arguments)
+			return registry[methodName].overloadTable[int32(len(arguments))].fn(ctx, this, arguments...)
 		}
 
 		// Move the previous function into the overload table.
@@ -431,7 +431,7 @@ func (e *engine) craftInvokerFunction(humanName string, argTypes []registeredTyp
 
 	return func(ctx context.Context, this any, arguments ...any) (any, error) {
 		if len(arguments) != argCount-2 {
-			return nil, fmt.Errorf("function %s called with %d arguments, expected %d args", humanName, len(arguments), argCount-2)
+			return nil, fmt.Errorf("function %s called with %d argument(s), expected %d arg(s)", humanName, len(arguments), argCount-2)
 		}
 
 		invoker := cppInvokerFunc

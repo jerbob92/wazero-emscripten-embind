@@ -9,6 +9,7 @@ import (
 type IEngine interface {
 	Attach(ctx context.Context) context.Context
 	CallPublicSymbol(ctx context.Context, name string, arguments ...any) (any, error)
+	CallStaticClassMethod(ctx context.Context, className, name string, arguments ...any) (any, error)
 	GetSymbols() []ISymbol
 	RegisterConstant(name string, val any) error
 	GetConstants() []IConstant

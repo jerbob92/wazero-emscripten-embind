@@ -46,7 +46,7 @@ func (class *{{ $class.GoName }}) {{ $method.GoName }}(ctx context.Context{{ ran
 {{ range $index, $method := $class.StaticMethods }}
 {{ if $method.ReturnType }}
 func {{ $class.GoName }}Static{{ $method.GoName }}(e embind.Engine, ctx context.Context{{ range $index, $argumentType := $method.ArgumentTypes -}}, arg{{ $index }} {{ $argumentType }}{{ end }}) ({{ $method.ReturnType }}, error)  {
-    res, err := e.CallPublicSymbol(ctx, "{{ $method.Name }}"{{ range $index, $argumentType := $method.ArgumentTypes -}}, arg{{ $index }}{{ end }})
+    res, err := e.CallStaticClassMethod(ctx, "{{ $class.Name }}", "{{ $method.Name }}"{{ range $index, $argumentType := $method.ArgumentTypes -}}, arg{{ $index }}{{ end }})
     if err != nil {
         return {{ $method.ErrorValue }}, err
     }
@@ -55,7 +55,7 @@ func {{ $class.GoName }}Static{{ $method.GoName }}(e embind.Engine, ctx context.
 }
 {{ else }}
 func {{ $class.GoName }}Static{{ $method.GoName }}(e embind.Engine, ctx context.Context{{ range $index, $argumentType := $method.ArgumentTypes -}}, arg{{ $index }} {{ $argumentType }}{{ end }}) error {
-    _, err := e.CallPublicSymbol(ctx, "{{ $method.Name }}"{{ range $index, $argumentType := $method.ArgumentTypes -}}, arg{{ $index }}{{ end }})
+    _, err := e.CallStaticClassMethod(ctx, "{{ $class.Name }}", "{{ $method.Name }}"{{ range $index, $argumentType := $method.ArgumentTypes -}}, arg{{ $index }}{{ end }})
     return err
 }
 {{ end }}

@@ -397,7 +397,7 @@ func (ecb *ClassBase) CallMethod(ctx context.Context, this any, name string, arg
 	// Ensure that the engine is attached. Allows calling methods on the class
 	// without keeping track of the engine.
 	ctx = ecb.engine.Attach(ctx)
-	return method.fn(ctx, this, arguments)
+	return method.fn(ctx, this, arguments...)
 }
 
 func (ecb *ClassBase) SetProperty(ctx context.Context, this any, name string, value any) error {

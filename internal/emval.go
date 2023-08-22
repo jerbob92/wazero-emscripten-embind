@@ -365,11 +365,37 @@ func (e *emvalEngine) callMethod(ctx context.Context, mod api.Module, registered
 
 	_, ok = registeredMethod.argTypes[0].(*voidType)
 	if ok {
+		if len(resultData) > 1 {
+			return 0, fmt.Errorf("wrong result type count, got %d, need at most 1 (error)", len(resultData))
+		}
+
+		if len(resultData) == 1 {
+			if resultData[0].Interface() != nil {
+				err, isError := resultData[0].Interface().(error)
+				if isError {
+					return 0, fmt.Errorf("function returned error: %w", err)
+				} else {
+					return 0, fmt.Errorf("function returned non-error value in error return: %v", resultData[0].Interface())
+				}
+			}
+		}
+
 		return 0, nil
 	}
 
-	if len(resultData) == 0 {
-		panic(fmt.Errorf("wrong result type count, got %d, need %d", len(resultData), 1))
+	if len(resultData) < 1 {
+		return 0, fmt.Errorf("wrong result type count, got %d, need at least 1 and at most 2 (value and error)", len(resultData))
+	}
+
+	if len(resultData) == 2 {
+		if resultData[1].Interface() != nil {
+			err, isError := resultData[1].Interface().(error)
+			if isError {
+				return 0, fmt.Errorf("function returned error: %w", err)
+			} else {
+				return 0, fmt.Errorf("function returned non-error value in error return: %v", resultData[1].Interface())
+			}
+		}
 	}
 
 	rv := resultData[0].Interface()
