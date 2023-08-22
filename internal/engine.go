@@ -26,7 +26,7 @@ type engine struct {
 	registeredClasses    map[string]*classType
 	registeredTuples     map[int32]*registeredTuple
 	registeredObjects    map[int32]*registeredObject
-	registeredInstances  map[uint32]IEmvalClassBase
+	registeredInstances  map[uint32]IClassBase
 	emvalEngine          *emvalEngine
 }
 
@@ -52,7 +52,7 @@ func (e *engine) RegisterConstant(name string, val any) error {
 	return e.registeredConstants[name].validate()
 }
 
-func (e *engine) RegisterEnum(name string, enum Enum) error {
+func (e *engine) RegisterEnum(name string, enum IEnum) error {
 	_, ok := e.registeredEnums[name]
 	if !ok {
 		e.registeredEnums[name] = &enumType{
@@ -102,8 +102,8 @@ func (e *engine) RegisterEmvalSymbol(name string, symbol any) error {
 }
 
 func (e *engine) RegisterClass(name string, class any) error {
-	if _, ok := class.(IEmvalClassBase); !ok {
-		return fmt.Errorf("could not register class %s with type %T, it does not embed embind.EmvalClassBase", name, class)
+	if _, ok := class.(IClassBase); !ok {
+		return fmt.Errorf("could not register class %s with type %T, it does not embed embind.ClassBase", name, class)
 	}
 
 	if reflect.TypeOf(class).Kind() != reflect.Ptr {
@@ -715,9 +715,9 @@ func (e *engine) validateThis(ctx context.Context, this any, classType *register
 		return 0, fmt.Errorf("%s called with invalid \"this\"", humanName)
 	}
 
-	based, ok := this.(IEmvalClassBase)
+	based, ok := this.(IClassBase)
 	if !ok {
-		return 0, fmt.Errorf("given value of type %T is not based on IEmvalClassBase", this)
+		return 0, fmt.Errorf("given value of type %T is not based on IClassBase", this)
 	}
 
 	if based.getPtr() == 0 {

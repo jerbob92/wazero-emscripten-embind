@@ -12,10 +12,10 @@ type IEngine interface {
 	GetSymbols() []ISymbol
 	RegisterConstant(name string, val any) error
 	GetConstants() []IConstant
-	RegisterEnum(name string, enum Enum) error
-	GetEnums() []IEnum
+	RegisterEnum(name string, enum IEnum) error
+	GetEnums() []IEnumType
 	RegisterClass(name string, class any) error
-	GetClasses() []IClass
+	GetClasses() []IClassType
 	RegisterEmvalSymbol(name string, symbol any) error
 	EmvalToHandle(value any) int32
 	EmvalToValue(handle int32) (any, error)

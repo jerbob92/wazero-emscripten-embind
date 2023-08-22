@@ -100,11 +100,11 @@ func (erc *classType) validate() error {
 	return nil
 }
 
-func (erc *classType) isDeleted(handle IEmvalClassBase) bool {
+func (erc *classType) isDeleted(handle IClassBase) bool {
 	return handle.getRegisteredPtrTypeRecord().ptr == 0
 }
 
-func (erc *classType) deleteLater(handle IEmvalClassBase) (any, error) {
+func (erc *classType) deleteLater(handle IClassBase) (any, error) {
 	registeredPtrTypeRecord := handle.getRegisteredPtrTypeRecord()
 	if registeredPtrTypeRecord.ptr == 0 {
 		return nil, fmt.Errorf("class handle already deleted")
@@ -127,7 +127,7 @@ func (erc *classType) deleteLater(handle IEmvalClassBase) (any, error) {
 	return handle, nil
 }
 
-func (erc *classType) isAliasOf(ctx context.Context, first, second IEmvalClassBase) (bool, error) {
+func (erc *classType) isAliasOf(ctx context.Context, first, second IClassBase) (bool, error) {
 	leftClass := first.getRegisteredPtrTypeRecord().ptrType.registeredClass
 	left := first.getRegisteredPtrTypeRecord().ptr
 	rightClass := second.getRegisteredPtrTypeRecord().ptrType.registeredClass
@@ -154,7 +154,7 @@ func (erc *classType) isAliasOf(ctx context.Context, first, second IEmvalClassBa
 	return leftClass == rightClass && left == right, nil
 }
 
-func (erc *classType) clone(from IEmvalClassBase) (IEmvalClassBase, error) {
+func (erc *classType) clone(from IClassBase) (IClassBase, error) {
 	registeredPtrTypeRecord := from.getRegisteredPtrTypeRecord()
 	if registeredPtrTypeRecord.ptr == 0 {
 		return nil, fmt.Errorf("class handle already deleted")
@@ -175,7 +175,7 @@ func (erc *classType) clone(from IEmvalClassBase) (IEmvalClassBase, error) {
 	return clone, nil
 }
 
-func (erc *classType) delete(ctx context.Context, handle IEmvalClassBase) error {
+func (erc *classType) delete(ctx context.Context, handle IClassBase) error {
 	registeredPtrTypeRecord := handle.getRegisteredPtrTypeRecord()
 	if registeredPtrTypeRecord.ptr == 0 {
 		return fmt.Errorf("class handle already deleted")
@@ -207,8 +207,8 @@ func (erc *classType) delete(ctx context.Context, handle IEmvalClassBase) error 
 	return nil
 }
 
-func (erc *classType) getNewInstance(record *registeredPointerTypeRecord) (IEmvalClassBase, error) {
-	classBase := &EmvalClassBase{
+func (erc *classType) getNewInstance(record *registeredPointerTypeRecord) (IClassBase, error) {
+	classBase := &ClassBase{
 		classType:               erc,
 		ptr:                     record.ptr,
 		ptrType:                 record.ptrType,
@@ -219,42 +219,42 @@ func (erc *classType) getNewInstance(record *registeredPointerTypeRecord) (IEmva
 	if erc.hasGoStruct {
 		typeElem := reflect.TypeOf(erc.goStruct).Elem()
 		newElem := reflect.New(typeElem)
-		f := newElem.Elem().FieldByName("EmvalClassBase")
+		f := newElem.Elem().FieldByName("ClassBase")
 		if f.IsValid() && f.CanSet() {
 			f.Set(reflect.ValueOf(classBase))
 		}
 
 		result := newElem.Interface()
 
-		return result.(IEmvalClassBase), nil
+		return result.(IClassBase), nil
 	}
 
 	return classBase, nil
 }
 
-type IClass interface {
+type IClassType interface {
 	Name() string
 	Type() IType
-	Properties() []IClassProperty
-	Constructors() []IClassConstructor
-	Methods() []IClassMethod
-	StaticMethods() []IClassMethod
+	Properties() []IClassTypeProperty
+	Constructors() []IClassTypeConstructor
+	Methods() []IClassTypeMethod
+	StaticMethods() []IClassTypeMethod
 }
 
-type IClassConstructor interface {
+type IClassTypeConstructor interface {
 	Name() string
 	Symbol() string
 	ArgumentTypes() []IType
 }
 
-type IClassProperty interface {
+type IClassTypeProperty interface {
 	Name() string
 	GetterType() IType
 	SetterType() IType
 	ReadOnly() bool
 }
 
-type IClassMethod interface {
+type IClassTypeMethod interface {
 	Symbol() string
 	ReturnType() IType
 	ArgumentTypes() []IType
@@ -268,8 +268,8 @@ func (erc *classType) Type() IType {
 	return &exposedType{registeredType: erc}
 }
 
-func (erc *classType) Properties() []IClassProperty {
-	properties := make([]IClassProperty, 0)
+func (erc *classType) Properties() []IClassTypeProperty {
+	properties := make([]IClassTypeProperty, 0)
 
 	for i := range erc.properties {
 		properties = append(properties, erc.properties[i])
@@ -278,8 +278,8 @@ func (erc *classType) Properties() []IClassProperty {
 	return properties
 }
 
-func (erc *classType) Methods() []IClassMethod {
-	methods := make([]IClassMethod, 0)
+func (erc *classType) Methods() []IClassTypeMethod {
+	methods := make([]IClassTypeMethod, 0)
 
 	for i := range erc.methods {
 		if erc.methods[i].isStatic {
@@ -291,8 +291,8 @@ func (erc *classType) Methods() []IClassMethod {
 	return methods
 }
 
-func (erc *classType) StaticMethods() []IClassMethod {
-	methods := make([]IClassMethod, 0)
+func (erc *classType) StaticMethods() []IClassTypeMethod {
+	methods := make([]IClassTypeMethod, 0)
 
 	for i := range erc.methods {
 		if !erc.methods[i].isStatic {
@@ -325,8 +325,8 @@ func (ecc *exposedClassConstructor) ArgumentTypes() []IType {
 	return exposedTypes
 }
 
-func (erc *classType) Constructors() []IClassConstructor {
-	constructors := make([]IClassConstructor, 0)
+func (erc *classType) Constructors() []IClassTypeConstructor {
+	constructors := make([]IClassTypeConstructor, 0)
 
 	for i := range erc.constructors {
 		constructor := &exposedClassConstructor{
@@ -344,15 +344,15 @@ func (erc *classType) Constructors() []IClassConstructor {
 	return constructors
 }
 
-func (e *engine) GetClasses() []IClass {
-	classes := make([]IClass, 0)
+func (e *engine) GetClasses() []IClassType {
+	classes := make([]IClassType, 0)
 	for i := range e.registeredClasses {
 		classes = append(classes, e.registeredClasses[i])
 	}
 	return classes
 }
 
-type EmvalClassBase struct {
+type ClassBase struct {
 	engine                  *engine
 	classType               *classType
 	ptr                     uint32
@@ -360,35 +360,35 @@ type EmvalClassBase struct {
 	registeredPtrTypeRecord *registeredPointerTypeRecord
 }
 
-func (ecb *EmvalClassBase) getClassType() *classType {
+func (ecb *ClassBase) getClassType() *classType {
 	return ecb.classType
 }
 
-func (ecb *EmvalClassBase) getPtr() uint32 {
+func (ecb *ClassBase) getPtr() uint32 {
 	return ecb.ptr
 }
 
-func (ecb *EmvalClassBase) getPtrType() *registeredPointerType {
+func (ecb *ClassBase) getPtrType() *registeredPointerType {
 	return ecb.ptrType
 }
 
-func (ecb *EmvalClassBase) getRegisteredPtrTypeRecord() *registeredPointerTypeRecord {
+func (ecb *ClassBase) getRegisteredPtrTypeRecord() *registeredPointerTypeRecord {
 	return ecb.registeredPtrTypeRecord
 }
 
-func (ecb *EmvalClassBase) isValid() bool {
+func (ecb *ClassBase) isValid() bool {
 	return ecb != nil
 }
 
-func (ecb *EmvalClassBase) Clone(this IEmvalClassBase) (IEmvalClassBase, error) {
+func (ecb *ClassBase) Clone(this IClassBase) (IClassBase, error) {
 	return ecb.classType.clone(this)
 }
 
-func (ecb *EmvalClassBase) Delete(ctx context.Context, this IEmvalClassBase) error {
+func (ecb *ClassBase) Delete(ctx context.Context, this IClassBase) error {
 	return ecb.classType.delete(ctx, this)
 }
 
-func (ecb *EmvalClassBase) CallMethod(ctx context.Context, this any, name string, arguments ...any) (any, error) {
+func (ecb *ClassBase) CallMethod(ctx context.Context, this any, name string, arguments ...any) (any, error) {
 	method, ok := ecb.classType.methods[name]
 	if !ok {
 		return nil, fmt.Errorf("method %s is not found on %T", name, this)
@@ -400,7 +400,7 @@ func (ecb *EmvalClassBase) CallMethod(ctx context.Context, this any, name string
 	return method.fn(ctx, this, arguments)
 }
 
-func (ecb *EmvalClassBase) SetProperty(ctx context.Context, this any, name string, value any) error {
+func (ecb *ClassBase) SetProperty(ctx context.Context, this any, name string, value any) error {
 	property, ok := ecb.classType.properties[name]
 	if !ok {
 		return fmt.Errorf("property %s is not found on %T", name, this)
@@ -412,7 +412,7 @@ func (ecb *EmvalClassBase) SetProperty(ctx context.Context, this any, name strin
 	return property.set(ctx, this, value)
 }
 
-func (ecb *EmvalClassBase) GetProperty(ctx context.Context, this any, name string) (any, error) {
+func (ecb *ClassBase) GetProperty(ctx context.Context, this any, name string) (any, error) {
 	property, ok := ecb.classType.properties[name]
 	if !ok {
 		return nil, fmt.Errorf("property %s is not found on %T", name, this)
@@ -424,14 +424,14 @@ func (ecb *EmvalClassBase) GetProperty(ctx context.Context, this any, name strin
 	return property.get(ctx, this)
 }
 
-type IEmvalClassBase interface {
+type IClassBase interface {
 	getClassType() *classType
 	getPtr() uint32
 	getPtrType() *registeredPointerType
 	getRegisteredPtrTypeRecord() *registeredPointerTypeRecord
 	isValid() bool
-	Clone(this IEmvalClassBase) (IEmvalClassBase, error)
-	Delete(ctx context.Context, this IEmvalClassBase) error
+	Clone(this IClassBase) (IClassBase, error)
+	Delete(ctx context.Context, this IClassBase) error
 	CallMethod(ctx context.Context, this any, name string, arguments ...any) (any, error)
 	SetProperty(ctx context.Context, this any, name string, value any) error
 	GetProperty(ctx context.Context, this any, name string) (any, error)

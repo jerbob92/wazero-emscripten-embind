@@ -7,7 +7,7 @@ import (
 	"github.com/tetratelabs/wazero/api"
 )
 
-type Enum interface {
+type IEnum interface {
 	Type() any
 	Values() map[string]any
 }
@@ -29,13 +29,13 @@ func (ev *enumValue) Value() any {
 	return ev.cppValue
 }
 
-type IEnum interface {
+type IEnumType interface {
 	Name() string
 	Type() IType
-	Values() []IEnumValue
+	Values() []IEnumTypeValue
 }
 
-type IEnumValue interface {
+type IEnumTypeValue interface {
 	Name() string
 	Value() any
 }
@@ -109,16 +109,16 @@ func (et *enumType) Name() string {
 	return et.name
 }
 
-func (et *enumType) Values() []IEnumValue {
-	values := make([]IEnumValue, 0)
+func (et *enumType) Values() []IEnumTypeValue {
+	values := make([]IEnumTypeValue, 0)
 	for i := range et.valuesByName {
 		values = append(values, et.valuesByName[i])
 	}
 	return values
 }
 
-func (e *engine) GetEnums() []IEnum {
-	enums := make([]IEnum, 0)
+func (e *engine) GetEnums() []IEnumType {
+	enums := make([]IEnumType, 0)
 	for i := range e.registeredEnums {
 		enums = append(enums, e.registeredEnums[i])
 	}

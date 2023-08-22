@@ -229,11 +229,11 @@ func (rpt *registeredPointerType) constNoSmartPtrRawPointerToWireType(ctx contex
 		return 0, nil
 	}
 
-	handle := o.(IEmvalClassBase)
-	_, isBaseClass := o.(*EmvalClassBase)
+	handle := o.(IClassBase)
+	_, isBaseClass := o.(*ClassBase)
 	if !isBaseClass {
 		// @todo: can we do this without reflection?
-		if !handle.isValid() || reflect.ValueOf(handle).Elem().FieldByName("EmvalClassBase").IsNil() {
+		if !handle.isValid() || reflect.ValueOf(handle).Elem().FieldByName("ClassBase").IsNil() {
 			return 0, fmt.Errorf("invalid %s, check whether you constructed it properly through embind", rpt.name)
 		}
 	}
@@ -266,11 +266,11 @@ func (rpt *registeredPointerType) nonConstNoSmartPtrRawPointerToWireType(ctx con
 		return 0, nil
 	}
 
-	handle := o.(IEmvalClassBase)
-	_, isBaseClass := o.(*EmvalClassBase)
+	handle := o.(IClassBase)
+	_, isBaseClass := o.(*ClassBase)
 	if !isBaseClass {
 		// @todo: can we do this without reflection?
-		if !handle.isValid() || reflect.ValueOf(handle).Elem().FieldByName("EmvalClassBase").IsNil() {
+		if !handle.isValid() || reflect.ValueOf(handle).Elem().FieldByName("ClassBase").IsNil() {
 			return 0, fmt.Errorf("invalid %s, check whether you constructed it properly through embind", rpt.name)
 		}
 	}
@@ -322,11 +322,11 @@ func (rpt *registeredPointerType) genericPointerToWireType(ctx context.Context, 
 		}
 	}
 
-	handle := o.(IEmvalClassBase)
-	_, isBaseClass := o.(*EmvalClassBase)
+	handle := o.(IClassBase)
+	_, isBaseClass := o.(*ClassBase)
 	if !isBaseClass {
 		// @todo: can we do this without reflection?
-		if !handle.isValid() || reflect.ValueOf(handle).Elem().FieldByName("EmvalClassBase").IsNil() {
+		if !handle.isValid() || reflect.ValueOf(handle).Elem().FieldByName("ClassBase").IsNil() {
 			return 0, fmt.Errorf("invalid %s, check whether you constructed it properly through embind", rpt.name)
 		}
 	}
@@ -450,7 +450,7 @@ func (rpt *registeredPointerType) HasDeleteObject() bool {
 
 func (rpt *registeredPointerType) DeleteObject(ctx context.Context, mod api.Module, handle any) error {
 	if handle != nil {
-		casted := handle.(IEmvalClassBase)
+		casted := handle.(IClassBase)
 		return casted.getClassType().delete(ctx, casted)
 	}
 	return nil
@@ -483,7 +483,7 @@ func (rpt *registeredPointerType) getBasestPointer(ctx context.Context, class *c
 	return ptr, nil
 }
 
-func (rpt *registeredPointerType) getInheritedInstance(ctx context.Context, mod api.Module, class *classType, ptr uint32) (IEmvalClassBase, error) {
+func (rpt *registeredPointerType) getInheritedInstance(ctx context.Context, mod api.Module, class *classType, ptr uint32) (IClassBase, error) {
 	ptr, err := rpt.getBasestPointer(ctx, class, ptr)
 	if err != nil {
 		return nil, err
@@ -523,7 +523,7 @@ func (rpt *registeredPointerType) downcastPointer(ctx context.Context, ptr uint3
 	return api.DecodeU32(downcastRes[0]), nil
 }
 
-func (rpt *registeredPointerType) makeClassHandle(class *classType, record *registeredPointerTypeRecord) (IEmvalClassBase, error) {
+func (rpt *registeredPointerType) makeClassHandle(class *classType, record *registeredPointerTypeRecord) (IClassBase, error) {
 	if record.ptrType == nil || record.ptr == 0 {
 		return nil, fmt.Errorf("makeClassHandle requires ptr and ptrType")
 	}
