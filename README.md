@@ -22,7 +22,8 @@
 ## What does Embind do?
 
 [Embind](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html) allows developers to write C++
-code and directly interact with the code from JS.
+code and directly interact with that code from Javascript in the browser. It also allows to call Javascript methods
+directly from C++.
 
 This is done by registering enums, functions, classes, arrays, objects, vectors and maps from C++. When the compiled
 WebAssembly initializes, it will register all those types in the host using host function calls.
@@ -34,8 +35,8 @@ This implementation is trying to be a 1-on-1 implementation of the JS version in
 can be used for both Web and WASI WebAssembly builds.
 
 The difference between this implementation and the Emscripten implementation is that this implementation tries to be as
-strict as possible regarding the types that are encoded/decoded, while in the Emscripten implementation a lot is trusted
-to the JS VM to cast between types, something we can't do in Go.
+strict as possible during runtime regarding the types that are encoded/decoded, while in the Emscripten implementation
+a lot is trusted to the browser WebAssembly VM to cast between types, something we can't do in Go.
 
 ## Compiling with Emscripten to WebAssembly with Embind
 
@@ -263,7 +264,7 @@ A few things to note:
 * You can implement the `embind.EmvalFunctionMapper` interface on the struct to map function calls on your struct based
   on the arguments (and/or length) and name
 
-## Compatibility with Emscripten version
+## Compatibility with Emscripten versions
 
 This package has been built against Emscripten version `3.1.44`. Since Emscripten compiles both the WASM and JS, they
 don't have to think about compatibility between versions, which makes it difficult for us to maintain compatible with
