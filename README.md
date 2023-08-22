@@ -2,11 +2,11 @@
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/jerbob92/wazero-emscripten-embind.svg)](https://pkg.go.dev/github.com/jerbob92/wazero-emscripten-embind)
 
-:rocket: *Emscripten Embind support for Go using [Wazero](https://github.com/tetratelabs/wazero)* :rocket:
+:rocket: *Emscripten [Embind](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html) support for Go using [Wazero](https://github.com/tetratelabs/wazero)* :rocket:
 
 ## Features
 
-* Support for all Embind features
+* Support for all [Embind](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html) features
 * Code generator for all Embind bindings:
     * [Functions](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html#a-quick-example)
     * [Classes](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html#classes)
