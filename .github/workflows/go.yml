@@ -42,12 +42,12 @@ jobs:
           go test -timeout 30m `go list ./... | grep -v examples` -coverprofile=coverage.out -covermode=atomic -v
       - name: Archive code coverage results
         if: matrix.os == 'ubuntu-latest' && matrix.go == env.COVERAGE_GO_VERSION
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: code-coverage-report
           path: ./coverage.out
       - name: Upload coverage to Codecov
         if: matrix.os == 'ubuntu-latest' && matrix.go == env.COVERAGE_GO_VERSION
-        uses: codecov/codecov-action@v2
+        uses: codecov/codecov-action@v3
         with:
           files: coverage.out
