@@ -49,6 +49,10 @@ func (bt *baseType) NativeType() api.ValueType {
 	return api.ValueTypeI32
 }
 
+func (bt *baseType) FromF64(o float64) uint64 {
+	return api.EncodeF64(o)
+}
+
 type registeredType interface {
 	RawType() int32
 	Name() string
@@ -62,6 +66,7 @@ type registeredType interface {
 	DeleteObject(ctx context.Context, mod api.Module, handle any) error
 	NativeType() api.ValueType
 	GoType() string
+	FromF64(o float64) uint64
 }
 
 type IType interface {

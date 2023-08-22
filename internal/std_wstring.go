@@ -139,3 +139,7 @@ func (swst *stdWStringType) DestructorFunction(ctx context.Context, mod api.Modu
 func (swst *stdWStringType) GoType() string {
 	return "string"
 }
+
+func (swst *stdWStringType) FromF64(o float64) uint64 {
+	return api.EncodeU32(uint32(o))
+}

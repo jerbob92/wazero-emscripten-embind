@@ -185,12 +185,16 @@ func (erc *classType) delete(ctx context.Context, handle IEmvalClassBase) error 
 		return fmt.Errorf("object already scheduled for deletion")
 	}
 
-	err := registeredPtrTypeRecord.detachFinalizer(ctx)
-	if err != nil {
-		return err
-	}
+	// @TODO: We don't use the finalizer anymore. When we use the Go GC finalizer
+	// 		  we should properly set something on the record to let the finalizer
+	// 		  know it shouldn't do anything.
+	//
+	// err := registeredPtrTypeRecord.detachFinalizer(ctx)
+	// if err != nil {
+	// 	return err
+	// }
 
-	err = registeredPtrTypeRecord.releaseClassHandle(ctx)
+	err := registeredPtrTypeRecord.releaseClassHandle(ctx)
 	if err != nil {
 		return err
 	}

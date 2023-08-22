@@ -38,11 +38,6 @@ type registeredPointerTypeRecord struct {
 	deleteScheduled         bool
 }
 
-func (rptr *registeredPointerTypeRecord) detachFinalizer(ctx context.Context) error {
-	// @todo: what does this do?
-	return nil
-}
-
 func (rptr *registeredPointerTypeRecord) shallowCopyInternalPointer() *registeredPointerTypeRecord {
 	return &registeredPointerTypeRecord{
 		count:                   rptr.count,
@@ -216,7 +211,7 @@ func (rpt *registeredPointerType) ToWireType(ctx context.Context, mod api.Module
 	// Here we must leave this.destructorFunction undefined, since whether genericPointerToWireType returns
 	// a pointer that needs to be freed up is runtime-dependent, and cannot be evaluated at registration time.
 	// TODO: Create an alternative mechanism that allows removing the use of var destructors = []; array in
-	//       craftInvokerFunction altogether.
+	// 		 craftInvokerFunction altogether. (comment from Emscripten)
 
 	return rpt.genericPointerToWireType(ctx, mod, destructors, o)
 }
@@ -361,9 +356,9 @@ func (rpt *registeredPointerType) genericPointerToWireType(ctx context.Context, 
 	}
 
 	if rpt.isSmartPointer {
-		// TODO: this is not strictly true
-		// We could support BY_EMVAL conversions from raw pointers to smart pointers
-		// because the smart pointer can hold a reference to the handle
+		// TODO: this is not strictly true (comment from Emscripten)
+		// 		 We could support BY_EMVAL conversions from raw pointers to smart pointers
+		// 		 because the smart pointer can hold a reference to the handle
 		if registeredPtrTypeRecord.smartPtr == 0 {
 			return 0, fmt.Errorf("passing raw pointer to smart pointer is illegal")
 		}
@@ -552,7 +547,7 @@ func (rpt *registeredPointerType) makeClassHandle(class *classType, record *regi
 }
 
 func (rpt *registeredPointerType) attachFinalizer(classHandle any) {
-	// @todo: attach Go GC for garbage collection?
+	// @todo: attach Go GC finalizer to do this?
 	/**
 	  // If the running environment has a FinalizationRegistry (see
 	  // https://github.com/tc39/proposal-weakrefs), then attach finalizers

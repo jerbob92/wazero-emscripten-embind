@@ -71,3 +71,10 @@ func (bt *bigintType) GoType() string {
 	}
 	return "int64"
 }
+
+func (bt *bigintType) FromF64(o float64) uint64 {
+	if !bt.signed {
+		return uint64(o)
+	}
+	return api.EncodeI64(int64(o))
+}

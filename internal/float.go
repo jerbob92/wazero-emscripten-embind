@@ -71,3 +71,10 @@ func (ft *floatType) GoType() string {
 
 	return "float64"
 }
+
+func (ft *floatType) FromF64(o float64) uint64 {
+	if ft.size == 4 {
+		return api.EncodeF32(float32(o))
+	}
+	return api.EncodeF64(o)
+}

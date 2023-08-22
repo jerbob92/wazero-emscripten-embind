@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"reflect"
 	"strconv"
 	"strings"
@@ -318,17 +319,19 @@ var RegisterConstant = api.GoModuleFunc(func(ctx context.Context, mod api.Module
 	}
 
 	rawType := api.DecodeI32(stack[1])
-
-	// @todo: this seems to work properly except for float and bool.
-	// JS VM does auto conversion, so we don't get much info from the
-	// Emscripten implementation. If I just pass the stack here, none of
-	// the values are correct except for double.
-	constantValue := uint64(api.DecodeF64(stack[2]))
+	constantValue := api.DecodeF64(stack[2])
 
 	err = engine.whenDependentTypesAreResolved([]int32{}, []int32{rawType}, func(argTypes []registeredType) ([]registeredType, error) {
 		registeredType := argTypes[0]
-		val, err := registeredType.FromWireType(ctx, engine.mod, constantValue)
+		// We need to do this since the JS VM automatically converts between
+		// the float64 and other types, but we can't do this, we need to
+		// manually convert everything. Note that the value inside the original
+		// uint64 is an actual typecast F64, so it's not that the stack
+		// contains FromWireType'able data for the given type.
+		cppValue := registeredType.FromF64(constantValue)
+		val, err := registeredType.FromWireType(ctx, engine.mod, cppValue)
 		if err != nil {
+			log.Println(err)
 			return nil, fmt.Errorf("could not initialize constant %s: %w", name, err)
 		}
 
@@ -342,7 +345,7 @@ var RegisterConstant = api.GoModuleFunc(func(ctx context.Context, mod api.Module
 		engine.registeredConstants[name].registeredType = registeredType
 		engine.registeredConstants[name].hasCppValue = true
 		engine.registeredConstants[name].cppValue = val
-		engine.registeredConstants[name].rawCppValue = constantValue
+		engine.registeredConstants[name].rawCppValue = cppValue
 
 		return nil, engine.registeredConstants[name].validate()
 	})
@@ -1242,7 +1245,7 @@ var RegisterClassClassFunction = api.GoModuleFunc(func(ctx context.Context, mod 
 					derivedClass := classType.registeredClass.derivedClasses[i]
 					_, ok := derivedClass.methods[methodName]
 					if !ok {
-						// TODO: Add support for overloads (in Emscripten)
+						// TODO: Add support for overloads (comment from Emscripten)
 						derivedClass.methods[methodName] = memberFunction
 					}
 				}

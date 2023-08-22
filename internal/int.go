@@ -135,3 +135,22 @@ func (it *intType) GoType() string {
 	}
 	return "int32"
 }
+
+func (it *intType) FromF64(o float64) uint64 {
+	if it.size == 1 {
+		if !it.signed {
+			return api.EncodeU32(uint32(uint8(o)))
+		}
+		return api.EncodeI32(int32(int8(o)))
+	} else if it.size == 2 {
+		if !it.signed {
+			return api.EncodeU32(uint32(uint16(o)))
+		}
+		return api.EncodeI32(int32(int16(o)))
+	}
+
+	if !it.signed {
+		return api.EncodeU32(uint32(o))
+	}
+	return api.EncodeI32(int32(o))
+}

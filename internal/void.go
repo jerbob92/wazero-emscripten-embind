@@ -14,7 +14,7 @@ func (vt *voidType) FromWireType(ctx context.Context, mod api.Module, value uint
 }
 
 func (vt *voidType) ToWireType(ctx context.Context, mod api.Module, destructors *[]*destructorFunc, o any) (uint64, error) {
-	// TODO: assert if anything else is given?
+	// TODO: assert if anything else is given? (comment from Emscripten)
 	return 0, nil
 }
 

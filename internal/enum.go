@@ -98,7 +98,6 @@ func (et *enumType) mapToGoEnum(value any) (any, error) {
 }
 
 func (et *enumType) GoType() string {
-	// @todo: use Go name when registered?
 	return et.name
 }
 
