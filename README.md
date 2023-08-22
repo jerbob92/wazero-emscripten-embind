@@ -61,6 +61,22 @@ The Embind Engine allows itself to be attached to a context value so that it can
 This is necessary to make the guest side register itself with the Engine to notify it of all the available Embind
 parts.
 
+Attaching it to the context is as simple as:
+```go
+ctx := context.Background()
+// ... Setup Wazero ...
+
+// Create a new engine and attach it to the context.
+engine := embind.CreateEngine(embind.NewConfig())
+ctx = engine.Attach(ctx)
+
+// InstantiateModule the module on the runtime
+r.InstantiateModule(ctx, compiledModule, moduleConfig)
+
+// Attach the generated code to the engine (if any)
+generated.Attach(engine)
+```
+
 Here is an example to set up a basic Wazero example with Embind integration:
 <details>
   <summary>main.go</summary>
