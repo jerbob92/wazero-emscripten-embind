@@ -11,7 +11,7 @@ on:
       - development
 
 jobs:
-  test-cgo:
+  test-emscripten:
     strategy:
       fail-fast: false
       matrix:
@@ -31,7 +31,8 @@ jobs:
           curdir=`pwd`
           for example in $(find examples -mindepth 1 -maxdepth 1 -type d)
           do
-            cd $curdir/$example/compile.sh
+            cd $curdir/$example/wasm
+            ./compile.sh
           done
           cd $curdir
       - name: Test generation of examples
