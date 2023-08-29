@@ -38,4 +38,21 @@ jobs:
       - name: Test generation of examples
         run: |
           go generate ./...
-
+      - name: Run examples
+        run: |
+          curdir=`pwd`
+          for example in $(find examples -mindepth 1 -maxdepth 1 -type d)
+          do
+            cd $curdir/$example
+            go run main.go
+          done
+          cd $curdir
+      - name: Recompile testdata
+        run: |
+          curdir=`pwd`
+          cd testdata/wasm
+          ./compile.sh
+          cd $curdir
+      - name: Test all packages
+        run: |
+          go test -timeout 30m ./... -v

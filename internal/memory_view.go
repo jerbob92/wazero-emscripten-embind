@@ -33,25 +33,25 @@ func (mvt *memoryViewType) FromWireType(ctx context.Context, mod api.Module, val
 	var typedMemoryView any
 
 	if mvt.dataTypeIndex == 0 {
-		typedMemoryView, ok = memoryAs[int8](mod.Memory(), pointer, size, size*mvt.nativeSize)
+		typedMemoryView, ok = memoryAs[int8](mod.Memory(), pointer, size/mvt.nativeSize, size)
 	} else if mvt.dataTypeIndex == 1 {
-		typedMemoryView, ok = memoryAs[uint8](mod.Memory(), pointer, size, size*mvt.nativeSize)
+		typedMemoryView, ok = memoryAs[uint8](mod.Memory(), pointer, size/mvt.nativeSize, size)
 	} else if mvt.dataTypeIndex == 2 {
-		typedMemoryView, ok = memoryAs[int16](mod.Memory(), pointer, size, size*mvt.nativeSize)
+		typedMemoryView, ok = memoryAs[int16](mod.Memory(), pointer, size/mvt.nativeSize, size)
 	} else if mvt.dataTypeIndex == 3 {
-		typedMemoryView, ok = memoryAs[uint16](mod.Memory(), pointer, size, size*mvt.nativeSize)
+		typedMemoryView, ok = memoryAs[uint16](mod.Memory(), pointer, size/mvt.nativeSize, size)
 	} else if mvt.dataTypeIndex == 4 {
-		typedMemoryView, ok = memoryAs[int32](mod.Memory(), pointer, size, size*mvt.nativeSize)
+		typedMemoryView, ok = memoryAs[int32](mod.Memory(), pointer, size/mvt.nativeSize, size)
 	} else if mvt.dataTypeIndex == 5 {
-		typedMemoryView, ok = memoryAs[uint8](mod.Memory(), pointer, size, size*mvt.nativeSize)
+		typedMemoryView, ok = memoryAs[uint32](mod.Memory(), pointer, size/mvt.nativeSize, size)
 	} else if mvt.dataTypeIndex == 6 {
-		typedMemoryView, ok = memoryAs[float32](mod.Memory(), pointer, size, size*mvt.nativeSize)
+		typedMemoryView, ok = memoryAs[float32](mod.Memory(), pointer, size/mvt.nativeSize, size)
 	} else if mvt.dataTypeIndex == 7 {
-		typedMemoryView, ok = memoryAs[float64](mod.Memory(), pointer, size, size*mvt.nativeSize)
+		typedMemoryView, ok = memoryAs[float64](mod.Memory(), pointer, size/mvt.nativeSize, size)
 	} else if mvt.dataTypeIndex == 8 {
-		typedMemoryView, ok = memoryAs[int64](mod.Memory(), pointer, size, size*mvt.nativeSize)
+		typedMemoryView, ok = memoryAs[int64](mod.Memory(), pointer, size/mvt.nativeSize, size)
 	} else if mvt.dataTypeIndex == 9 {
-		typedMemoryView, ok = memoryAs[uint64](mod.Memory(), pointer, size, size*mvt.nativeSize)
+		typedMemoryView, ok = memoryAs[uint64](mod.Memory(), pointer, size/mvt.nativeSize, size)
 	} else {
 		return nil, fmt.Errorf("unknown memory view type %s", mvt.name)
 	}
@@ -92,7 +92,7 @@ func (mvt *memoryViewType) GoType() string {
 	} else if mvt.dataTypeIndex == 4 {
 		return "[]int32"
 	} else if mvt.dataTypeIndex == 5 {
-		return "[]uint8"
+		return "[]uint32"
 	} else if mvt.dataTypeIndex == 6 {
 		return "[]float32"
 	} else if mvt.dataTypeIndex == 7 {

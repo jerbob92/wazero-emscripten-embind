@@ -40,6 +40,17 @@ func (e unexportedFunctionError) Error() string {
 	return fmt.Sprintf("you need to export the \"%s\" function to make embind work, you can do this using the \"EXPORTED_FUNCTIONS\" option in Emscripten during compilation, you will need to prepend exports with an underscore, so you have to add \"_%s\" to the list", e.name, e.name)
 }
 
+func (e functionExporter) GetImportedFunction(name string) api.FunctionDefinition {
+	importedFunctions := e.guest.ImportedFunctions()
+	for i := range importedFunctions {
+		if importedFunctions[i].Name() == name {
+			return importedFunctions[i]
+		}
+	}
+
+	return nil
+}
+
 // ExportFunctions implements FunctionExporter.ExportFunctions
 func (e functionExporter) ExportFunctions(b wazero.HostModuleBuilder) error {
 	// First validate whether required functions are available.
@@ -66,11 +77,25 @@ func (e functionExporter) ExportFunctions(b wazero.HostModuleBuilder) error {
 		WithGoModuleFunction(internal.RegisterVoid, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{}).
 		Export("_embind_register_void")
 
-	b.NewFunctionBuilder().
-		WithName("_embind_register_bool").
-		WithParameterNames("rawType", "name", "size", "trueValue", "falseValue").
-		WithGoModuleFunction(internal.RegisterBool, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{}).
-		Export("_embind_register_bool")
+	importedEmbindRegisterBool := e.GetImportedFunction("_embind_register_bool")
+	if importedEmbindRegisterBool != nil {
+		// Since Emscripten 3.1.45, the size of the boolean is put to 1, while
+		// before the size was part of the registration.
+		boolHasSizeArgument := len(importedEmbindRegisterBool.ParamTypes()) == 5
+		if boolHasSizeArgument {
+			b.NewFunctionBuilder().
+				WithName("_embind_register_bool").
+				WithParameterNames("rawType", "name", "size", "trueValue", "falseValue").
+				WithGoModuleFunction(internal.RegisterBool(true), []api.ValueType{api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{}).
+				Export("_embind_register_bool")
+		} else {
+			b.NewFunctionBuilder().
+				WithName("_embind_register_bool").
+				WithParameterNames("rawType", "name", "trueValue", "falseValue").
+				WithGoModuleFunction(internal.RegisterBool(false), []api.ValueType{api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{}).
+				Export("_embind_register_bool")
+		}
+	}
 
 	b.NewFunctionBuilder().
 		WithName("_embind_register_integer").

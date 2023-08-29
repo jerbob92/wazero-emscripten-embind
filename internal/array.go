@@ -3,7 +3,6 @@ package embind
 import (
 	"context"
 	"fmt"
-
 	"github.com/tetratelabs/wazero/api"
 )
 
