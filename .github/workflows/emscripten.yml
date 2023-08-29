@@ -1,0 +1,40 @@
+name: Emscripten
+
+on:
+  push:
+    branches:
+      - main
+      - development
+  pull_request:
+    branches:
+      - main
+      - development
+
+jobs:
+  test-cgo:
+    strategy:
+      fail-fast: false
+      matrix:
+        emscripten: [ "3.1.44", "3.1.45" ]
+    runs-on: "ubuntu-latest"
+    steps:
+      - uses: actions/checkout@v3
+      - uses: mymindstorm/setup-emsdk@v11
+        with:
+          version: ${{ matrix.emscripten }}
+      - name: Set up Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: "1.21"
+      - name: Recompile examples
+        run: |
+          curdir=`pwd`
+          for example in $(find examples -mindepth 1 -maxdepth 1 -type d)
+          do
+            cd $curdir/$example/compile.sh
+          done
+          cd $curdir
+      - name: Test generation of examples
+        run: |
+          go generate ./...
+
