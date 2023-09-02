@@ -451,6 +451,12 @@ var _ = Describe("Using embind enums", Label("library"), func() {
 			}))
 			Expect(enumsMap["NewStyle"]).To(HaveLen(2))
 		})
+
+		It("can be encoded and decoded", func() {
+			res, err := engine.CallPublicSymbol(ctx, "enum_in_enum_out", int32(0))
+			Expect(err).To(BeNil())
+			Expect(res).To(Equal(uint32(1)))
+		})
 	})
 })
 
