@@ -81,24 +81,23 @@ func (swst *stdWStringType) ToWireType(ctx context.Context, mod api.Module, dest
 		return 0, err
 	}
 
-	mallocRes, err := mod.ExportedFunction("malloc").Call(ctx, api.EncodeI32(4+int32(output.Len())+1))
+	mallocRes, err := mod.ExportedFunction("malloc").Call(ctx, api.EncodeI32(4+int32(output.Len())+swst.charSize))
 	if err != nil {
 		return 0, err
 	}
 	base := api.DecodeU32(mallocRes[0])
-	ptr := base + 4
 
-	ok = mod.Memory().WriteUint32Le(base, uint32(output.Len()))
+	ok = mod.Memory().WriteUint32Le(base, uint32(len(stringVal)))
 	if !ok {
 		return 0, fmt.Errorf("could not write length to memory")
 	}
 
-	ok = mod.Memory().Write(ptr, output.Bytes())
+	ok = mod.Memory().Write(base+4, output.Bytes())
 	if !ok {
 		return 0, fmt.Errorf("could not write string to memory")
 	}
 
-	ok = mod.Memory().Write(ptr+uint32(output.Len())+1, make([]byte, swst.charSize))
+	ok = mod.Memory().Write(base+4+uint32(output.Len()), make([]byte, swst.charSize))
 	if !ok {
 		return 0, fmt.Errorf("could not write NULL terminator to memory")
 	}
@@ -114,7 +113,7 @@ func (swst *stdWStringType) ToWireType(ctx context.Context, mod api.Module, dest
 		*destructors = destructorsRef
 	}
 
-	return 0, nil
+	return api.EncodeU32(base), nil
 }
 
 func (swst *stdWStringType) ReadValueFromPointer(ctx context.Context, mod api.Module, pointer uint32) (any, error) {

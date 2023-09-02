@@ -154,7 +154,7 @@ func (erc *classType) isAliasOf(ctx context.Context, first, second IClassBase) (
 	return leftClass == rightClass && left == right, nil
 }
 
-func (erc *classType) clone(from IClassBase) (IClassBase, error) {
+func (erc *classType) clone(ctx context.Context, from IClassBase) (IClassBase, error) {
 	registeredPtrTypeRecord := from.getRegisteredPtrTypeRecord()
 	if registeredPtrTypeRecord.ptr == 0 {
 		return nil, fmt.Errorf("class handle already deleted")
@@ -165,7 +165,7 @@ func (erc *classType) clone(from IClassBase) (IClassBase, error) {
 		return from, nil
 	}
 
-	clone, err := erc.getNewInstance(registeredPtrTypeRecord.shallowCopyInternalPointer())
+	clone, err := erc.getNewInstance(ctx, registeredPtrTypeRecord.shallowCopyInternalPointer())
 	if err != nil {
 		return nil, err
 	}
@@ -207,12 +207,14 @@ func (erc *classType) delete(ctx context.Context, handle IClassBase) error {
 	return nil
 }
 
-func (erc *classType) getNewInstance(record *registeredPointerTypeRecord) (IClassBase, error) {
+func (erc *classType) getNewInstance(ctx context.Context, record *registeredPointerTypeRecord) (IClassBase, error) {
+	e := MustGetEngineFromContext(ctx, nil).(*engine)
 	classBase := &ClassBase{
 		classType:               erc,
 		ptr:                     record.ptr,
 		ptrType:                 record.ptrType,
 		registeredPtrTypeRecord: record,
+		engine:                  e,
 	}
 
 	// If we have a Go struct, wrap the resulting class in it.
@@ -364,6 +366,10 @@ func (ecb *ClassBase) getClassType() *classType {
 	return ecb.classType
 }
 
+func (ecb *ClassBase) String() string {
+	return fmt.Sprintf("%s, ptr: %d", ecb.classType.name, ecb.ptr)
+}
+
 func (ecb *ClassBase) getPtr() uint32 {
 	return ecb.ptr
 }
@@ -380,8 +386,8 @@ func (ecb *ClassBase) isValid() bool {
 	return ecb != nil
 }
 
-func (ecb *ClassBase) Clone(this IClassBase) (IClassBase, error) {
-	return ecb.classType.clone(this)
+func (ecb *ClassBase) Clone(ctx context.Context, this IClassBase) (IClassBase, error) {
+	return ecb.classType.clone(ctx, this)
 }
 
 func (ecb *ClassBase) Delete(ctx context.Context, this IClassBase) error {
@@ -430,7 +436,7 @@ type IClassBase interface {
 	getPtrType() *registeredPointerType
 	getRegisteredPtrTypeRecord() *registeredPointerTypeRecord
 	isValid() bool
-	Clone(this IClassBase) (IClassBase, error)
+	Clone(ctx context.Context, this IClassBase) (IClassBase, error)
 	Delete(ctx context.Context, this IClassBase) error
 	CallMethod(ctx context.Context, this any, name string, arguments ...any) (any, error)
 	SetProperty(ctx context.Context, this any, name string, value any) error

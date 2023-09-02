@@ -2,14 +2,17 @@ package embind
 
 import (
 	"context"
-	"github.com/tetratelabs/wazero/api"
 	"log"
 	"os"
 	"testing"
 
+	embind "github.com/jerbob92/wazero-emscripten-embind/internal"
+	"github.com/jerbob92/wazero-emscripten-embind/types"
 	"github.com/tetratelabs/wazero"
 	"github.com/tetratelabs/wazero/imports/emscripten"
 	"github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1"
+
+	"github.com/tetratelabs/wazero/api"
 
 	. "github.com/onsi/ginkgo/v2"
 	. "github.com/onsi/gomega"
@@ -206,34 +209,67 @@ var _ = Describe("Calling embind functions", Label("library"), func() {
 			})
 		})
 
-		// @todo: fix me.
-		/*
-				Context("the return type is std wstring", func() {
-					It("has the correct return values", func() {
-						res, err := engine.CallPublicSymbol(ctx, "std_wstring_return_std_wstring", "embind")
-						Expect(err).To(BeNil())
-						Expect(res).To(Equal("Hello there embind"))
-					})
-				})
-
-				Context("the return type is a vector", func() {
-					It("has the correct return value", func() {
-						res, err := engine.CallPublicSymbol(ctx, "return_vector")
-						Expect(err).To(BeNil())
-						Expect(res).To(BeNil())
-						//Expect(res).To(Equal("Hello there embind"))
-					})
-				})
-
-			Context("the return type is a map", func() {
-				It("has the correct return value", func() {
-					res, err := engine.CallPublicSymbol(ctx, "return_map")
-					Expect(err).To(BeNil())
-					Expect(res).To(BeNil())
-					//Expect(res).To(Equal("Hello there embind"))
-				})
+		Context("the return type is std wstring", func() {
+			It("has the correct return values", func() {
+				res, err := engine.CallPublicSymbol(ctx, "std_wstring_return_std_wstring", "embind")
+				Expect(err).To(BeNil())
+				Expect(res).To(Equal("Hello there embind"))
 			})
-		*/
+		})
+
+		Context("the return type is a vector", func() {
+			It("has the correct return value", func() {
+				res, err := engine.CallPublicSymbol(ctx, "return_vector")
+				Expect(err).To(BeNil())
+				Expect(res).To(Not(BeNil()))
+				Expect(res).To(BeAssignableToTypeOf(&embind.ClassBase{}))
+				if obj, ok := res.(*embind.ClassBase); ok {
+					size, err := obj.CallMethod(ctx, obj, "size")
+					Expect(err).To(BeNil())
+					Expect(size).To(Equal(uint32(10)))
+
+					_, err = obj.CallMethod(ctx, obj, "resize", uint32(12), int32(1))
+					Expect(err).To(BeNil())
+
+					size, err = obj.CallMethod(ctx, obj, "size")
+					Expect(err).To(BeNil())
+					Expect(size).To(Equal(uint32(12)))
+
+					val, err := obj.CallMethod(ctx, obj, "get", uint32(1))
+					Expect(err).To(BeNil())
+					Expect(val).To(Equal(int32(1)))
+
+					_, err = obj.CallMethod(ctx, obj, "set", uint32(1), int32(2))
+					Expect(err).To(BeNil())
+
+					val, err = obj.CallMethod(ctx, obj, "get", uint32(1))
+					Expect(err).To(BeNil())
+					Expect(val).To(Equal(int32(2)))
+				}
+			})
+		})
+
+		Context("the return type is a map", func() {
+			It("has the correct return value", func() {
+				res, err := engine.CallPublicSymbol(ctx, "return_map")
+				Expect(err).To(BeNil())
+				Expect(res).To(Not(BeNil()))
+				Expect(res).To(BeAssignableToTypeOf(&embind.ClassBase{}))
+				if obj, ok := res.(*embind.ClassBase); ok {
+					size, err := obj.CallMethod(ctx, obj, "size")
+					Expect(err).To(BeNil())
+					Expect(size).To(Equal(uint32(1)))
+
+					val, err := obj.CallMethod(ctx, obj, "get", int32(10))
+					Expect(err).To(BeNil())
+					Expect(val).To(Equal("This is a string."))
+
+					val, err = obj.CallMethod(ctx, obj, "get", int32(1))
+					Expect(err).To(BeNil())
+					Expect(val).To(Equal(types.Undefined))
+				}
+			})
+		})
 
 		Context("the return type is a memory view", func() {
 			Context("of type char", func() {

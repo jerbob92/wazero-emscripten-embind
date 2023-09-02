@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"reflect"
 	"strconv"
 	"strings"
@@ -347,7 +346,6 @@ var RegisterConstant = api.GoModuleFunc(func(ctx context.Context, mod api.Module
 		cppValue := registeredType.FromF64(constantValue)
 		val, err := registeredType.FromWireType(ctx, engine.mod, cppValue)
 		if err != nil {
-			log.Println(err)
 			return nil, fmt.Errorf("could not initialize constant %s: %w", name, err)
 		}
 

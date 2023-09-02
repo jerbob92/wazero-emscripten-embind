@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/jerbob92/wazero-emscripten-embind/types"
+
 	"github.com/tetratelabs/wazero/api"
 )
 
@@ -21,7 +23,7 @@ func (bt *boolType) FromWireType(ctx context.Context, mod api.Module, value uint
 }
 
 func (bt *boolType) ToWireType(ctx context.Context, mod api.Module, destructors *[]*destructorFunc, o any) (uint64, error) {
-	if o == nil || o == undefined {
+	if o == nil || o == types.Undefined {
 		return api.EncodeI32(bt.falseVal), nil
 	}
 

@@ -108,11 +108,11 @@ func (rpt *registeredPointerType) FromWireType(ctx context.Context, mod api.Modu
 		if registeredInstance.getRegisteredPtrTypeRecord().count.value == 0 {
 			registeredInstance.getRegisteredPtrTypeRecord().ptr = rawPointer
 			registeredInstance.getRegisteredPtrTypeRecord().smartPtr = ptr
-			return registeredInstance.getClassType().clone(registeredInstance)
+			return registeredInstance.getClassType().clone(ctx, registeredInstance)
 		} else {
 			// else, just increment reference count on existing object
 			// it already has a reference to the smart pointer
-			rv, err := registeredInstance.getClassType().clone(registeredInstance)
+			rv, err := registeredInstance.getClassType().clone(ctx, registeredInstance)
 			if err != nil {
 				return nil, err
 			}
@@ -131,14 +131,14 @@ func (rpt *registeredPointerType) FromWireType(ctx context.Context, mod api.Modu
 
 	makeDefaultHandle := func() (any, error) {
 		if rpt.isSmartPointer {
-			return rpt.makeClassHandle(rpt.registeredClass, &registeredPointerTypeRecord{
+			return rpt.makeClassHandle(ctx, rpt.registeredClass, &registeredPointerTypeRecord{
 				ptrType:      rpt.pointeeType,
 				ptr:          rawPointer,
 				smartPtrType: rpt,
 				smartPtr:     ptr,
 			})
 		} else {
-			return rpt.makeClassHandle(rpt.registeredClass, &registeredPointerTypeRecord{
+			return rpt.makeClassHandle(ctx, rpt.registeredClass, &registeredPointerTypeRecord{
 				ptrType: rpt,
 				ptr:     ptr,
 			})
@@ -185,14 +185,14 @@ func (rpt *registeredPointerType) FromWireType(ctx context.Context, mod api.Modu
 	}
 
 	if rpt.isSmartPointer {
-		return rpt.makeClassHandle(toType.registeredClass, &registeredPointerTypeRecord{
+		return rpt.makeClassHandle(ctx, toType.registeredClass, &registeredPointerTypeRecord{
 			ptrType:      toType,
 			ptr:          dp,
 			smartPtrType: rpt,
 			smartPtr:     ptr,
 		})
 	} else {
-		return rpt.makeClassHandle(toType.registeredClass, &registeredPointerTypeRecord{
+		return rpt.makeClassHandle(ctx, toType.registeredClass, &registeredPointerTypeRecord{
 			ptrType: toType,
 			ptr:     dp,
 		})
@@ -385,7 +385,7 @@ func (rpt *registeredPointerType) genericPointerToWireType(ctx context.Context, 
 				ptr = registeredPtrTypeRecord.smartPtr
 			} else {
 				e := MustGetEngineFromContext(ctx, nil)
-				clonedHandle, err := handle.getClassType().clone(handle)
+				clonedHandle, err := handle.getClassType().clone(ctx, handle)
 				if err != nil {
 					return 0, err
 				}
@@ -523,7 +523,7 @@ func (rpt *registeredPointerType) downcastPointer(ctx context.Context, ptr uint3
 	return api.DecodeU32(downcastRes[0]), nil
 }
 
-func (rpt *registeredPointerType) makeClassHandle(class *classType, record *registeredPointerTypeRecord) (IClassBase, error) {
+func (rpt *registeredPointerType) makeClassHandle(ctx context.Context, class *classType, record *registeredPointerTypeRecord) (IClassBase, error) {
 	if record.ptrType == nil || record.ptr == 0 {
 		return nil, fmt.Errorf("makeClassHandle requires ptr and ptrType")
 	}
@@ -536,7 +536,7 @@ func (rpt *registeredPointerType) makeClassHandle(class *classType, record *regi
 		value: 1,
 	}
 
-	classHandle, err := class.getNewInstance(record)
+	classHandle, err := class.getNewInstance(ctx, record)
 	if err != nil {
 		return nil, err
 	}

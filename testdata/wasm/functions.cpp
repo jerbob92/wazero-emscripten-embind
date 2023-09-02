@@ -1,5 +1,4 @@
 #include <emscripten/bind.h>
-
 using namespace emscripten;
 
 bool bool_return_true() {

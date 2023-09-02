@@ -151,7 +151,3 @@ type registeredObjectField struct {
 	read               func(ctx context.Context, mod api.Module, ptr int32) (any, error)
 	write              func(ctx context.Context, mod api.Module, ptr int32, o any) error
 }
-
-type undefinedType int8
-
-var undefined = undefinedType(0)

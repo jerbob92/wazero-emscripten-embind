@@ -6,6 +6,8 @@ import (
 	"reflect"
 	"unicode"
 
+	"github.com/jerbob92/wazero-emscripten-embind/types"
+
 	"github.com/tetratelabs/wazero/api"
 )
 
@@ -165,7 +167,7 @@ func createEmvalEngine() *emvalEngine {
 			allocated: []*emvalHandle{
 				nil, // Reserve slot 0 so that 0 is always an invalid handle
 				{
-					value: undefined,
+					value: types.Undefined,
 				},
 				{
 					value: nil,
@@ -188,7 +190,7 @@ func createEmvalEngine() *emvalEngine {
 }
 
 func (e *emvalEngine) toHandle(value any) int32 {
-	if value == undefined {
+	if value == types.Undefined {
 		return 1
 	} else if value == nil {
 		return 2
@@ -212,7 +214,7 @@ func (e *emvalEngine) toValue(id int32) (any, error) {
 func (e *emvalEngine) getGlobal(name string) any {
 	global, ok := e.globals[name]
 	if !ok {
-		return undefined
+		return types.Undefined
 	}
 	return global
 }

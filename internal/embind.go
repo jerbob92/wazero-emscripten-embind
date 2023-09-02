@@ -2,6 +2,7 @@ package embind
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"github.com/tetratelabs/wazero/api"
 )
@@ -46,6 +47,10 @@ func MustGetEngineFromContext(ctx context.Context, mod api.Module) IEngine {
 	e, err := GetEngineFromContext(ctx)
 	if err != nil {
 		panic(fmt.Errorf("could not get embind engine from context: %w, make sure to create an engine with embind.CreateEngine() and to attach it to the context with \"ctx = context.WithValue(ctx, embind.EngineKey{}, engine)\"", err))
+	}
+
+	if e.(*engine) == nil {
+		panic(fmt.Errorf("could not get embind engine from context: %w, make sure to create an engine with embind.CreateEngine() and to attach it to the context with \"ctx = context.WithValue(ctx, embind.EngineKey{}, engine)\"", errors.New("nil engine")))
 	}
 
 	if e.(*engine).mod != nil {
