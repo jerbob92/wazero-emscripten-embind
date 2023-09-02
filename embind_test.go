@@ -201,6 +201,14 @@ var _ = Describe("Calling embind functions", Label("library"), func() {
 			})
 		})
 
+		Context("the return type is unsigned long long", func() {
+			It("has the correct return values", func() {
+				res, err := engine.CallPublicSymbol(ctx, "ulonglong_return_ulonglong", uint64(3))
+				Expect(err).To(BeNil())
+				Expect(res).To(Equal(uint64(6)))
+			})
+		})
+
 		Context("the return type is std string", func() {
 			It("has the correct return values", func() {
 				res, err := engine.CallPublicSymbol(ctx, "std_string_return_std_string", "embind")
@@ -394,7 +402,8 @@ var _ = Describe("Using embind constants", Label("library"), func() {
 			Expect(constantsMap).To(HaveKeyWithValue("SOME_CONSTANT_12", uint32(12)))
 			Expect(constantsMap).To(HaveKeyWithValue("SOME_CONSTANT_13", "TestWideString"))
 			Expect(constantsMap).To(HaveKeyWithValue("SOME_CONSTANT_14", true))
-			Expect(constantsMap).To(HaveLen(14))
+			Expect(constantsMap).To(HaveKeyWithValue("SOME_CONSTANT_15", uint64(15)))
+			Expect(constantsMap).To(HaveLen(15))
 		})
 	})
 })

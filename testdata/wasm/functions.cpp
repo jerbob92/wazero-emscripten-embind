@@ -55,6 +55,10 @@ long long longlong_return_longlong(long long a) {
     return a + a;
 }
 
+unsigned long long ulonglong_return_ulonglong(unsigned long long a) {
+    return a + a;
+}
+
 std::string std_string_return_std_string(std::string in) {
     return "Hello there " + in;
 }
@@ -150,6 +154,7 @@ EMSCRIPTEN_BINDINGS(functions) {
     function("ulong_return_ulong", &ulong_return_ulong);
     function("ushort_return_ushort", &ushort_return_ushort);
     function("longlong_return_longlong", &longlong_return_longlong);
+    function("ulonglong_return_ulonglong", &ulonglong_return_ulonglong);
     function("std_string_return_std_string", &std_string_return_std_string);
     function("std_wstring_return_std_wstring", &std_wstring_return_std_wstring);
 
