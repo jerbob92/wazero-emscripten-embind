@@ -2,7 +2,7 @@
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/jerbob92/wazero-emscripten-embind.svg)](https://pkg.go.dev/github.com/jerbob92/wazero-emscripten-embind)
 [![Build Status][build-status]][build-url]
-<!--[![codecov](https://codecov.io/gh/jerbob92/wazero-emscripten-embind/graph/badge.svg?token=4SC2SOJNZK)](https://codecov.io/gh/jerbob92/wazero-emscripten-embind)-->
+[![codecov](https://codecov.io/gh/jerbob92/wazero-emscripten-embind/graph/badge.svg?token=4SC2SOJNZK)](https://codecov.io/gh/jerbob92/wazero-emscripten-embind)
 
 [build-status]:https://github.com/jerbob92/wazero-emscripten-embind/workflows/Go/badge.svg
 [build-url]:https://github.com/jerbob92/wazero-emscripten-embind/actions
