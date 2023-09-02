@@ -1,4 +1,4 @@
-package embind
+package embind_test
 
 import (
 	"context"
@@ -6,7 +6,10 @@ import (
 	"os"
 	"testing"
 
+	embind_external "github.com/jerbob92/wazero-emscripten-embind"
+	"github.com/jerbob92/wazero-emscripten-embind/generator/generator"
 	embind "github.com/jerbob92/wazero-emscripten-embind/internal"
+
 	"github.com/jerbob92/wazero-emscripten-embind/types"
 	"github.com/tetratelabs/wazero"
 	"github.com/tetratelabs/wazero/imports/emscripten"
@@ -24,9 +27,10 @@ func TestEmbind(t *testing.T) {
 }
 
 var ctx = context.Background()
-var engine Engine
+var engine embind_external.Engine
 var runtime wazero.Runtime
 var mod api.Module
+var wasmData []byte
 
 var _ = BeforeSuite(func() {
 	wasm, err := os.ReadFile("./testdata/wasm/tests.wasm")
@@ -34,6 +38,8 @@ var _ = BeforeSuite(func() {
 		Expect(err).To(BeNil())
 		return
 	}
+
+	wasmData = wasm
 
 	runtimeConfig := wazero.NewRuntimeConfig()
 	runtime = wazero.NewRuntimeWithConfig(ctx, runtimeConfig)
@@ -58,7 +64,7 @@ var _ = BeforeSuite(func() {
 
 	emscriptenExporter.ExportFunctions(builder)
 
-	engine = CreateEngine(NewConfig())
+	engine = embind_external.CreateEngine(embind_external.NewConfig())
 
 	embindExporter := engine.NewFunctionExporterForModule(compiledModule)
 	err = embindExporter.ExportFunctions(builder)
@@ -93,6 +99,14 @@ var _ = AfterSuite(func() {
 
 var _ = Describe("Calling embind functions", Label("library"), func() {
 	When("the function is being called", func() {
+		It("gives an error on an invalid argument count", func() {
+			res, err := engine.CallPublicSymbol(ctx, "bool_return_bool", 1, 2)
+			Expect(err).To(Not(BeNil()))
+			if err != nil {
+				Expect(err.Error()).To(ContainSubstring("function bool_return_bool called with 2 argument(s), expected 1 arg(s)"))
+			}
+			Expect(res).To(BeNil())
+		})
 		Context("the return type is bool", func() {
 			It("has the correct return values", func() {
 				res, err := engine.CallPublicSymbol(ctx, "bool_return_true")
@@ -122,6 +136,14 @@ var _ = Describe("Calling embind functions", Label("library"), func() {
 		})
 
 		Context("the return type is float", func() {
+			It("gives an error on an invalid input", func() {
+				res, err := engine.CallPublicSymbol(ctx, "float_return_float", 1)
+				Expect(err).To(Not(BeNil()))
+				if err != nil {
+					Expect(err.Error()).To(ContainSubstring("could not get wire type of argument 0 (float): value must be of type float32"))
+				}
+				Expect(res).To(BeNil())
+			})
 			It("has the correct return values", func() {
 				res, err := engine.CallPublicSymbol(ctx, "float_return_float", float32(3))
 				Expect(err).To(BeNil())
@@ -130,6 +152,14 @@ var _ = Describe("Calling embind functions", Label("library"), func() {
 		})
 
 		Context("the return type is double", func() {
+			It("gives an error on an invalid input", func() {
+				res, err := engine.CallPublicSymbol(ctx, "double_return_double", 1)
+				Expect(err).To(Not(BeNil()))
+				if err != nil {
+					Expect(err.Error()).To(ContainSubstring("could not get wire type of argument 0 (double): value must be of type float64"))
+				}
+				Expect(res).To(BeNil())
+			})
 			It("has the correct return values", func() {
 				res, err := engine.CallPublicSymbol(ctx, "double_return_double", float64(3))
 				Expect(err).To(BeNil())
@@ -138,6 +168,14 @@ var _ = Describe("Calling embind functions", Label("library"), func() {
 		})
 
 		Context("the return type is int", func() {
+			It("gives an error on an invalid input", func() {
+				res, err := engine.CallPublicSymbol(ctx, "int_return_int", 1)
+				Expect(err).To(Not(BeNil()))
+				if err != nil {
+					Expect(err.Error()).To(ContainSubstring("could not get wire type of argument 0 (int): value must be of type int32"))
+				}
+				Expect(res).To(BeNil())
+			})
 			It("has the correct return values", func() {
 				res, err := engine.CallPublicSymbol(ctx, "int_return_int", int32(3))
 				Expect(err).To(BeNil())
@@ -146,6 +184,14 @@ var _ = Describe("Calling embind functions", Label("library"), func() {
 		})
 
 		Context("the return type is char", func() {
+			It("gives an error on an invalid input", func() {
+				res, err := engine.CallPublicSymbol(ctx, "char_return_char", 1)
+				Expect(err).To(Not(BeNil()))
+				if err != nil {
+					Expect(err.Error()).To(ContainSubstring("could not get wire type of argument 0 (char): value must be of type int8, is int"))
+				}
+				Expect(res).To(BeNil())
+			})
 			It("has the correct return values", func() {
 				res, err := engine.CallPublicSymbol(ctx, "char_return_char", int8(3))
 				Expect(err).To(BeNil())
@@ -154,6 +200,14 @@ var _ = Describe("Calling embind functions", Label("library"), func() {
 		})
 
 		Context("the return type is long", func() {
+			It("gives an error on an invalid input", func() {
+				res, err := engine.CallPublicSymbol(ctx, "long_return_long", 1)
+				Expect(err).To(Not(BeNil()))
+				if err != nil {
+					Expect(err.Error()).To(ContainSubstring("could not get wire type of argument 0 (long): value must be of type int32, is int"))
+				}
+				Expect(res).To(BeNil())
+			})
 			It("has the correct return values", func() {
 				res, err := engine.CallPublicSymbol(ctx, "long_return_long", int32(3))
 				Expect(err).To(BeNil())
@@ -162,6 +216,14 @@ var _ = Describe("Calling embind functions", Label("library"), func() {
 		})
 
 		Context("the return type is short", func() {
+			It("gives an error on an invalid input", func() {
+				res, err := engine.CallPublicSymbol(ctx, "short_return_short", 1)
+				Expect(err).To(Not(BeNil()))
+				if err != nil {
+					Expect(err.Error()).To(ContainSubstring("could not get wire type of argument 0 (short): value must be of type int16, is int"))
+				}
+				Expect(res).To(BeNil())
+			})
 			It("has the correct return values", func() {
 				res, err := engine.CallPublicSymbol(ctx, "short_return_short", int16(3))
 				Expect(err).To(BeNil())
@@ -170,6 +232,14 @@ var _ = Describe("Calling embind functions", Label("library"), func() {
 		})
 
 		Context("the return type is unsigned char", func() {
+			It("gives an error on an invalid input", func() {
+				res, err := engine.CallPublicSymbol(ctx, "uchar_return_uchar", 1)
+				Expect(err).To(Not(BeNil()))
+				if err != nil {
+					Expect(err.Error()).To(ContainSubstring("could not get wire type of argument 0 (unsigned char): value must be of type uint8, is int"))
+				}
+				Expect(res).To(BeNil())
+			})
 			It("has the correct return values", func() {
 				res, err := engine.CallPublicSymbol(ctx, "uchar_return_uchar", uint8(3))
 				Expect(err).To(BeNil())
@@ -178,6 +248,14 @@ var _ = Describe("Calling embind functions", Label("library"), func() {
 		})
 
 		Context("the return type is unsigned int", func() {
+			It("gives an error on an invalid input", func() {
+				res, err := engine.CallPublicSymbol(ctx, "uint_return_uint", 1)
+				Expect(err).To(Not(BeNil()))
+				if err != nil {
+					Expect(err.Error()).To(ContainSubstring("could not get wire type of argument 0 (unsigned int): value must be of type uint32, is int"))
+				}
+				Expect(res).To(BeNil())
+			})
 			It("has the correct return values", func() {
 				res, err := engine.CallPublicSymbol(ctx, "uint_return_uint", uint32(3))
 				Expect(err).To(BeNil())
@@ -186,6 +264,14 @@ var _ = Describe("Calling embind functions", Label("library"), func() {
 		})
 
 		Context("the return type is unsigned long", func() {
+			It("gives an error on an invalid input", func() {
+				res, err := engine.CallPublicSymbol(ctx, "ulong_return_ulong", 1)
+				Expect(err).To(Not(BeNil()))
+				if err != nil {
+					Expect(err.Error()).To(ContainSubstring("could not get wire type of argument 0 (unsigned long): value must be of type uint32, is int"))
+				}
+				Expect(res).To(BeNil())
+			})
 			It("has the correct return values", func() {
 				res, err := engine.CallPublicSymbol(ctx, "ulong_return_ulong", uint32(3))
 				Expect(err).To(BeNil())
@@ -194,6 +280,14 @@ var _ = Describe("Calling embind functions", Label("library"), func() {
 		})
 
 		Context("the return type is unsigned short", func() {
+			It("gives an error on an invalid input", func() {
+				res, err := engine.CallPublicSymbol(ctx, "ushort_return_ushort", 1)
+				Expect(err).To(Not(BeNil()))
+				if err != nil {
+					Expect(err.Error()).To(ContainSubstring("could not get wire type of argument 0 (unsigned short): value must be of type uint16, is int"))
+				}
+				Expect(res).To(BeNil())
+			})
 			It("has the correct return values", func() {
 				res, err := engine.CallPublicSymbol(ctx, "ushort_return_ushort", uint16(3))
 				Expect(err).To(BeNil())
@@ -202,6 +296,14 @@ var _ = Describe("Calling embind functions", Label("library"), func() {
 		})
 
 		Context("the return type is long long", func() {
+			It("gives an error on an invalid input", func() {
+				res, err := engine.CallPublicSymbol(ctx, "longlong_return_longlong", 1)
+				Expect(err).To(Not(BeNil()))
+				if err != nil {
+					Expect(err.Error()).To(ContainSubstring("could not get wire type of argument 0 (int64_t): value must be of type int64"))
+				}
+				Expect(res).To(BeNil())
+			})
 			It("has the correct return values", func() {
 				res, err := engine.CallPublicSymbol(ctx, "longlong_return_longlong", int64(3))
 				Expect(err).To(BeNil())
@@ -210,6 +312,14 @@ var _ = Describe("Calling embind functions", Label("library"), func() {
 		})
 
 		Context("the return type is unsigned long long", func() {
+			It("gives an error on an invalid input", func() {
+				res, err := engine.CallPublicSymbol(ctx, "ulonglong_return_ulonglong", 1)
+				Expect(err).To(Not(BeNil()))
+				if err != nil {
+					Expect(err.Error()).To(ContainSubstring("could not get wire type of argument 0 (uint64_t): value must be of type uint64"))
+				}
+				Expect(res).To(BeNil())
+			})
 			It("has the correct return values", func() {
 				res, err := engine.CallPublicSymbol(ctx, "ulonglong_return_ulonglong", uint64(3))
 				Expect(err).To(BeNil())
@@ -218,6 +328,14 @@ var _ = Describe("Calling embind functions", Label("library"), func() {
 		})
 
 		Context("the return type is std string", func() {
+			It("gives an error on an invalid input", func() {
+				res, err := engine.CallPublicSymbol(ctx, "std_string_return_std_string", 1)
+				Expect(err).To(Not(BeNil()))
+				if err != nil {
+					Expect(err.Error()).To(ContainSubstring("could not get wire type of argument 0 (std::string): value must be of type string"))
+				}
+				Expect(res).To(BeNil())
+			})
 			It("has the correct return values", func() {
 				res, err := engine.CallPublicSymbol(ctx, "std_string_return_std_string", "embind")
 				Expect(err).To(BeNil())
@@ -226,6 +344,14 @@ var _ = Describe("Calling embind functions", Label("library"), func() {
 		})
 
 		Context("the return type is std wstring", func() {
+			It("gives an error on an invalid input", func() {
+				res, err := engine.CallPublicSymbol(ctx, "std_wstring_return_std_wstring", 1)
+				Expect(err).To(Not(BeNil()))
+				if err != nil {
+					Expect(err.Error()).To(ContainSubstring("could not get wire type of argument 0 (std::wstring): input must be a string, was int"))
+				}
+				Expect(res).To(BeNil())
+			})
 			It("has the correct return values", func() {
 				res, err := engine.CallPublicSymbol(ctx, "std_wstring_return_std_wstring", "embind")
 				Expect(err).To(BeNil())
@@ -234,6 +360,14 @@ var _ = Describe("Calling embind functions", Label("library"), func() {
 		})
 
 		Context("the return type is std u16string", func() {
+			It("gives an error on an invalid input", func() {
+				res, err := engine.CallPublicSymbol(ctx, "std_u16string_return_std_u16string", 1)
+				Expect(err).To(Not(BeNil()))
+				if err != nil {
+					Expect(err.Error()).To(ContainSubstring("could not get wire type of argument 0 (std::u16string): input must be a string, was int"))
+				}
+				Expect(res).To(BeNil())
+			})
 			It("has the correct return values", func() {
 				res, err := engine.CallPublicSymbol(ctx, "std_u16string_return_std_u16string", "embind")
 				Expect(err).To(BeNil())
@@ -804,6 +938,15 @@ var _ = Describe("Using embind classes", Label("library"), func() {
 					Expect(res).To(Equal("test"))
 				})
 			})
+		})
+	})
+})
+
+var _ = Describe("Using the generator", Label("generator"), func() {
+	When("generating the code", func() {
+		It("succeeds generating the code", func() {
+			err := generator.Generate("./testdata/generator", "./testdata/generator/generate.go", wasmData, "_initialize")
+			Expect(err).To(BeNil())
 		})
 	})
 })

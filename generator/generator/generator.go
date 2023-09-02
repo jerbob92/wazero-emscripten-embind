@@ -1,17 +1,15 @@
-package main
+package generator
 
 import (
 	"bytes"
 	"context"
 	"embed"
-	"flag"
 	"fmt"
 	"go/format"
 	"go/token"
 	"log"
 	"os"
 	"path"
-	"path/filepath"
 	"sort"
 	"strconv"
 	"strings"
@@ -30,46 +28,15 @@ var (
 	//go:embed templates/*
 	templates embed.FS
 )
-var (
-	packagePath  string
-	fileName     string
-	initFunction *string
-	wasm         *string
-	verbose      *bool
-)
 
-func init() {
-	fileName = os.Getenv("GOFILE")
-	wasm = flag.String("wasm", "", "the wasm file to process")
-	initFunction = flag.String("init", "_initialize", "the function to execute to make Emscripten register the types")
-	verbose = flag.Bool("v", false, "enable verbose logging")
-}
-
-func Usage() {
-	fmt.Fprintf(os.Stderr, "Usage of wazero-emscripten-embind/generator:\n")
-	fmt.Fprintf(os.Stderr, "TODO\n")
-}
-
-func main() {
-	flag.Usage = Usage
-	flag.Parse()
-
-	dir, err := filepath.Abs(".")
-	if err != nil {
-		panic(err)
-	}
-
+func Generate(dir string, fileName string, wasm []byte, initFunction string) error {
 	fset := token.NewFileSet()
 	pkgs, err := packages.Load(&packages.Config{
 		Fset: fset,
 		Mode: packages.NeedSyntax | packages.NeedName | packages.NeedModule | packages.NeedTypes | packages.NeedTypesInfo,
 	}, fmt.Sprintf("file=%s", fileName))
 	if err != nil {
-		panic(err)
-	}
-
-	if wasm == nil {
-		log.Fatal("No wasm file given")
+		return err
 	}
 
 	ctx := context.Background()
@@ -78,23 +45,18 @@ func main() {
 	defer r.Close(ctx)
 
 	if _, err := wasi_snapshot_preview1.Instantiate(ctx, r); err != nil {
-		log.Fatal(err)
+		return err
 	}
 
-	wasmData, err := os.ReadFile(*wasm)
+	compiledModule, err := r.CompileModule(ctx, wasm)
 	if err != nil {
-		log.Fatal(err)
-	}
-
-	compiledModule, err := r.CompileModule(ctx, wasmData)
-	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	builder := r.NewHostModuleBuilder("env")
 	emscriptenExporter, err := emscripten.NewFunctionExporterForModule(compiledModule)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 	emscriptenExporter.ExportFunctions(builder)
 
@@ -104,12 +66,12 @@ func main() {
 	embindExporter := engine.NewFunctionExporterForModule(compiledModule)
 	err = embindExporter.ExportFunctions(builder)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	_, err = builder.Instantiate(ctx)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	moduleConfig := wazero.NewModuleConfig().
@@ -118,17 +80,17 @@ func main() {
 
 	mod, err := r.InstantiateModule(ctx, compiledModule, moduleConfig)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
-	initFunc := mod.ExportedFunction(*initFunction)
+	initFunc := mod.ExportedFunction(initFunction)
 	if initFunc == nil {
-		log.Fatalf("init function %s does not exist", *initFunction)
+		log.Fatalf("init function %s does not exist", initFunction)
 	}
 
 	res, err := initFunc.Call(ctx)
 	if res != nil {
-		log.Fatal(fmt.Errorf("could not call init function %w", err))
+		return fmt.Errorf("could not call init function %w", err)
 	}
 
 	packageName := pkgs[0].Name
@@ -371,54 +333,73 @@ func main() {
 	})
 
 	if len(data.Classes) > 0 {
-		ExecuteTemplate(templates, "classes.tmpl", path.Join(dir, "classes.go"), data)
+		err = ExecuteTemplate(templates, "classes.tmpl", path.Join(dir, "classes.go"), data)
+		if err != nil {
+			return err
+		}
 	} else {
 		_ = os.Remove(path.Join(dir, "classes.go"))
 	}
 	if len(data.Constants) > 0 {
-		ExecuteTemplate(templates, "constants.tmpl", path.Join(dir, "constants.go"), data)
+		err = ExecuteTemplate(templates, "constants.tmpl", path.Join(dir, "constants.go"), data)
+		if err != nil {
+			return err
+		}
 	} else {
 		_ = os.Remove(path.Join(dir, "constants.go"))
 	}
 	if len(data.Symbols) > 0 {
-		ExecuteTemplate(templates, "functions.tmpl", path.Join(dir, "functions.go"), data)
+		err = ExecuteTemplate(templates, "functions.tmpl", path.Join(dir, "functions.go"), data)
+		if err != nil {
+			return err
+		}
 	} else {
 		_ = os.Remove(path.Join(dir, "functions.go"))
 	}
 	if len(data.Enums) > 0 {
-		ExecuteTemplate(templates, "enums.tmpl", path.Join(dir, "enums.go"), data)
+		err = ExecuteTemplate(templates, "enums.tmpl", path.Join(dir, "enums.go"), data)
+		if err != nil {
+			return err
+		}
 	} else {
 		_ = os.Remove(path.Join(dir, "enums.go"))
 	}
-	ExecuteTemplate(templates, "engine.tmpl", path.Join(dir, "engine.go"), data)
+
+	err = ExecuteTemplate(templates, "engine.tmpl", path.Join(dir, "engine.go"), data)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 var TemplateFunctions = template.FuncMap{
 	"lower": strings.ToLower,
 }
 
-func ExecuteTemplate(tmpl *template.Template, name string, path string, data TemplateData) {
+func ExecuteTemplate(tmpl *template.Template, name string, path string, data TemplateData) error {
 	writer := bytes.NewBuffer(nil)
 	err := tmpl.ExecuteTemplate(writer, name, data)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	fileBytes := writer.Bytes()
 	formattedSource, err := format.Source(fileBytes)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	fileWriter, err := os.Create(path)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	defer fileWriter.Close()
 	_, err = fileWriter.Write(formattedSource)
 	if err != nil {
-		panic(err)
+		return err
 	}
+	return nil
 }
 
 type TemplateData struct {
