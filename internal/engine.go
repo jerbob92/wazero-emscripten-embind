@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"reflect"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -233,8 +234,9 @@ func (e *engine) ensureOverloadTable(registry map[string]*publicSymbol, methodNa
 			if !ok {
 				possibleOverloads := make([]string, len(registry[methodName].overloadTable))
 				for i := range registry[methodName].overloadTable {
-					possibleOverloads = append(possibleOverloads, strconv.Itoa(int(i)))
+					possibleOverloads[i] = strconv.Itoa(int(i))
 				}
+				sort.Strings(possibleOverloads)
 				return nil, fmt.Errorf("function '%s' called with an invalid number of arguments (%d) - expects one of (%s)", humanName, len(arguments), strings.Join(possibleOverloads, ", "))
 			}
 

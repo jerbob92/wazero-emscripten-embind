@@ -423,6 +423,11 @@ func (ecb *ClassBase) SetProperty(ctx context.Context, this any, name string, va
 	// Ensure that the engine is attached. Allows setting properties on the
 	// class without keeping track of the engine.
 	ctx = ecb.engine.Attach(ctx)
+
+	if property.ReadOnly() {
+		return fmt.Errorf("property %s on %T is read-only", name, this)
+	}
+
 	return property.set(ctx, this, value)
 }
 

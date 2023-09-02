@@ -229,7 +229,11 @@ func (rpt *registeredPointerType) constNoSmartPtrRawPointerToWireType(ctx contex
 		return 0, nil
 	}
 
-	handle := o.(IClassBase)
+	handle, ok := o.(IClassBase)
+	if !ok {
+		return 0, fmt.Errorf("invalid %s, check whether you constructed it properly through embind, the given value is a %T", rpt.name, o)
+	}
+
 	_, isBaseClass := o.(*ClassBase)
 	if !isBaseClass {
 		// @todo: can we do this without reflection?
@@ -266,7 +270,10 @@ func (rpt *registeredPointerType) nonConstNoSmartPtrRawPointerToWireType(ctx con
 		return 0, nil
 	}
 
-	handle := o.(IClassBase)
+	handle, ok := o.(IClassBase)
+	if !ok {
+		return 0, fmt.Errorf("invalid %s, check whether you constructed it properly through embind, the given value is a %T", rpt.name, o)
+	}
 	_, isBaseClass := o.(*ClassBase)
 	if !isBaseClass {
 		// @todo: can we do this without reflection?
@@ -322,7 +329,11 @@ func (rpt *registeredPointerType) genericPointerToWireType(ctx context.Context, 
 		}
 	}
 
-	handle := o.(IClassBase)
+	handle, ok := o.(IClassBase)
+	if !ok {
+		return 0, fmt.Errorf("invalid %s, check whether you constructed it properly through embind, the given value is a %T", rpt.name, o)
+	}
+
 	_, isBaseClass := o.(*ClassBase)
 	if !isBaseClass {
 		// @todo: can we do this without reflection?

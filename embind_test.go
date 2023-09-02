@@ -393,6 +393,24 @@ var _ = Describe("Calling embind functions", Label("library"), func() {
 			})
 		})
 		Context("when an overload table is used", func() {
+			It("gives an error on an unknown number of arguments", func() {
+				res, err := engine.CallPublicSymbol(ctx, "function_overload", 1, 2, 3)
+				Expect(err).To(Not(BeNil()))
+				if err != nil {
+					Expect(err.Error()).To(ContainSubstring("function 'function_overload' called with an invalid number of arguments (3) - expects one of (0, 1)"))
+				}
+				Expect(res).To(BeNil())
+			})
+
+			It("gives an error on a wrong argument type", func() {
+				res, err := engine.CallPublicSymbol(ctx, "function_overload", "test")
+				Expect(err).To(Not(BeNil()))
+				if err != nil {
+					Expect(err.Error()).To(ContainSubstring("function_overload: could not get wire type of argument 0 (int): value must be of type int32, is string"))
+				}
+				Expect(res).To(BeNil())
+			})
+
 			It("picks the correct item from the overload table", func() {
 				res, err := engine.CallPublicSymbol(ctx, "function_overload")
 				Expect(err).To(BeNil())
@@ -585,6 +603,207 @@ Configuring oscillator
 Playing
 All done!
 `))
+		})
+	})
+})
+
+var _ = Describe("Using embind classes", Label("library"), func() {
+	When("Constructing a new class", func() {
+		It("fails when an invalid number of arguments is given", func() {
+			res, err := engine.CallPublicSymbol(ctx, "MyClass")
+			Expect(err).To(Not(BeNil()))
+			if err != nil {
+				Expect(err.Error()).To(ContainSubstring("with invalid number of parameters (0) - expected (1 or 2) parameters instead"))
+			}
+			Expect(res).To(BeNil())
+		})
+		It("fails when an invalid argument is given", func() {
+			res, err := engine.CallPublicSymbol(ctx, "MyClass", float64(123))
+			Expect(err).To(Not(BeNil()))
+			if err != nil {
+				Expect(err.Error()).To(ContainSubstring("could not get wire type of argument 0 (int): value must be of type int32, is float64"))
+			}
+			Expect(res).To(BeNil())
+		})
+
+		It("succeeds to construct with both overloads", func() {
+			res, err := engine.CallPublicSymbol(ctx, "MyClass", int32(123))
+			Expect(err).To(BeNil())
+			Expect(res).To(Not(BeNil()))
+			Expect(res).To(BeAssignableToTypeOf(&embind.ClassBase{}))
+
+			res, err = engine.CallPublicSymbol(ctx, "MyClass", int32(123), "test123")
+			Expect(err).To(BeNil())
+			Expect(res).To(Not(BeNil()))
+			Expect(res).To(BeAssignableToTypeOf(&embind.ClassBase{}))
+		})
+
+		Context("when the class has been constructed", func() {
+			var myClass *embind.ClassBase
+			BeforeEach(func() {
+				res, err := engine.CallPublicSymbol(ctx, "MyClass", int32(123), "test")
+				Expect(err).To(BeNil())
+				Expect(res).To(Not(BeNil()))
+				Expect(res).To(BeAssignableToTypeOf(&embind.ClassBase{}))
+				if obj, ok := res.(*embind.ClassBase); ok {
+					myClass = obj
+				}
+			})
+
+			AfterEach(func() {
+				if myClass != nil {
+					err := myClass.Delete(ctx, myClass)
+					Expect(err).To(BeNil())
+				}
+			})
+
+			Context("when calling functions", func() {
+				It("gives an error on an unknown function", func() {
+					res, err := myClass.CallMethod(ctx, myClass, "unknown", 1, 2, 3)
+					Expect(err).To(Not(BeNil()))
+					if err != nil {
+						Expect(err.Error()).To(ContainSubstring("method unknown is not found"))
+					}
+					Expect(res).To(BeNil())
+				})
+
+				It("gives an error on a function with a wrong argument count", func() {
+					res, err := myClass.CallMethod(ctx, myClass, "getY", 1, 2, 3)
+					Expect(err).To(Not(BeNil()))
+					if err != nil {
+						Expect(err.Error()).To(ContainSubstring("called with 3 argument(s), expected 1 arg(s)"))
+					}
+					Expect(res).To(BeNil())
+				})
+
+				It("gives an error on a function with a wrong argument", func() {
+					res, err := myClass.CallMethod(ctx, myClass, "getY", 1)
+					Expect(err).To(Not(BeNil()))
+					if err != nil {
+						Expect(err.Error()).To(ContainSubstring("could not get wire type of argument 0 (std::string): value must be of type string"))
+					}
+					Expect(res).To(BeNil())
+				})
+
+				It("can call the method correctly", func() {
+					res, err := myClass.CallMethod(ctx, myClass, "getY", "hello ")
+					Expect(err).To(BeNil())
+					Expect(res).To(Equal("hello test"))
+				})
+
+				Context("that have overloads", func() {
+					It("fails when giving an invalid overload", func() {
+						res, err := myClass.CallMethod(ctx, myClass, "incrementX", 1, 2, 3)
+						Expect(err).To(Not(BeNil()))
+						if err != nil {
+							Expect(err.Error()).To(ContainSubstring("called with an invalid number of arguments (3) - expects one of (0, 1)"))
+						}
+						Expect(res).To(BeNil())
+					})
+
+					It("works with each of the overloads", func() {
+						res, err := myClass.CallMethod(ctx, myClass, "incrementX", int32(1))
+						Expect(err).To(BeNil())
+						Expect(res).To(BeNil())
+
+						res, err = myClass.CallMethod(ctx, myClass, "incrementX")
+						Expect(err).To(BeNil())
+						Expect(res).To(BeNil())
+					})
+				})
+			})
+			Context("when calling setters/getters", func() {
+				It("gives an error on an unknown property", func() {
+					res, err := myClass.GetProperty(ctx, myClass, "test")
+					Expect(err).To(Not(BeNil()))
+					if err != nil {
+						Expect(err.Error()).To(ContainSubstring("property test is not found"))
+					}
+					Expect(res).To(BeNil())
+
+					err = myClass.SetProperty(ctx, myClass, "test", 123)
+					Expect(err).To(Not(BeNil()))
+					if err != nil {
+						Expect(err.Error()).To(ContainSubstring("property test is not found"))
+					}
+					Expect(res).To(BeNil())
+				})
+
+				It("gives an error when setting on a readonly property", func() {
+					err := myClass.SetProperty(ctx, myClass, "y", "")
+					Expect(err).To(Not(BeNil()))
+					if err != nil {
+						Expect(err.Error()).To(ContainSubstring("is read-only"))
+					}
+				})
+
+				It("gives an error when setting with a wrong argument", func() {
+					err := myClass.SetProperty(ctx, myClass, "x", "")
+					Expect(err).To(Not(BeNil()))
+					if err != nil {
+						Expect(err.Error()).To(ContainSubstring("value must be of type int32, is string"))
+					}
+				})
+
+				It("allows setting and getting a property", func() {
+					err := myClass.SetProperty(ctx, myClass, "x", int32(3))
+					Expect(err).To(BeNil())
+
+					res, err := myClass.GetProperty(ctx, myClass, "x")
+					Expect(err).To(BeNil())
+					Expect(res).To(Equal(int32(3)))
+				})
+
+				It("allows getting a property", func() {
+					res, err := myClass.GetProperty(ctx, myClass, "x")
+					Expect(err).To(BeNil())
+					Expect(res).To(Equal(int32(123)))
+				})
+			})
+
+			Context("when calling static methods", func() {
+				It("gives an error on an unknown class", func() {
+					res, err := engine.CallStaticClassMethod(ctx, "MyClass123", "test")
+					Expect(err).To(Not(BeNil()))
+					if err != nil {
+						Expect(err.Error()).To(ContainSubstring("could not find class MyClass123"))
+					}
+					Expect(res).To(BeNil())
+				})
+
+				It("gives an error on an unknown method", func() {
+					res, err := engine.CallStaticClassMethod(ctx, "MyClass", "test")
+					Expect(err).To(Not(BeNil()))
+					if err != nil {
+						Expect(err.Error()).To(ContainSubstring("could not find method test on class MyClass"))
+					}
+					Expect(res).To(BeNil())
+				})
+
+				It("gives an error on an invalid argument", func() {
+					res, err := engine.CallStaticClassMethod(ctx, "MyClass", "getStringFromInstance", 123)
+					Expect(err).To(Not(BeNil()))
+					if err != nil {
+						Expect(err.Error()).To(ContainSubstring("could not get wire type of argument 0 (MyClass): invalid MyClass, check whether you constructed it properly through embind, the given value is a int"))
+					}
+					Expect(res).To(BeNil())
+				})
+
+				It("gives an error on an invalid argument count", func() {
+					res, err := engine.CallStaticClassMethod(ctx, "MyClass", "getStringFromInstance", 1, 2)
+					Expect(err).To(Not(BeNil()))
+					if err != nil {
+						Expect(err.Error()).To(ContainSubstring("function MyClass.getStringFromInstance called with 2 argument(s), expected 1 arg(s)"))
+					}
+					Expect(res).To(BeNil())
+				})
+
+				It("allows calling a static method", func() {
+					res, err := engine.CallStaticClassMethod(ctx, "MyClass", "getStringFromInstance", myClass)
+					Expect(err).To(BeNil())
+					Expect(res).To(Equal("test"))
+				})
+			})
 		})
 	})
 })

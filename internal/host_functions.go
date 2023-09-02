@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -996,6 +997,7 @@ var RegisterClass = api.GoModuleFunc(func(ctx context.Context, mod api.Module, s
 				for i := range engine.registeredClasses[name].constructors {
 					availableLengths = append(availableLengths, strconv.Itoa(int(i)))
 				}
+				sort.Strings(availableLengths)
 				return nil, fmt.Errorf("tried to invoke ctor of %s with invalid number of parameters (%d) - expected (%s) parameters instead", name, len(arguments), strings.Join(availableLengths, " or "))
 			}
 
@@ -1349,6 +1351,7 @@ var RegisterClassProperty = api.GoModuleFunc(func(ctx context.Context, mod api.M
 					return getterReturnType.FromWireType(ctx, engine.mod, res[0])
 				},
 				enumerable: true,
+				readOnly:   true,
 			}
 
 			if setter > 0 {
@@ -1358,6 +1361,7 @@ var RegisterClassProperty = api.GoModuleFunc(func(ctx context.Context, mod api.M
 					return nil, fmt.Errorf("could not create _embind_register_class_property setterFunc: %w", err)
 				}
 
+				desc.readOnly = false
 				desc.setterType = setterArgumentType
 				desc.set = func(ctx context.Context, this any, v any) error {
 					ptr, err := engine.validateThis(ctx, this, classType, humanName+" setter")
