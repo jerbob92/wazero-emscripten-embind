@@ -465,8 +465,13 @@ var _ = Describe("Using embind structs", Label("library"), func() {
 		It("can be created with an array as input", func() {
 			res, err := engine.CallPublicSymbol(ctx, "findPersonAtLocation", []any{float32(1), float32(2)})
 			Expect(err).To(BeNil())
-			Expect(res).To(Equal(map[string]any{"name": "", "age": int32(12)}))
-			// @todo: why doesn't it detect the array field?
+			Expect(res).To(Equal(map[string]any{
+				"name": "123",
+				"age":  int32(12),
+				"structArray": map[string]any{
+					"field": []any{int32(1), int32(2)},
+				},
+			}))
 		})
 	})
 })

@@ -37,6 +37,7 @@ EMSCRIPTEN_BINDINGS(structs) {
   value_object<PersonRecord>("PersonRecord")
       .field("name", &PersonRecord::name)
       .field("age", &PersonRecord::age)
+      .field("structArray", &PersonRecord::structArray)
       ;
 
   value_object<ArrayInStruct>("ArrayInStruct")
