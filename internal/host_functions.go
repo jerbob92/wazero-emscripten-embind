@@ -1159,6 +1159,7 @@ var RegisterClassFunction = api.GoModuleFunc(func(ctx context.Context, mod api.M
 				memberFunction.argCount = &newMethodArgCount
 				classType.registeredClass.methods[methodName] = memberFunction
 			} else {
+				memberFunction.isOverload = true
 				classType.registeredClass.methods[methodName].overloadTable[argCount-2] = memberFunction
 			}
 

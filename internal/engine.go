@@ -250,6 +250,7 @@ func (e *engine) ensureOverloadTable(registry map[string]*publicSymbol, methodNa
 			argCount:      prevArgCount,
 			fn:            prevFunc,
 			isStatic:      registry[methodName].isStatic,
+			isOverload:    true,
 		}
 	}
 }
@@ -275,9 +276,10 @@ func (e *engine) exposePublicSymbol(name string, value publicSymbolFn, numArgume
 
 		// Add the new function into the overload table.
 		e.publicSymbols[name].overloadTable[*numArguments] = &publicSymbol{
-			name:     name,
-			argCount: numArguments,
-			fn:       value,
+			name:       name,
+			argCount:   numArguments,
+			fn:         value,
+			isOverload: true,
 		}
 	} else {
 		e.publicSymbols[name] = &publicSymbol{
@@ -307,6 +309,7 @@ func (e *engine) replacePublicSymbol(name string, value func(ctx context.Context
 			fn:            value,
 			argumentTypes: argumentTypes,
 			resultType:    resultType,
+			isOverload:    true,
 		}
 	} else {
 		e.publicSymbols[name] = &publicSymbol{

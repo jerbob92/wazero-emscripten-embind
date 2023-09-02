@@ -392,6 +392,17 @@ var _ = Describe("Calling embind functions", Label("library"), func() {
 				})
 			})
 		})
+		Context("when an overload table is used", func() {
+			It("picks the correct item from the overload table", func() {
+				res, err := engine.CallPublicSymbol(ctx, "function_overload")
+				Expect(err).To(BeNil())
+				Expect(res).To(Equal(int32(1)))
+
+				res, err = engine.CallPublicSymbol(ctx, "function_overload", int32(12))
+				Expect(err).To(BeNil())
+				Expect(res).To(Equal(int32(2)))
+			})
+		})
 	})
 })
 
@@ -462,7 +473,7 @@ var _ = Describe("Using embind enums", Label("library"), func() {
 
 var _ = Describe("Using embind structs", Label("library"), func() {
 	When("using the structs", func() {
-		It("can be created with an array as input", func() {
+		It("can be decoded with an array as input", func() {
 			res, err := engine.CallPublicSymbol(ctx, "findPersonAtLocation", []any{float32(1), float32(2)})
 			Expect(err).To(BeNil())
 			Expect(res).To(Equal(map[string]any{
@@ -472,6 +483,44 @@ var _ = Describe("Using embind structs", Label("library"), func() {
 					"field": []any{int32(1), int32(2)},
 				},
 			}))
+		})
+
+		It("can be encoded with an array and struct as input", func() {
+			res, err := engine.CallPublicSymbol(ctx, "setPersonAtLocation", []any{float32(1), float32(2)}, map[string]any{
+				"name": "123",
+				"age":  int32(12),
+				"structArray": map[string]any{
+					"field": []any{int32(1), int32(2)},
+				},
+			})
+			Expect(err).To(BeNil())
+			Expect(res).To(BeNil())
+		})
+
+		It("gives an error when not giving all fields as input", func() {
+			res, err := engine.CallPublicSymbol(ctx, "setPersonAtLocation", []any{float32(1), float32(2)}, map[string]any{
+				"fakefield": "123",
+			})
+			Expect(err).To(Not(BeNil()))
+			if err != nil {
+				Expect(err.Error()).To(ContainSubstring("missing field: name"))
+			}
+			Expect(res).To(BeNil())
+		})
+
+		It("gives an error when an incomplete number of array elements is given", func() {
+			res, err := engine.CallPublicSymbol(ctx, "setPersonAtLocation", []any{float32(1), float32(2)}, map[string]any{
+				"name": "123",
+				"age":  int32(12),
+				"structArray": map[string]any{
+					"field": []any{int32(1)},
+				},
+			})
+			Expect(err).To(Not(BeNil()))
+			if err != nil {
+				Expect(err.Error()).To(ContainSubstring("incorrect number of tuple elements for array_int_2: expected=2, actual=1"))
+			}
+			Expect(res).To(BeNil())
 		})
 	})
 })

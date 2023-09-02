@@ -9,6 +9,7 @@ type ISymbol interface {
 	Symbol() string
 	ReturnType() IType
 	ArgumentTypes() []IType
+	IsOverload() bool
 }
 
 type publicSymbol struct {
@@ -20,6 +21,7 @@ type publicSymbol struct {
 	argumentTypes []registeredType
 	resultType    registeredType
 	isStatic      bool
+	isOverload    bool
 }
 
 func (ps *publicSymbol) Symbol() string {
@@ -28,6 +30,10 @@ func (ps *publicSymbol) Symbol() string {
 
 func (ps *publicSymbol) ReturnType() IType {
 	return &exposedType{ps.resultType}
+}
+
+func (ps *publicSymbol) IsOverload() bool {
+	return ps.isOverload
 }
 
 func (ps *publicSymbol) ArgumentTypes() []IType {

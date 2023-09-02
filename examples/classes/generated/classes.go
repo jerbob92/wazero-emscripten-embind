@@ -23,8 +23,13 @@ func (class *ClassMyClass) SetX(ctx context.Context, val int32) error {
 	return class.SetProperty(ctx, class, "x", val)
 }
 
-func (class *ClassMyClass) IncrementX(ctx context.Context) error {
+func (class *ClassMyClass) IncrementX0(ctx context.Context) error {
 	_, err := class.CallMethod(ctx, class, "incrementX")
+	return err
+}
+
+func (class *ClassMyClass) IncrementX1(ctx context.Context, arg0 int32) error {
+	_, err := class.CallMethod(ctx, class, "incrementX", arg0)
 	return err
 }
 
@@ -37,7 +42,16 @@ func ClassMyClassStaticGetStringFromInstance(e embind.Engine, ctx context.Contex
 	return res.(string), nil
 }
 
-func NewClassMyClass(e embind.Engine, ctx context.Context, arg0 int32, arg1 string) (*ClassMyClass, error) {
+func NewClassMyClass1(e embind.Engine, ctx context.Context, arg0 int32) (*ClassMyClass, error) {
+	res, err := e.CallPublicSymbol(ctx, "MyClass", arg0)
+	if err != nil {
+		return nil, err
+	}
+
+	return res.(*ClassMyClass), nil
+}
+
+func NewClassMyClass2(e embind.Engine, ctx context.Context, arg0 int32, arg1 string) (*ClassMyClass, error) {
 	res, err := e.CallPublicSymbol(ctx, "MyClass", arg0, arg1)
 	if err != nil {
 		return nil, err

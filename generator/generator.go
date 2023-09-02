@@ -13,6 +13,7 @@ import (
 	"path"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 	"text/template"
 	"unicode"
@@ -217,9 +218,14 @@ func main() {
 			argumentTypes[i] = typeNameToGeneratedName(exposedArgumentTypes[i].Type(), exposedArgumentTypes[i].IsClass(), exposedArgumentTypes[i].IsEnum())
 		}
 
+		goName := generateGoName(symbols[i].Symbol())
+		if symbols[i].IsOverload() {
+			goName += strconv.Itoa(len(argumentTypes))
+		}
+
 		symbol := TemplateSymbol{
 			Symbol:        symbols[i].Symbol(),
-			GoName:        generateGoName(symbols[i].Symbol()),
+			GoName:        goName,
 			ArgumentTypes: argumentTypes,
 			ReturnType:    typeNameToGeneratedName(symbols[i].ReturnType().Type(), symbols[i].ReturnType().IsClass(), symbols[i].ReturnType().IsEnum()),
 			ErrorValue:    typeNameToErrorValue(symbols[i].ReturnType().Type(), symbols[i].ReturnType().IsClass(), symbols[i].ReturnType().IsEnum()),
@@ -314,9 +320,14 @@ func main() {
 				argumentTypes[i] = typeNameToGeneratedName(exposedArgumentTypes[i].Type(), exposedArgumentTypes[i].IsClass(), exposedArgumentTypes[i].IsEnum())
 			}
 
+			goName := generateGoName(methods[mi].Symbol())
+			if methods[mi].IsOverload() {
+				goName += strconv.Itoa(len(argumentTypes))
+			}
+
 			method := TemplateClassMethod{
 				Name:          methods[mi].Symbol(),
-				GoName:        generateGoName(methods[mi].Symbol()),
+				GoName:        goName,
 				ArgumentTypes: argumentTypes,
 				ReturnType:    typeNameToGeneratedName(methods[mi].ReturnType().Type(), methods[mi].ReturnType().IsClass(), methods[mi].ReturnType().IsEnum()),
 				ErrorValue:    typeNameToErrorValue(methods[mi].ReturnType().Type(), methods[mi].ReturnType().IsClass(), methods[mi].ReturnType().IsEnum()),

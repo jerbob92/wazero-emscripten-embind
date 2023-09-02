@@ -28,6 +28,9 @@ PersonRecord findPersonAtLocation(Point2f)  {
     };
 }
 
+void setPersonAtLocation(Point2f, PersonRecord)  {
+}
+
 EMSCRIPTEN_BINDINGS(structs) {
    value_array<Point2f>("Point2f")
        .element(&Point2f::x)
@@ -51,4 +54,6 @@ EMSCRIPTEN_BINDINGS(structs) {
       ;
 
   function("findPersonAtLocation", &findPersonAtLocation);
+
+  function("setPersonAtLocation", &setPersonAtLocation);
 }

@@ -9,10 +9,17 @@ public:
     , y(y)
   {}
 
+  MyClass(int x)
+      : x(x)
+    {}
+
   void incrementX() {
     ++x;
   }
 
+  void incrementX(int multiplier) {
+    x = x + (1 * multiplier);
+  }
   int getX() const { return x; }
   void setX(int x_) { x = x_; }
 
@@ -34,7 +41,9 @@ void printMyClass(MyClass input) {
 EMSCRIPTEN_BINDINGS(my_module) {
     class_<MyClass>("MyClass")
       .constructor<int, std::string>()
-      .function("incrementX", &MyClass::incrementX)
+      .constructor<int>()
+      .function("incrementX", select_overload<void()>(&MyClass::incrementX))
+      .function("incrementX", select_overload<void(int)>(&MyClass::incrementX))
       .property("x", &MyClass::getX, &MyClass::setX)
       .class_function("getStringFromInstance", &MyClass::getStringFromInstance)
       ;

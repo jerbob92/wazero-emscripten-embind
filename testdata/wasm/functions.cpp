@@ -147,6 +147,14 @@ val get_memory_view_float() {
     return val(typed_memory_view(sizeof data_float, data_float));
 }
 
+int function_overload() {
+    return 1;
+}
+
+int function_overload_2(int x) {
+    return 2;
+}
+
 EMSCRIPTEN_BINDINGS(functions) {
     function("bool_return_bool", &bool_return_bool);
     function("bool_return_true", &bool_return_true);
@@ -186,4 +194,7 @@ EMSCRIPTEN_BINDINGS(functions) {
     function("get_memory_view_unsigned_longlong", &get_memory_view_unsigned_longlong);
     function("get_memory_view_double", &get_memory_view_double);
     function("get_memory_view_float", &get_memory_view_float);
+
+    function("function_overload", &function_overload);
+    function("function_overload", &function_overload_2);
 }

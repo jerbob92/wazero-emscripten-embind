@@ -260,6 +260,7 @@ type IClassTypeMethod interface {
 	Symbol() string
 	ReturnType() IType
 	ArgumentTypes() []IType
+	IsOverload() bool
 }
 
 func (erc *classType) Name() string {
@@ -287,7 +288,14 @@ func (erc *classType) Methods() []IClassTypeMethod {
 		if erc.methods[i].isStatic {
 			continue
 		}
-		methods = append(methods, erc.methods[i])
+
+		if erc.methods[i].overloadTable != nil {
+			for overload := range erc.methods[i].overloadTable {
+				methods = append(methods, erc.methods[i].overloadTable[overload])
+			}
+		} else {
+			methods = append(methods, erc.methods[i])
+		}
 	}
 
 	return methods
