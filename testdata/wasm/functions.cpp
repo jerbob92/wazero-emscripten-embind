@@ -9,6 +9,10 @@ bool bool_return_false() {
     return false;
 }
 
+bool bool_return_bool(bool a) {
+    return a;
+}
+
 void float_return_void(float a) {}
 
 float float_return_float(float a) {
@@ -65,6 +69,10 @@ std::string std_string_return_std_string(std::string in) {
 
 std::wstring std_wstring_return_std_wstring(std::wstring in) {
     return L"Hello there " + in;
+}
+
+std::u16string std_u16string_return_std_u16string(std::u16string in) {
+    return u"Hello there " + in;
 }
 
 std::vector<int> return_vector () {
@@ -140,6 +148,7 @@ val get_memory_view_float() {
 }
 
 EMSCRIPTEN_BINDINGS(functions) {
+    function("bool_return_bool", &bool_return_bool);
     function("bool_return_true", &bool_return_true);
     function("bool_return_false", &bool_return_false);
     function("float_return_void", &float_return_void);
@@ -157,6 +166,7 @@ EMSCRIPTEN_BINDINGS(functions) {
     function("ulonglong_return_ulonglong", &ulonglong_return_ulonglong);
     function("std_string_return_std_string", &std_string_return_std_string);
     function("std_wstring_return_std_wstring", &std_wstring_return_std_wstring);
+    function("std_u16string_return_std_u16string", &std_u16string_return_std_u16string);
 
     register_vector<int>("vector<int>");
     register_map<int, std::string>("map<int, string>");

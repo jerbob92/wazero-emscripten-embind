@@ -102,6 +102,14 @@ var _ = Describe("Calling embind functions", Label("library"), func() {
 				res, err = engine.CallPublicSymbol(ctx, "bool_return_false")
 				Expect(err).To(BeNil())
 				Expect(res).To(BeFalse())
+
+				res, err = engine.CallPublicSymbol(ctx, "bool_return_bool", false)
+				Expect(err).To(BeNil())
+				Expect(res).To(BeFalse())
+
+				res, err = engine.CallPublicSymbol(ctx, "bool_return_bool", true)
+				Expect(err).To(BeNil())
+				Expect(res).To(BeTrue())
 			})
 		})
 
@@ -220,6 +228,14 @@ var _ = Describe("Calling embind functions", Label("library"), func() {
 		Context("the return type is std wstring", func() {
 			It("has the correct return values", func() {
 				res, err := engine.CallPublicSymbol(ctx, "std_wstring_return_std_wstring", "embind")
+				Expect(err).To(BeNil())
+				Expect(res).To(Equal("Hello there embind"))
+			})
+		})
+
+		Context("the return type is std u16string", func() {
+			It("has the correct return values", func() {
+				res, err := engine.CallPublicSymbol(ctx, "std_u16string_return_std_u16string", "embind")
 				Expect(err).To(BeNil())
 				Expect(res).To(Equal("Hello there embind"))
 			})

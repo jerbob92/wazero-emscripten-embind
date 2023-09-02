@@ -3,7 +3,6 @@ package embind
 import (
 	"context"
 	"fmt"
-
 	"github.com/jerbob92/wazero-emscripten-embind/types"
 
 	"github.com/tetratelabs/wazero/api"
