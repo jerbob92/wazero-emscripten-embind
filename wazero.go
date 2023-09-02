@@ -413,5 +413,28 @@ func (e functionExporter) ExportFunctions(b wazero.HostModuleBuilder) error {
 		WithGoModuleFunction(internal.CreateInheritingConstructor, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32}).
 		Export("_embind_create_inheriting_constructor")
 
+	// @todo: _embind_register_class_class_property
+	// @todo: _emval_as_int64
+	// @todo: _emval_as_uint64
+	// @todo: _emval_await
+	// @todo: _emval_delete
+	// @todo: _emval_equals
+	// @todo: _emval_get_module_property
+	// @todo: _emval_greater_than
+	// @todo: _emval_in
+	// @todo: _emval_instanceof
+	// @todo: _emval_is_number
+	// @todo: _emval_is_string
+	// @todo: _emval_less_than
+	// @todo: _emval_new_array
+	// @todo: _emval_new_array_from_memory_view
+	// @todo: _emval_new_object
+	// @todo: _emval_new_u16string
+	// @todo: _emval_new_u8string
+	// @todo: _emval_not
+	// @todo: _emval_strictly_equals
+	// @todo: _emval_throw
+	// @todo: _emval_typeof
+
 	return nil
 }
