@@ -1097,6 +1097,12 @@ var _ = Describe("Using embind classes", Label("library"), func() {
 			Expect(err).To(BeNil())
 			Expect(res).To(Not(BeNil()))
 			Expect(res).To(BeAssignableToTypeOf(&ClassMyClass{}))
+
+			passThrough, err := engine.CallPublicSymbol(ctx, "passThrough", res)
+			Expect(err).To(BeNil())
+			Expect(passThrough).To(Not(BeNil()))
+			Expect(passThrough).To(BeAssignableToTypeOf(&ClassMyClass{}))
+			Expect(passThrough).To(Equal(res))
 		})
 
 		It("errors when it is already mapped", func() {

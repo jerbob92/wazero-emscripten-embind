@@ -17,7 +17,7 @@ type registeredPointerType struct {
 	// smart pointer properties
 	isSmartPointer bool
 	pointeeType    *registeredPointerType
-	sharingPolicy  any
+	sharingPolicy  int32
 	rawGetPointee  api.Function
 	rawConstructor api.Function
 	rawShare       api.Function

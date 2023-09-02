@@ -683,6 +683,26 @@ func (e *engine) requireRegisteredType(ctx context.Context, rawType int32, human
 	return registeredType, nil
 }
 
+func (e *engine) lookupTypes(ctx context.Context, argCount int32, argTypes int32) ([]registeredType, error) {
+	types := make([]registeredType, argCount)
+
+	for i := 0; i < int(argCount); i++ {
+		rawType, ok := e.mod.Memory().ReadUint32Le(uint32((argTypes) + (int32(i) * 4)))
+		if !ok {
+			return nil, fmt.Errorf("could not read memory for the argument type")
+		}
+
+		requiredType, err := e.requireRegisteredType(ctx, int32(rawType), fmt.Sprintf("parameter %d", i))
+		if err != nil {
+			return nil, err
+		}
+
+		types[i] = requiredType
+	}
+
+	return types, nil
+}
+
 var illegalCharsRegex = regexp.MustCompile(`[^a-zA-Z0-9_]`)
 
 func (e *engine) makeLegalFunctionName(name string) string {

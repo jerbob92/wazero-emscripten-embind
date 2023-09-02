@@ -37,6 +37,39 @@ protected:
   std::string y;
 };
 
+MyClass* passThrough(MyClass* ptr) { return ptr; }
+
+struct Interface {
+    virtual void invoke(const std::string& str) = 0;
+};
+
+struct InterfaceWrapper : public wrapper<Interface> {
+    EMSCRIPTEN_WRAPPER(InterfaceWrapper);
+    void invoke(const std::string& str) {
+        return call<void>("invoke", str);
+    }
+};
+
+class C {};
+
+struct Base {
+    virtual void invoke(const std::string& str) {
+        // default implementation
+    }
+};
+
+struct BaseWrapper : public wrapper<Base> {
+    EMSCRIPTEN_WRAPPER(BaseWrapper);
+    void invoke(const std::string& str) {
+        return call<void>("invoke", str);
+    }
+};
+
+class Derived : public Base {};
+Base* getDerivedInstance() {
+    return new Derived;
+}
+
 EMSCRIPTEN_BINDINGS(classes) {
     class_<MyClass>("MyClass")
       .constructor<int, std::string>()
@@ -48,4 +81,25 @@ EMSCRIPTEN_BINDINGS(classes) {
       .property("y", &MyClass::getY)
       .class_function("getStringFromInstance", &MyClass::getStringFromInstance)
       ;
+
+      function("passThrough", &passThrough, allow_raw_pointers());
+
+      class_<Interface>("Interface")
+          .function("invoke", &Interface::invoke, pure_virtual())
+          .allow_subclass<InterfaceWrapper>("InterfaceWrapper")
+          ;
+
+      class_<C>("C")
+        .smart_ptr_constructor("C", &std::make_shared<C>)
+        ;
+
+      class_<Base>("Base")
+        .allow_subclass<BaseWrapper>("BaseWrapper")
+        .function("invoke", optional_override([](Base& self, const std::string& str) {
+            return self.Base::invoke(str);
+        }))
+        ;
+
+    class_<Derived, base<Base>>("Derived");
+    function("getDerivedInstance", &getDerivedInstance, allow_raw_pointers());
 }

@@ -7,6 +7,22 @@ import (
 	"github.com/jerbob92/wazero-emscripten-embind"
 )
 
+func Base(e embind.Engine, ctx context.Context) (*ClassBase, error) {
+	res, err := e.CallPublicSymbol(ctx, "Base")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassBase), nil
+}
+
+func BaseWrapper(e embind.Engine, ctx context.Context) (*ClassBaseWrapper, error) {
+	res, err := e.CallPublicSymbol(ctx, "BaseWrapper")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassBaseWrapper), nil
+}
+
 func Bool_return_bool(e embind.Engine, ctx context.Context, arg0 bool) (bool, error) {
 	res, err := e.CallPublicSymbol(ctx, "bool_return_bool", arg0)
 	if err != nil {
@@ -31,12 +47,28 @@ func Bool_return_true(e embind.Engine, ctx context.Context) (bool, error) {
 	return res.(bool), nil
 }
 
+func C(e embind.Engine, ctx context.Context) (*ClassC, error) {
+	res, err := e.CallPublicSymbol(ctx, "C")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassC), nil
+}
+
 func Char_return_char(e embind.Engine, ctx context.Context, arg0 int8) (int8, error) {
 	res, err := e.CallPublicSymbol(ctx, "char_return_char", arg0)
 	if err != nil {
 		return int8(0), err
 	}
 	return res.(int8), nil
+}
+
+func Derived(e embind.Engine, ctx context.Context) (*ClassDerived, error) {
+	res, err := e.CallPublicSymbol(ctx, "Derived")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassDerived), nil
 }
 
 func DoEmval(e embind.Engine, ctx context.Context) (string, error) {
@@ -98,6 +130,14 @@ func Function_overload1(e embind.Engine, ctx context.Context, arg0 int32) (int32
 		return int32(0), err
 	}
 	return res.(int32), nil
+}
+
+func GetDerivedInstance(e embind.Engine, ctx context.Context) (*ClassBase, error) {
+	res, err := e.CallPublicSymbol(ctx, "getDerivedInstance")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassBase), nil
 }
 
 func Get_memory_view_char(e embind.Engine, ctx context.Context) (any, error) {
@@ -204,6 +244,22 @@ func Int_return_int(e embind.Engine, ctx context.Context, arg0 int32) (int32, er
 	return res.(int32), nil
 }
 
+func Interface(e embind.Engine, ctx context.Context) (*ClassInterface, error) {
+	res, err := e.CallPublicSymbol(ctx, "Interface")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassInterface), nil
+}
+
+func InterfaceWrapper(e embind.Engine, ctx context.Context) (*ClassInterfaceWrapper, error) {
+	res, err := e.CallPublicSymbol(ctx, "InterfaceWrapper")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassInterfaceWrapper), nil
+}
+
 func Long_return_long(e embind.Engine, ctx context.Context, arg0 int32) (int32, error) {
 	res, err := e.CallPublicSymbol(ctx, "long_return_long", arg0)
 	if err != nil {
@@ -230,6 +286,14 @@ func Map_int__string_(e embind.Engine, ctx context.Context) (*ClassMap_int__stri
 
 func MyClass(e embind.Engine, ctx context.Context) (*ClassMyClass, error) {
 	res, err := e.CallPublicSymbol(ctx, "MyClass")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassMyClass), nil
+}
+
+func PassThrough(e embind.Engine, ctx context.Context, arg0 *ClassMyClass) (*ClassMyClass, error) {
+	res, err := e.CallPublicSymbol(ctx, "passThrough", arg0)
 	if err != nil {
 		return nil, err
 	}

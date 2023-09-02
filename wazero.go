@@ -237,6 +237,13 @@ func (e functionExporter) ExportFunctions(b wazero.HostModuleBuilder) error {
 		Export("_emval_get_method_caller")
 
 	b.NewFunctionBuilder().
+		WithName("_emval_call").
+		WithParameterNames("handle", "argCount", "argTypes", "argv").
+		WithResultNames("handle").
+		WithGoModuleFunction(internal.EmvalCall, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32}).
+		Export("_emval_call")
+
+	b.NewFunctionBuilder().
 		WithName("_emval_call_method").
 		WithParameterNames("caller", "id", "methodName", "destructorsRef", "args").
 		WithResultNames("value").
@@ -379,6 +386,32 @@ func (e functionExporter) ExportFunctions(b wazero.HostModuleBuilder) error {
 		WithParameterNames("structType").
 		WithGoModuleFunction(internal.FinalizeValueObject, []api.ValueType{api.ValueTypeI32}, []api.ValueType{}).
 		Export("_embind_finalize_value_object")
+
+	b.NewFunctionBuilder().
+		WithName("_embind_register_smart_ptr").
+		WithParameterNames(
+			"rawType",
+			"rawPointeeType",
+			"name",
+			"sharingPolicy",
+			"getPointeeSignature",
+			"rawGetPointee",
+			"constructorSignature",
+			"rawConstructor",
+			"shareSignature",
+			"rawShare",
+			"destructorSignature",
+			"rawDestructor",
+		).
+		WithGoModuleFunction(internal.RegisterSmartPtr, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{}).
+		Export("_embind_register_smart_ptr")
+
+	b.NewFunctionBuilder().
+		WithName("_embind_create_inheriting_constructor").
+		WithParameterNames("constructorName", "wrapperType", "properties").
+		WithResultNames("handle").
+		WithGoModuleFunction(internal.CreateInheritingConstructor, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32}).
+		Export("_embind_create_inheriting_constructor")
 
 	return nil
 }

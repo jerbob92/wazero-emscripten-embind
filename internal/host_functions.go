@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"reflect"
 	"sort"
 	"strconv"
@@ -787,6 +788,42 @@ var EmvalGetMethodCaller = api.GoModuleFunc(func(ctx context.Context, mod api.Mo
 
 	stack[0] = api.EncodeI32(newID)
 	return
+})
+
+var EmvalCall = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
+	engine := MustGetEngineFromContext(ctx, mod).(*engine)
+	id := api.DecodeI32(stack[0])
+	argCount := api.DecodeI32(stack[1])
+	argTypes := api.DecodeI32(stack[2])
+	argv := api.DecodeI32(stack[3])
+
+	handle, err := engine.emvalEngine.toValue(id)
+	if err != nil {
+		panic(fmt.Errorf("could not find handle: %w", err))
+	}
+
+	types, err := engine.lookupTypes(ctx, argCount, argTypes)
+	if err != nil {
+		panic(fmt.Errorf("could not load required types: %w", err))
+	}
+
+	args := make([]any, argCount)
+	for i := 0; i < int(argCount); i++ {
+		requiredType := types[i]
+		args[i], err = requiredType.ReadValueFromPointer(ctx, mod, uint32(argv))
+		if err != nil {
+			panic(fmt.Errorf("could not load argument value: %w", err))
+		}
+
+		argv += requiredType.ArgPackAdvance()
+	}
+
+	// @todo: implement me.
+	//rv := handle.apply(undefined, args)
+	rv := struct{}{}
+	newHandle := engine.emvalEngine.toHandle(rv)
+	stack[0] = api.EncodeI32(newHandle)
+	panic(fmt.Errorf("Emval call unimplemented %v", handle))
 })
 
 var EmvalCallMethod = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
@@ -1666,4 +1703,89 @@ var FinalizeValueObject = api.GoModuleFunc(func(ctx context.Context, mod api.Mod
 	if err != nil {
 		panic(fmt.Errorf("could not call whenDependentTypesAreResolved: %w", err))
 	}
+})
+
+var RegisterSmartPtr = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
+	engine := MustGetEngineFromContext(ctx, mod).(*engine)
+	rawType := api.DecodeI32(stack[0])
+	rawPointeeType := api.DecodeI32(stack[1])
+	namePtr := api.DecodeI32(stack[2])
+	sharingPolicy := api.DecodeI32(stack[3])
+	getPointeeSignature := api.DecodeI32(stack[4])
+	rawGetPointee := api.DecodeI32(stack[5])
+	constructorSignature := api.DecodeI32(stack[6])
+	rawConstructor := api.DecodeI32(stack[7])
+	shareSignature := api.DecodeI32(stack[8])
+	rawShare := api.DecodeI32(stack[9])
+	destructorSignature := api.DecodeI32(stack[10])
+	rawDestructor := api.DecodeI32(stack[11])
+
+	name, err := engine.readCString(uint32(namePtr))
+	if err != nil {
+		panic(fmt.Errorf("could not read name: %w", err))
+	}
+
+	rawGetPointeeFunc, err := engine.newInvokeFunc(getPointeeSignature, rawGetPointee, []api.ValueType{api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32})
+	if err != nil {
+		panic(fmt.Errorf("could not read rawGetPointee: %w", err))
+	}
+
+	rawConstructorFunc, err := engine.newInvokeFunc(constructorSignature, rawConstructor, []api.ValueType{}, []api.ValueType{api.ValueTypeI32})
+	if err != nil {
+		panic(fmt.Errorf("could not read constructorSignature: %w", err))
+	}
+
+	rawShareFunc, err := engine.newInvokeFunc(shareSignature, rawShare, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32})
+	if err != nil {
+		panic(fmt.Errorf("could not read rawShare: %w", err))
+	}
+
+	rawDestructorFunc, err := engine.newInvokeFunc(destructorSignature, rawDestructor, []api.ValueType{api.ValueTypeI32}, []api.ValueType{})
+	if err != nil {
+		panic(fmt.Errorf("could not read rawDestructor: %w", err))
+	}
+
+	err = engine.whenDependentTypesAreResolved([]int32{rawType}, []int32{rawPointeeType}, func(types []registeredType) ([]registeredType, error) {
+		pointeeType := types[0]
+
+		smartPointerType := &registeredPointerType{
+			baseType: baseType{
+				argPackAdvance: 8,
+				name:           name,
+			},
+			registeredClass: pointeeType.(*registeredPointerType).registeredClass,
+			isReference:     false,
+			isConst:         false,
+			isSmartPointer:  true,
+			pointeeType:     pointeeType.(*registeredPointerType),
+			sharingPolicy:   sharingPolicy,
+			rawGetPointee:   rawGetPointeeFunc,
+			rawConstructor:  rawConstructorFunc,
+			rawShare:        rawShareFunc,
+			rawDestructor:   rawDestructorFunc,
+		}
+
+		return []registeredType{smartPointerType}, nil
+	})
+
+	if err != nil {
+		panic(fmt.Errorf("could not call whenDependentTypesAreResolved: %w", err))
+	}
+})
+
+var CreateInheritingConstructor = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
+	engine := MustGetEngineFromContext(ctx, mod).(*engine)
+	constructorNamePtr := api.DecodeI32(stack[0])
+	//wrapperType := api.DecodeI32(stack[1])
+	//properties := api.DecodeI32(stack[2])
+
+	constructorName, err := engine.readCString(uint32(constructorNamePtr))
+	if err != nil {
+		panic(fmt.Errorf("could not read name: %w", err))
+	}
+
+	log.Println(constructorName)
+
+	// @todo: implement me.
+	panic("CreateInheritingConstructor call unimplemented")
 })

@@ -49,6 +49,24 @@ func Attach(e embind.Engine) error {
 	if err := e.RegisterConstant("SOME_CONSTANT_9", Constant_SOME_CONSTANT_9); err != nil {
 		return err
 	}
+	if err := e.RegisterClass("Base", &ClassBase{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("BaseWrapper", &ClassBaseWrapper{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("C", &ClassC{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("Derived", &ClassDerived{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("Interface", &ClassInterface{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("InterfaceWrapper", &ClassInterfaceWrapper{}); err != nil {
+		return err
+	}
 	if err := e.RegisterClass("map_int__string_", &ClassMap_int__string_{}); err != nil {
 		return err
 	}
