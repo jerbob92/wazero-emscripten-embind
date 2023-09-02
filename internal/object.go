@@ -18,6 +18,9 @@ func (ot *objectType) FromWireType(ctx context.Context, mod api.Module, ptr uint
 
 	for i := range ot.reg.fields {
 		rv[ot.reg.fields[i].fieldName], err = ot.reg.fields[i].read(ctx, mod, api.DecodeI32(ptr))
+		if err != nil {
+			return nil, err
+		}
 	}
 
 	_, err = ot.reg.rawDestructor.Call(ctx, ptr)

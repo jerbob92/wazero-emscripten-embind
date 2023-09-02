@@ -1468,34 +1468,35 @@ var FinalizeValueArray = api.GoModuleFunc(func(ctx context.Context, mod api.Modu
 
 	err := engine.whenDependentTypesAreResolved([]int32{rawTupleType}, elementTypes, func(types []registeredType) ([]registeredType, error) {
 		for i := range elements {
+			element := elements[i]
 			getterReturnType := types[i]
 
-			getterFunc, err := engine.newInvokeFunc(elements[i].getterSignature, elements[i].getter, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{getterReturnType.NativeType()})
+			getterFunc, err := engine.newInvokeFunc(element.getterSignature, element.getter, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{getterReturnType.NativeType()})
 			if err != nil {
 				return nil, fmt.Errorf("could not create getterFunc: %w", err)
 			}
 
 			setterArgumentType := types[i+len(elements)]
-			setterFunc, err := engine.newInvokeFunc(elements[i].setterSignature, elements[i].setter, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32, setterArgumentType.NativeType()}, []api.ValueType{})
+			setterFunc, err := engine.newInvokeFunc(element.setterSignature, element.setter, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32, setterArgumentType.NativeType()}, []api.ValueType{})
 			if err != nil {
 				return nil, fmt.Errorf("could not create setterFunc: %w", err)
 			}
 
-			elements[i].read = func(ctx context.Context, mod api.Module, ptr int32) (any, error) {
-				res, err := getterFunc.Call(ctx, api.EncodeI32(elements[i].getterContext), api.EncodeI32(ptr))
+			element.read = func(ctx context.Context, mod api.Module, ptr int32) (any, error) {
+				res, err := getterFunc.Call(ctx, api.EncodeI32(element.getterContext), api.EncodeI32(ptr))
 				if err != nil {
 					return nil, err
 				}
 				return getterReturnType.FromWireType(ctx, mod, res[0])
 			}
-			elements[i].write = func(ctx context.Context, mod api.Module, ptr int32, o any) error {
+			element.write = func(ctx context.Context, mod api.Module, ptr int32, o any) error {
 				destructors := &[]*destructorFunc{}
 				res, err := setterArgumentType.ToWireType(ctx, mod, destructors, o)
 				if err != nil {
 					return err
 				}
 
-				_, err = setterFunc.Call(ctx, api.EncodeI32(elements[i].setterContext), api.EncodeI32(ptr), res)
+				_, err = setterFunc.Call(ctx, api.EncodeI32(element.setterContext), api.EncodeI32(ptr), res)
 				if err != nil {
 					return err
 				}
@@ -1604,14 +1605,15 @@ var FinalizeValueObject = api.GoModuleFunc(func(ctx context.Context, mod api.Mod
 
 	err := engine.whenDependentTypesAreResolved([]int32{structType}, fieldTypes, func(types []registeredType) ([]registeredType, error) {
 		for i := range fieldRecords {
+			fieldRecord := fieldRecords[i]
 			getterReturnType := types[i]
-			getterFunc, err := engine.newInvokeFunc(fieldRecords[i].getterSignature, fieldRecords[i].getter, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{getterReturnType.NativeType()})
+			getterFunc, err := engine.newInvokeFunc(fieldRecord.getterSignature, fieldRecord.getter, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{getterReturnType.NativeType()})
 			if err != nil {
 				panic(fmt.Errorf("could not create getterFunc: %w", err))
 			}
 
-			fieldRecords[i].read = func(ctx context.Context, mod api.Module, ptr int32) (any, error) {
-				res, err := getterFunc.Call(ctx, api.EncodeI32(fieldRecords[i].getterContext), api.EncodeI32(ptr))
+			fieldRecord.read = func(ctx context.Context, mod api.Module, ptr int32) (any, error) {
+				res, err := getterFunc.Call(ctx, api.EncodeI32(fieldRecord.getterContext), api.EncodeI32(ptr))
 				if err != nil {
 					return nil, err
 				}
@@ -1619,19 +1621,19 @@ var FinalizeValueObject = api.GoModuleFunc(func(ctx context.Context, mod api.Mod
 			}
 
 			setterArgumentType := types[i+len(fieldRecords)]
-			setterFunc, err := engine.newInvokeFunc(fieldRecords[i].setterSignature, fieldRecords[i].setter, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32, setterArgumentType.NativeType()}, []api.ValueType{})
+			setterFunc, err := engine.newInvokeFunc(fieldRecord.setterSignature, fieldRecord.setter, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32, setterArgumentType.NativeType()}, []api.ValueType{})
 			if err != nil {
 				panic(fmt.Errorf("could not create setterFunc: %w", err))
 			}
 
-			fieldRecords[i].write = func(ctx context.Context, mod api.Module, ptr int32, o any) error {
+			fieldRecord.write = func(ctx context.Context, mod api.Module, ptr int32, o any) error {
 				destructors := &[]*destructorFunc{}
 				res, err := setterArgumentType.ToWireType(ctx, mod, destructors, o)
 				if err != nil {
 					return err
 				}
 
-				_, err = setterFunc.Call(ctx, api.EncodeI32(fieldRecords[i].setterContext), api.EncodeI32(ptr), res)
+				_, err = setterFunc.Call(ctx, api.EncodeI32(fieldRecord.setterContext), api.EncodeI32(ptr), res)
 				if err != nil {
 					return err
 				}
