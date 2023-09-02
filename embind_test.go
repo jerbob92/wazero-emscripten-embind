@@ -470,3 +470,67 @@ var _ = Describe("Using embind structs", Label("library"), func() {
 		})
 	})
 })
+
+type webkitAudioContextOscillatorFrequency struct {
+	Value uint64 `embind_property:"value"`
+}
+
+type webkitAudioContextOscillator struct {
+	Typing     string                                 `embind_property:"type"`
+	Frequencdy *webkitAudioContextOscillatorFrequency `embind_property:"frequency"`
+}
+
+func (waco *webkitAudioContextOscillator) Connect(destination string) error {
+	return nil
+}
+
+func (waco *webkitAudioContextOscillator) Start(destination int32) error {
+	return nil
+}
+
+func (waco *webkitAudioContextOscillator) MapFunction(name string, returnType string, argTypes []string) (string, error) {
+	if name == "start" {
+		return "Start", nil
+	}
+	return "", nil
+}
+
+type webkitAudioContext struct {
+	Destination string `embind_arg:"0"`
+}
+
+func (was *webkitAudioContext) CreateOscillator() (*webkitAudioContextOscillator, error) {
+	return &webkitAudioContextOscillator{
+		Frequencdy: &webkitAudioContextOscillatorFrequency{},
+	}, nil
+}
+
+type ICreateOscillator interface {
+	CreateOscillator() *webkitAudioContextOscillator
+}
+
+var _ = Describe("Using embind emval", Label("library"), func() {
+	When("using the Go struct mapping", func() {
+		It("fails when no struct is mapped", func() {
+			_, err := engine.CallPublicSymbol(ctx, "doEmval")
+			Expect(err).To(Not(BeNil()))
+		})
+
+		It("can map the struct", func() {
+			c2 := &webkitAudioContext{}
+			err := engine.RegisterEmvalSymbol("webkitAudioContext", c2)
+			Expect(err).To(BeNil())
+		})
+
+		It("can use the full struct from C++", func() {
+			res, err := engine.CallPublicSymbol(ctx, "doEmval")
+			Expect(err).To(BeNil())
+			Expect(res).To(Equal(`No global AudioContext, trying webkitAudioContext
+Got an AudioContext
+Configuring oscillator
+Playing
+All done!
+`))
+		})
+	})
+})
