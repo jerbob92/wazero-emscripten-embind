@@ -34,6 +34,14 @@ func (bt *boolType) ToWireType(ctx context.Context, mod api.Module, destructors 
 		return api.EncodeI32(bt.falseVal), nil
 	}
 
+	stringVal, ok := o.(string)
+	if ok {
+		if stringVal != "" {
+			return api.EncodeI32(bt.trueVal), nil
+		}
+		return api.EncodeI32(bt.falseVal), nil
+	}
+
 	// Float64 is big enough for any number.
 	numberVal := float64(0)
 	hasNumberVal := false

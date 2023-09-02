@@ -124,6 +124,119 @@ var _ = Describe("Calling embind functions", Label("library"), func() {
 				res, err = engine.CallPublicSymbol(ctx, "bool_return_bool", true)
 				Expect(err).To(BeNil())
 				Expect(res).To(BeTrue())
+
+				res, err = engine.CallPublicSymbol(ctx, "bool_return_bool", int(0))
+				Expect(err).To(BeNil())
+				Expect(res).To(BeFalse())
+
+				res, err = engine.CallPublicSymbol(ctx, "bool_return_bool", int(1))
+				Expect(err).To(BeNil())
+				Expect(res).To(BeTrue())
+
+				res, err = engine.CallPublicSymbol(ctx, "bool_return_bool", uint(0))
+				Expect(err).To(BeNil())
+				Expect(res).To(BeFalse())
+
+				res, err = engine.CallPublicSymbol(ctx, "bool_return_bool", uint(1))
+				Expect(err).To(BeNil())
+				Expect(res).To(BeTrue())
+
+				res, err = engine.CallPublicSymbol(ctx, "bool_return_bool", int8(0))
+				Expect(err).To(BeNil())
+				Expect(res).To(BeFalse())
+
+				res, err = engine.CallPublicSymbol(ctx, "bool_return_bool", int8(1))
+				Expect(err).To(BeNil())
+				Expect(res).To(BeTrue())
+
+				res, err = engine.CallPublicSymbol(ctx, "bool_return_bool", uint8(0))
+				Expect(err).To(BeNil())
+				Expect(res).To(BeFalse())
+
+				res, err = engine.CallPublicSymbol(ctx, "bool_return_bool", uint8(1))
+				Expect(err).To(BeNil())
+				Expect(res).To(BeTrue())
+
+				res, err = engine.CallPublicSymbol(ctx, "bool_return_bool", int16(0))
+				Expect(err).To(BeNil())
+				Expect(res).To(BeFalse())
+
+				res, err = engine.CallPublicSymbol(ctx, "bool_return_bool", int16(1))
+				Expect(err).To(BeNil())
+				Expect(res).To(BeTrue())
+
+				res, err = engine.CallPublicSymbol(ctx, "bool_return_bool", uint16(0))
+				Expect(err).To(BeNil())
+				Expect(res).To(BeFalse())
+
+				res, err = engine.CallPublicSymbol(ctx, "bool_return_bool", uint16(1))
+				Expect(err).To(BeNil())
+				Expect(res).To(BeTrue())
+
+				res, err = engine.CallPublicSymbol(ctx, "bool_return_bool", int32(0))
+				Expect(err).To(BeNil())
+				Expect(res).To(BeFalse())
+
+				res, err = engine.CallPublicSymbol(ctx, "bool_return_bool", int32(1))
+				Expect(err).To(BeNil())
+				Expect(res).To(BeTrue())
+
+				res, err = engine.CallPublicSymbol(ctx, "bool_return_bool", uint32(0))
+				Expect(err).To(BeNil())
+				Expect(res).To(BeFalse())
+
+				res, err = engine.CallPublicSymbol(ctx, "bool_return_bool", uint32(1))
+				Expect(err).To(BeNil())
+				Expect(res).To(BeTrue())
+
+				res, err = engine.CallPublicSymbol(ctx, "bool_return_bool", uint16(1))
+				Expect(err).To(BeNil())
+				Expect(res).To(BeTrue())
+
+				res, err = engine.CallPublicSymbol(ctx, "bool_return_bool", int64(0))
+				Expect(err).To(BeNil())
+				Expect(res).To(BeFalse())
+
+				res, err = engine.CallPublicSymbol(ctx, "bool_return_bool", int64(1))
+				Expect(err).To(BeNil())
+				Expect(res).To(BeTrue())
+
+				res, err = engine.CallPublicSymbol(ctx, "bool_return_bool", uint64(0))
+				Expect(err).To(BeNil())
+				Expect(res).To(BeFalse())
+
+				res, err = engine.CallPublicSymbol(ctx, "bool_return_bool", uint64(1))
+				Expect(err).To(BeNil())
+				Expect(res).To(BeTrue())
+
+				res, err = engine.CallPublicSymbol(ctx, "bool_return_bool", float32(0))
+				Expect(err).To(BeNil())
+				Expect(res).To(BeFalse())
+
+				res, err = engine.CallPublicSymbol(ctx, "bool_return_bool", float32(1))
+				Expect(err).To(BeNil())
+				Expect(res).To(BeTrue())
+
+				res, err = engine.CallPublicSymbol(ctx, "bool_return_bool", float64(0))
+				Expect(err).To(BeNil())
+				Expect(res).To(BeFalse())
+
+				res, err = engine.CallPublicSymbol(ctx, "bool_return_bool", float64(1))
+				Expect(err).To(BeNil())
+				Expect(res).To(BeTrue())
+
+				res, err = engine.CallPublicSymbol(ctx, "bool_return_bool", "")
+				Expect(err).To(BeNil())
+				Expect(res).To(BeFalse())
+
+				res, err = engine.CallPublicSymbol(ctx, "bool_return_bool", "123")
+				Expect(err).To(BeNil())
+				Expect(res).To(BeTrue())
+
+				res, err = engine.CallPublicSymbol(ctx, "bool_return_bool", struct {
+				}{})
+				Expect(err).To(BeNil())
+				Expect(res).To(BeTrue())
 			})
 		})
 
@@ -728,6 +841,15 @@ var _ = Describe("Using embind emval", Label("library"), func() {
 			Expect(err).To(BeNil())
 		})
 
+		It("gives an error when a non pointer struct is already mapped", func() {
+			c2 := &webkitAudioContext{}
+			err := engine.RegisterEmvalSymbol("webkitAudioContext", c2)
+			Expect(err).To(Not(BeNil()))
+			if err != nil {
+				Expect(err.Error()).To(ContainSubstring("could not register symbol webkitAudioContext, already registered as type *embind_test.webkitAudioContext"))
+			}
+		})
+
 		It("can use the full struct from C++", func() {
 			res, err := engine.CallPublicSymbol(ctx, "doEmval")
 			Expect(err).To(BeNil())
@@ -802,7 +924,7 @@ var _ = Describe("Using embind classes", Label("library"), func() {
 				})
 
 				It("gives an error on a function with a wrong argument count", func() {
-					res, err := myClass.CallMethod(ctx, myClass, "getY", 1, 2, 3)
+					res, err := myClass.CallMethod(ctx, myClass, "combineY", 1, 2, 3)
 					Expect(err).To(Not(BeNil()))
 					if err != nil {
 						Expect(err.Error()).To(ContainSubstring("called with 3 argument(s), expected 1 arg(s)"))
@@ -811,7 +933,7 @@ var _ = Describe("Using embind classes", Label("library"), func() {
 				})
 
 				It("gives an error on a function with a wrong argument", func() {
-					res, err := myClass.CallMethod(ctx, myClass, "getY", 1)
+					res, err := myClass.CallMethod(ctx, myClass, "combineY", 1)
 					Expect(err).To(Not(BeNil()))
 					if err != nil {
 						Expect(err.Error()).To(ContainSubstring("could not get wire type of argument 0 (std::string): value must be of type string"))
@@ -820,7 +942,7 @@ var _ = Describe("Using embind classes", Label("library"), func() {
 				})
 
 				It("can call the method correctly", func() {
-					res, err := myClass.CallMethod(ctx, myClass, "getY", "hello ")
+					res, err := myClass.CallMethod(ctx, myClass, "combineY", "hello ")
 					Expect(err).To(BeNil())
 					Expect(res).To(Equal("hello test"))
 				})
@@ -938,6 +1060,54 @@ var _ = Describe("Using embind classes", Label("library"), func() {
 					Expect(res).To(Equal("test"))
 				})
 			})
+		})
+	})
+	When("A class is mapped to a Go struct", func() {
+		It("fails to map when the class doesn't embed the class base", func() {
+			type ClassMyClass struct{}
+			err := engine.RegisterClass("MyClass", &ClassMyClass{})
+			Expect(err).To(Not(BeNil()))
+			if err != nil {
+				Expect(err.Error()).To(ContainSubstring("it does not embed embind.ClassBase"))
+			}
+		})
+		It("fails to map when the class isn't passed as pointer", func() {
+			type ClassMyClass struct {
+				embind_external.ClassBase
+			}
+			err := engine.RegisterClass("MyClass", ClassMyClass{})
+			Expect(err).To(Not(BeNil()))
+			if err != nil {
+				Expect(err.Error()).To(ContainSubstring("given value should be a pointer type"))
+			}
+		})
+		It("succeeds to construct with both overloads", func() {
+			type ClassMyClass struct {
+				embind_external.ClassBase
+			}
+			err := engine.RegisterClass("MyClass", &ClassMyClass{})
+			Expect(err).To(BeNil())
+
+			res, err := engine.CallPublicSymbol(ctx, "MyClass", int32(123))
+			Expect(err).To(BeNil())
+			Expect(res).To(Not(BeNil()))
+			Expect(res).To(BeAssignableToTypeOf(&ClassMyClass{}))
+
+			res, err = engine.CallPublicSymbol(ctx, "MyClass", int32(123), "test123")
+			Expect(err).To(BeNil())
+			Expect(res).To(Not(BeNil()))
+			Expect(res).To(BeAssignableToTypeOf(&ClassMyClass{}))
+		})
+
+		It("errors when it is already mapped", func() {
+			type ClassMyClass struct {
+				embind_external.ClassBase
+			}
+			err := engine.RegisterClass("MyClass", &ClassMyClass{})
+			Expect(err).To(Not(BeNil()))
+			if err != nil {
+				Expect(err.Error()).To(ContainSubstring("could not register class MyClass, already registered as type *embind_test.ClassMyClass"))
+			}
 		})
 	})
 })

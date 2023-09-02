@@ -218,6 +218,10 @@ func Generate(dir string, fileName string, wasm []byte, initFunction string) err
 			})
 		}
 
+		sort.Slice(enum.Values, func(i, j int) bool {
+			return enum.Values[i].GoName < enum.Values[j].GoName
+		})
+
 		data.Enums = append(data.Enums, enum)
 	}
 

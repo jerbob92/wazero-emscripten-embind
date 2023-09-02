@@ -24,9 +24,9 @@ public:
   int getX() const { return x; }
   void setX(int x_) { x = x_; }
 
-  std::string yGetter() const { return y; }
+  std::string getY() const { return y; }
 
-  std::string getY(std::string in) const { return in + y; }
+  std::string combineY(std::string in) const { return in + y; }
 
   static std::string getStringFromInstance(const MyClass& instance) {
     return instance.y;
@@ -43,9 +43,9 @@ EMSCRIPTEN_BINDINGS(classes) {
       .constructor<int>()
       .function("incrementX", select_overload<void()>(&MyClass::incrementX))
       .function("incrementX", select_overload<void(int)>(&MyClass::incrementX))
-      .function("getY", &MyClass::getY)
+      .function("combineY", &MyClass::combineY)
       .property("x", &MyClass::getX, &MyClass::setX)
-      .property("y", &MyClass::yGetter)
+      .property("y", &MyClass::getY)
       .class_function("getStringFromInstance", &MyClass::getStringFromInstance)
       ;
 }

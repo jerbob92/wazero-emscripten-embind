@@ -77,8 +77,8 @@ func (class *ClassMyClass) GetY(ctx context.Context) (string, error) {
 	return res.(string), nil
 }
 
-func (class *ClassMyClass) GetY(ctx context.Context, arg0 string) (string, error) {
-	res, err := class.CallMethod(ctx, class, "getY", arg0)
+func (class *ClassMyClass) CombineY(ctx context.Context, arg0 string) (string, error) {
+	res, err := class.CallMethod(ctx, class, "combineY", arg0)
 	if err != nil {
 		return "", err
 	}
