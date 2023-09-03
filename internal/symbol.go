@@ -3,6 +3,8 @@ package embind
 import (
 	"context"
 	"fmt"
+
+	"github.com/tetratelabs/wazero/api"
 )
 
 type ISymbol interface {
@@ -98,3 +100,63 @@ func (e *engine) GetSymbols() []ISymbol {
 
 	return symbols
 }
+
+var RegisterFunction = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
+	engine := MustGetEngineFromContext(ctx, mod).(*engine)
+	namePtr := api.DecodeI32(stack[0])
+	argCount := api.DecodeI32(stack[1])
+	rawArgTypesAddr := api.DecodeI32(stack[2])
+	signaturePtr := api.DecodeI32(stack[3])
+	rawInvoker := api.DecodeI32(stack[4])
+	fn := api.DecodeI32(stack[5])
+	isAsync := api.DecodeI32(stack[6]) != 0
+
+	argTypes, err := engine.heap32VectorToArray(argCount, rawArgTypesAddr)
+	if err != nil {
+		panic(fmt.Errorf("could not read arg types: %w", err))
+	}
+
+	name, err := engine.readCString(uint32(namePtr))
+	if err != nil {
+		panic(fmt.Errorf("could not read name: %w", err))
+	}
+
+	publicSymbolArgs := argCount - 1
+
+	// Set a default callback that errors out when not all types are resolved.
+	err = engine.exposePublicSymbol(name, func(ctx context.Context, this any, arguments ...any) (any, error) {
+		return nil, engine.createUnboundTypeError(ctx, fmt.Sprintf("Cannot call _embind_register_function %s due to unbound types", name), argTypes)
+	}, &publicSymbolArgs)
+	if err != nil {
+		panic(fmt.Errorf("could not expose public symbol: %w", err))
+	}
+
+	// When all types are resolved, replace the callback with the actual implementation.
+	err = engine.whenDependentTypesAreResolved([]int32{}, argTypes, func(argTypes []registeredType) ([]registeredType, error) {
+		invokerArgsArray := []registeredType{argTypes[0] /* return value */, nil /* no class 'this'*/}
+		invokerArgsArray = append(invokerArgsArray, argTypes[1:]... /* actual params */)
+
+		expectedParamTypes := make([]api.ValueType, len(invokerArgsArray[2:])+1)
+		expectedParamTypes[0] = api.ValueTypeI32 // fn
+		for i := range invokerArgsArray[2:] {
+			expectedParamTypes[i+1] = invokerArgsArray[i+2].NativeType()
+		}
+
+		// Create an api.Function to be able to invoke the function on the
+		// Emscripten side.
+		invokerFunc, err := engine.newInvokeFunc(signaturePtr, rawInvoker, expectedParamTypes, []api.ValueType{argTypes[0].NativeType()})
+		if err != nil {
+			return nil, fmt.Errorf("could not create _embind_register_function invoke func: %w", err)
+		}
+
+		err = engine.replacePublicSymbol(name, engine.craftInvokerFunction(name, invokerArgsArray, nil /* no class 'this'*/, invokerFunc, fn, isAsync), &publicSymbolArgs, argTypes[1:], argTypes[0])
+		if err != nil {
+			return nil, err
+		}
+
+		return []registeredType{}, nil
+	})
+	if err != nil {
+		panic(fmt.Errorf("could not setup type dependenant lookup callbacks: %w", err))
+	}
+})

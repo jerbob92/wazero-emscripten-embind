@@ -111,3 +111,25 @@ func (sst *stdStringType) GoType() string {
 func (sst *stdStringType) FromF64(o float64) uint64 {
 	return api.EncodeU32(uint32(o))
 }
+
+var RegisterStdString = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
+	engine := MustGetEngineFromContext(ctx, mod).(*engine)
+
+	rawType := api.DecodeI32(stack[0])
+	name, err := engine.readCString(uint32(api.DecodeI32(stack[1])))
+	if err != nil {
+		panic(fmt.Errorf("could not read name: %w", err))
+	}
+
+	err = engine.registerType(rawType, &stdStringType{
+		baseType: baseType{
+			rawType:        rawType,
+			name:           name,
+			argPackAdvance: 8,
+		},
+		stdStringIsUTF8: name == "std::string",
+	}, nil)
+	if err != nil {
+		panic(fmt.Errorf("could not register: %w", err))
+	}
+})

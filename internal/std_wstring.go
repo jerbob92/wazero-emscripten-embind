@@ -142,3 +142,25 @@ func (swst *stdWStringType) GoType() string {
 func (swst *stdWStringType) FromF64(o float64) uint64 {
 	return api.EncodeU32(uint32(o))
 }
+
+var RegisterStdWString = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
+	engine := MustGetEngineFromContext(ctx, mod).(*engine)
+
+	rawType := api.DecodeI32(stack[0])
+	name, err := engine.readCString(uint32(api.DecodeI32(stack[2])))
+	if err != nil {
+		panic(fmt.Errorf("could not read name: %w", err))
+	}
+
+	err = engine.registerType(rawType, &stdWStringType{
+		baseType: baseType{
+			rawType:        rawType,
+			name:           name,
+			argPackAdvance: 8,
+		},
+		charSize: api.DecodeI32(stack[1]),
+	}, nil)
+	if err != nil {
+		panic(fmt.Errorf("could not register: %w", err))
+	}
+})

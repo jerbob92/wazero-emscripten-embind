@@ -124,3 +124,78 @@ func (e *engine) GetEnums() []IEnumType {
 	}
 	return enums
 }
+
+var RegisterEnum = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
+	engine := MustGetEngineFromContext(ctx, mod).(*engine)
+
+	rawType := api.DecodeI32(stack[0])
+	name, err := engine.readCString(uint32(api.DecodeI32(stack[1])))
+	if err != nil {
+		panic(fmt.Errorf("could not read name: %w", err))
+	}
+
+	_, ok := engine.registeredEnums[name]
+	if !ok {
+		engine.registeredEnums[name] = &enumType{
+			valuesByName:     map[string]*enumValue{},
+			valuesByCppValue: map[any]*enumValue{},
+			valuesByGoValue:  map[any]*enumValue{},
+		}
+	}
+
+	engine.registeredEnums[name].baseType = baseType{
+		rawType:        rawType,
+		name:           name,
+		argPackAdvance: 8,
+	}
+
+	engine.registeredEnums[name].intHelper = intType{
+		size:   api.DecodeI32(stack[2]),
+		signed: api.DecodeI32(stack[3]) > 0,
+	}
+
+	err = engine.registerType(rawType, engine.registeredEnums[name], nil)
+	if err != nil {
+		panic(fmt.Errorf("could not register: %w", err))
+	}
+})
+
+var RegisterEnumValue = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
+	engine := MustGetEngineFromContext(ctx, mod).(*engine)
+
+	rawType := api.DecodeI32(stack[0])
+	name, err := engine.readCString(uint32(api.DecodeI32(stack[1])))
+	if err != nil {
+		panic(fmt.Errorf("could not read name: %w", err))
+	}
+
+	registeredType, ok := engine.registeredTypes[rawType]
+	if !ok {
+		typeName, err := engine.getTypeName(ctx, rawType)
+		if err != nil {
+			panic(err)
+		}
+		panic(fmt.Errorf("%s has unknown type %s", name, typeName))
+	}
+
+	enumType := registeredType.(*enumType)
+	enumWireValue, err := enumType.intHelper.FromWireType(ctx, mod, stack[2])
+	if err != nil {
+		panic(fmt.Errorf("could not read value for enum %s", name))
+	}
+
+	_, ok = enumType.valuesByName[name]
+	if !ok {
+		enumType.valuesByName[name] = &enumValue{
+			name: name,
+		}
+	}
+
+	if enumType.valuesByName[name].hasCppValue {
+		panic(fmt.Errorf("enum value %s for enum %s was already registered", name, enumType.name))
+	}
+
+	enumType.valuesByName[name].hasCppValue = true
+	enumType.valuesByName[name].cppValue = enumWireValue
+	enumType.valuesByCppValue[enumWireValue] = enumType.valuesByName[name]
+})

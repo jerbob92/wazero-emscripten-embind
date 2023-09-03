@@ -105,3 +105,60 @@ func (mvt *memoryViewType) GoType() string {
 
 	return "[]uint64"
 }
+
+var RegisterMemoryView = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
+	engine := MustGetEngineFromContext(ctx, mod).(*engine)
+
+	rawType := api.DecodeI32(stack[0])
+	dataTypeIndex := api.DecodeI32(stack[1])
+	name, err := engine.readCString(uint32(api.DecodeI32(stack[2])))
+	if err != nil {
+		panic(fmt.Errorf("could not read name: %w", err))
+	}
+
+	typeMapping := []any{
+		int8(0),
+		uint8(0),
+		int16(0),
+		uint16(0),
+		int32(0),
+		uint32(0),
+		float32(0),
+		float64(0),
+		int64(0),
+		uint64(0),
+	}
+
+	if dataTypeIndex < 0 || int(dataTypeIndex) >= len(typeMapping) {
+		panic(fmt.Errorf("invalid memory view data type index: %d", dataTypeIndex))
+	}
+
+	sizeMapping := []uint32{
+		1, // int8
+		1, // uint8
+		2, // int16
+		2, // uint16
+		4, // int32
+		4, // uint32
+		4, // float32
+		8, // float64
+		8, // int64
+		8, // uint64
+	}
+
+	err = engine.registerType(rawType, &memoryViewType{
+		baseType: baseType{
+			rawType:        rawType,
+			name:           name,
+			argPackAdvance: 8,
+		},
+		dataTypeIndex: dataTypeIndex,
+		nativeSize:    sizeMapping[dataTypeIndex],
+		nativeType:    typeMapping[dataTypeIndex],
+	}, &registerTypeOptions{
+		ignoreDuplicateRegistrations: true,
+	})
+	if err != nil {
+		panic(fmt.Errorf("could not register: %w", err))
+	}
+})

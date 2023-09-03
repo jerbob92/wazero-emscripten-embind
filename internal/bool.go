@@ -3,6 +3,7 @@ package embind
 import (
 	"context"
 	"fmt"
+
 	"github.com/jerbob92/wazero-emscripten-embind/types"
 
 	"github.com/tetratelabs/wazero/api"
@@ -114,4 +115,45 @@ func (bt *boolType) ReadValueFromPointer(ctx context.Context, mod api.Module, po
 
 func (bt *boolType) GoType() string {
 	return "bool"
+}
+
+var RegisterBool = func(hasSize bool) api.GoModuleFunc {
+	return api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
+		engine := MustGetEngineFromContext(ctx, mod).(*engine)
+
+		rawType := api.DecodeI32(stack[0])
+
+		name, err := engine.readCString(uint32(api.DecodeI32(stack[1])))
+		if err != nil {
+			panic(fmt.Errorf("could not read name: %w", err))
+		}
+
+		var size, trueVal, falseVal int32
+
+		// Since Emscripten 3.1.45, the size of the boolean is put to 1, while
+		// before the size was part of the registration.
+		if hasSize {
+			size = api.DecodeI32(stack[2])
+			trueVal = api.DecodeI32(stack[3])
+			falseVal = api.DecodeI32(stack[4])
+		} else {
+			size = int32(1)
+			trueVal = api.DecodeI32(stack[2])
+			falseVal = api.DecodeI32(stack[3])
+		}
+
+		err = engine.registerType(rawType, &boolType{
+			baseType: baseType{
+				rawType:        rawType,
+				name:           name,
+				argPackAdvance: 8,
+			},
+			size:     size,
+			trueVal:  trueVal,
+			falseVal: falseVal,
+		}, nil)
+		if err != nil {
+			panic(fmt.Errorf("could not register: %w", err))
+		}
+	})
 }
