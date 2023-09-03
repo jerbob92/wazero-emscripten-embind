@@ -23,8 +23,9 @@
 * Communicate between guest and host without worrying about data encoding/decoding
 * Direct access to memory
   through [memory views](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html#memory-views)
+* Tested with custom test C++ and standard tests from Emscripten
 
-But not everything is supported:html
+But not everything is supported:
 
 * ASYNCIFY: does not make a lot of sense in Go, might come later to allow Async C++ implementations to work
 * EM_ASM/EM_JS (and related methods): naturally, you can't run JS in Go/Wazero. Since Go is not an interpreted language,
