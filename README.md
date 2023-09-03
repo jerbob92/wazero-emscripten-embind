@@ -11,7 +11,7 @@
 
 ## Features
 
-* Support for all [Embind](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html) features
+* Support for almost all [Embind](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html) features
 * Code generator for all Embind bindings:
     * [Functions](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html#a-quick-example)
     * [Classes](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html#classes)
@@ -23,6 +23,12 @@
 * Communicate between guest and host without worrying about data encoding/decoding
 * Direct access to memory
   through [memory views](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html#memory-views)
+
+But not everything is supported:html
+
+* ASYNCIFY: does not make a lot of sense in Go, might come later to allow Async C++ implementations to work
+* EM_ASM/EM_JS: naturally, you can't run JS in Go/Wazero. Since Go is not an interpreted language, I don't see much 
+  sense to add support for Go code in it, as that would require a Go interpreter.
 
 ## What does Embind do?
 
