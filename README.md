@@ -27,8 +27,8 @@
 But not everything is supported:html
 
 * ASYNCIFY: does not make a lot of sense in Go, might come later to allow Async C++ implementations to work
-* EM_ASM/EM_JS: naturally, you can't run JS in Go/Wazero. Since Go is not an interpreted language, I don't see much 
-  sense to add support for Go code in it, as that would require a Go interpreter.
+* EM_ASM/EM_JS (and related methods): naturally, you can't run JS in Go/Wazero. Since Go is not an interpreted language,
+  I don't see much sense to add support for Go code in it, as that would require a Go interpreter.
 
 ## What does Embind do?
 
