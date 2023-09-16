@@ -164,7 +164,7 @@ type ClassBase struct {
 	embind.ClassBase
 }
 
-func (class *ClassBase) PropertyGetBaseMember(ctx context.Context) (int32, error) {
+func (class *ClassBase) GetPropertyBaseMember(ctx context.Context) (int32, error) {
 	res, err := class.GetProperty(ctx, class, "baseMember")
 	if err != nil {
 		return int32(0), err
@@ -172,11 +172,11 @@ func (class *ClassBase) PropertyGetBaseMember(ctx context.Context) (int32, error
 
 	return res.(int32), nil
 }
-func (class *ClassBase) PropertySetBaseMember(ctx context.Context, val int32) error {
+func (class *ClassBase) SetPropertyBaseMember(ctx context.Context, val int32) error {
 	return class.SetProperty(ctx, class, "baseMember", val)
 }
 
-func (class *ClassBase) PropertyGetMember(ctx context.Context) (int32, error) {
+func (class *ClassBase) GetPropertyMember(ctx context.Context) (int32, error) {
 	res, err := class.GetProperty(ctx, class, "member")
 	if err != nil {
 		return int32(0), err
@@ -184,7 +184,7 @@ func (class *ClassBase) PropertyGetMember(ctx context.Context) (int32, error) {
 
 	return res.(int32), nil
 }
-func (class *ClassBase) PropertySetMember(ctx context.Context, val int32) error {
+func (class *ClassBase) SetPropertyMember(ctx context.Context, val int32) error {
 	return class.SetProperty(ctx, class, "member", val)
 }
 
@@ -287,7 +287,7 @@ type ClassBase2 struct {
 	embind.ClassBase
 }
 
-func (class *ClassBase2) PropertyGetField(ctx context.Context) (string, error) {
+func (class *ClassBase2) GetPropertyField(ctx context.Context) (string, error) {
 	res, err := class.GetProperty(ctx, class, "field")
 	if err != nil {
 		return "", err
@@ -295,7 +295,7 @@ func (class *ClassBase2) PropertyGetField(ctx context.Context) (string, error) {
 
 	return res.(string), nil
 }
-func (class *ClassBase2) PropertySetField(ctx context.Context, val string) error {
+func (class *ClassBase2) SetPropertyField(ctx context.Context, val string) error {
 	return class.SetProperty(ctx, class, "field", val)
 }
 
@@ -366,7 +366,7 @@ type ClassBigClass struct {
 	embind.ClassBase
 }
 
-func (class *ClassBigClass) PropertyGetMember(ctx context.Context) (int32, error) {
+func (class *ClassBigClass) GetPropertyMember(ctx context.Context) (int32, error) {
 	res, err := class.GetProperty(ctx, class, "member")
 	if err != nil {
 		return int32(0), err
@@ -374,11 +374,11 @@ func (class *ClassBigClass) PropertyGetMember(ctx context.Context) (int32, error
 
 	return res.(int32), nil
 }
-func (class *ClassBigClass) PropertySetMember(ctx context.Context, val int32) error {
+func (class *ClassBigClass) SetPropertyMember(ctx context.Context, val int32) error {
 	return class.SetProperty(ctx, class, "member", val)
 }
 
-func (class *ClassBigClass) PropertyGetOtherMember(ctx context.Context) (int32, error) {
+func (class *ClassBigClass) GetPropertyOtherMember(ctx context.Context) (int32, error) {
 	res, err := class.GetProperty(ctx, class, "otherMember")
 	if err != nil {
 		return int32(0), err
@@ -386,11 +386,11 @@ func (class *ClassBigClass) PropertyGetOtherMember(ctx context.Context) (int32, 
 
 	return res.(int32), nil
 }
-func (class *ClassBigClass) PropertySetOtherMember(ctx context.Context, val int32) error {
+func (class *ClassBigClass) SetPropertyOtherMember(ctx context.Context, val int32) error {
 	return class.SetProperty(ctx, class, "otherMember", val)
 }
 
-func (class *ClassBigClass) PropertyGetYetAnotherMember(ctx context.Context) (int32, error) {
+func (class *ClassBigClass) GetPropertyYetAnotherMember(ctx context.Context) (int32, error) {
 	res, err := class.GetProperty(ctx, class, "yetAnotherMember")
 	if err != nil {
 		return int32(0), err
@@ -398,7 +398,7 @@ func (class *ClassBigClass) PropertyGetYetAnotherMember(ctx context.Context) (in
 
 	return res.(int32), nil
 }
-func (class *ClassBigClass) PropertySetYetAnotherMember(ctx context.Context, val int32) error {
+func (class *ClassBigClass) SetPropertyYetAnotherMember(ctx context.Context, val int32) error {
 	return class.SetProperty(ctx, class, "yetAnotherMember", val)
 }
 
@@ -597,7 +597,7 @@ type ClassCustomStruct struct {
 	embind.ClassBase
 }
 
-func (class *ClassCustomStruct) PropertyGetField(ctx context.Context) (int32, error) {
+func (class *ClassCustomStruct) GetPropertyField(ctx context.Context) (int32, error) {
 	res, err := class.GetProperty(ctx, class, "field")
 	if err != nil {
 		return int32(0), err
@@ -605,7 +605,7 @@ func (class *ClassCustomStruct) PropertyGetField(ctx context.Context) (int32, er
 
 	return res.(int32), nil
 }
-func (class *ClassCustomStruct) PropertySetField(ctx context.Context, val int32) error {
+func (class *ClassCustomStruct) SetPropertyField(ctx context.Context, val int32) error {
 	return class.SetProperty(ctx, class, "field", val)
 }
 
@@ -631,7 +631,7 @@ type ClassDerived struct {
 	embind.ClassBase
 }
 
-func (class *ClassDerived) PropertyGetMember(ctx context.Context) (int32, error) {
+func (class *ClassDerived) GetPropertyMember(ctx context.Context) (int32, error) {
 	res, err := class.GetProperty(ctx, class, "member")
 	if err != nil {
 		return int32(0), err
@@ -639,7 +639,7 @@ func (class *ClassDerived) PropertyGetMember(ctx context.Context) (int32, error)
 
 	return res.(int32), nil
 }
-func (class *ClassDerived) PropertySetMember(ctx context.Context, val int32) error {
+func (class *ClassDerived) SetPropertyMember(ctx context.Context, val int32) error {
 	return class.SetProperty(ctx, class, "member", val)
 }
 
@@ -1035,7 +1035,7 @@ type ClassHasReadOnlyProperty struct {
 	embind.ClassBase
 }
 
-func (class *ClassHasReadOnlyProperty) PropertyGetI(ctx context.Context) (int32, error) {
+func (class *ClassHasReadOnlyProperty) GetPropertyI(ctx context.Context) (int32, error) {
 	res, err := class.GetProperty(ctx, class, "i")
 	if err != nil {
 		return int32(0), err
@@ -1057,7 +1057,7 @@ type ClassHasStaticMember struct {
 	embind.ClassBase
 }
 
-func (class *ClassHasStaticMember) PropertyGetC(ctx context.Context) (int32, error) {
+func (class *ClassHasStaticMember) GetPropertyC(ctx context.Context) (int32, error) {
 	res, err := class.GetProperty(ctx, class, "c")
 	if err != nil {
 		return int32(0), err
@@ -1066,7 +1066,7 @@ func (class *ClassHasStaticMember) PropertyGetC(ctx context.Context) (int32, err
 	return res.(int32), nil
 }
 
-func (class *ClassHasStaticMember) PropertyGetV(ctx context.Context) (int32, error) {
+func (class *ClassHasStaticMember) GetPropertyV(ctx context.Context) (int32, error) {
 	res, err := class.GetProperty(ctx, class, "v")
 	if err != nil {
 		return int32(0), err
@@ -1074,7 +1074,7 @@ func (class *ClassHasStaticMember) PropertyGetV(ctx context.Context) (int32, err
 
 	return res.(int32), nil
 }
-func (class *ClassHasStaticMember) PropertySetV(ctx context.Context, val int32) error {
+func (class *ClassHasStaticMember) SetPropertyV(ctx context.Context, val int32) error {
 	return class.SetProperty(ctx, class, "v", val)
 }
 
@@ -1149,7 +1149,7 @@ type ClassHeldByCustomSmartPtr struct {
 	embind.ClassBase
 }
 
-func (class *ClassHeldByCustomSmartPtr) PropertyGetI(ctx context.Context) (int32, error) {
+func (class *ClassHeldByCustomSmartPtr) GetPropertyI(ctx context.Context) (int32, error) {
 	res, err := class.GetProperty(ctx, class, "i")
 	if err != nil {
 		return int32(0), err
@@ -1157,11 +1157,11 @@ func (class *ClassHeldByCustomSmartPtr) PropertyGetI(ctx context.Context) (int32
 
 	return res.(int32), nil
 }
-func (class *ClassHeldByCustomSmartPtr) PropertySetI(ctx context.Context, val int32) error {
+func (class *ClassHeldByCustomSmartPtr) SetPropertyI(ctx context.Context, val int32) error {
 	return class.SetProperty(ctx, class, "i", val)
 }
 
-func (class *ClassHeldByCustomSmartPtr) PropertyGetS(ctx context.Context) (string, error) {
+func (class *ClassHeldByCustomSmartPtr) GetPropertyS(ctx context.Context) (string, error) {
 	res, err := class.GetProperty(ctx, class, "s")
 	if err != nil {
 		return "", err
@@ -1169,7 +1169,7 @@ func (class *ClassHeldByCustomSmartPtr) PropertyGetS(ctx context.Context) (strin
 
 	return res.(string), nil
 }
-func (class *ClassHeldByCustomSmartPtr) PropertySetS(ctx context.Context, val string) error {
+func (class *ClassHeldByCustomSmartPtr) SetPropertyS(ctx context.Context, val string) error {
 	return class.SetProperty(ctx, class, "s", val)
 }
 
@@ -1195,7 +1195,7 @@ type ClassHeldBySmartPtr struct {
 	embind.ClassBase
 }
 
-func (class *ClassHeldBySmartPtr) PropertyGetI(ctx context.Context) (int32, error) {
+func (class *ClassHeldBySmartPtr) GetPropertyI(ctx context.Context) (int32, error) {
 	res, err := class.GetProperty(ctx, class, "i")
 	if err != nil {
 		return int32(0), err
@@ -1203,11 +1203,11 @@ func (class *ClassHeldBySmartPtr) PropertyGetI(ctx context.Context) (int32, erro
 
 	return res.(int32), nil
 }
-func (class *ClassHeldBySmartPtr) PropertySetI(ctx context.Context, val int32) error {
+func (class *ClassHeldBySmartPtr) SetPropertyI(ctx context.Context, val int32) error {
 	return class.SetProperty(ctx, class, "i", val)
 }
 
-func (class *ClassHeldBySmartPtr) PropertyGetS(ctx context.Context) (string, error) {
+func (class *ClassHeldBySmartPtr) GetPropertyS(ctx context.Context) (string, error) {
 	res, err := class.GetProperty(ctx, class, "s")
 	if err != nil {
 		return "", err
@@ -1215,7 +1215,7 @@ func (class *ClassHeldBySmartPtr) PropertyGetS(ctx context.Context) (string, err
 
 	return res.(string), nil
 }
-func (class *ClassHeldBySmartPtr) PropertySetS(ctx context.Context, val string) error {
+func (class *ClassHeldBySmartPtr) SetPropertyS(ctx context.Context, val string) error {
 	return class.SetProperty(ctx, class, "s", val)
 }
 
@@ -1872,7 +1872,7 @@ type ClassMyClass struct {
 	embind.ClassBase
 }
 
-func (class *ClassMyClass) PropertyGetX(ctx context.Context) (int32, error) {
+func (class *ClassMyClass) GetPropertyX(ctx context.Context) (int32, error) {
 	res, err := class.GetProperty(ctx, class, "x")
 	if err != nil {
 		return int32(0), err
@@ -1880,11 +1880,11 @@ func (class *ClassMyClass) PropertyGetX(ctx context.Context) (int32, error) {
 
 	return res.(int32), nil
 }
-func (class *ClassMyClass) PropertySetX(ctx context.Context, val int32) error {
+func (class *ClassMyClass) SetPropertyX(ctx context.Context, val int32) error {
 	return class.SetProperty(ctx, class, "x", val)
 }
 
-func (class *ClassMyClass) PropertyGetY(ctx context.Context) (string, error) {
+func (class *ClassMyClass) GetPropertyY(ctx context.Context) (string, error) {
 	res, err := class.GetProperty(ctx, class, "y")
 	if err != nil {
 		return "", err
@@ -1943,7 +1943,7 @@ type ClassNoExceptClass struct {
 	embind.ClassBase
 }
 
-func (class *ClassNoExceptClass) PropertyGetX(ctx context.Context) (int32, error) {
+func (class *ClassNoExceptClass) GetPropertyX(ctx context.Context) (int32, error) {
 	res, err := class.GetProperty(ctx, class, "x")
 	if err != nil {
 		return int32(0), err
@@ -1951,7 +1951,7 @@ func (class *ClassNoExceptClass) PropertyGetX(ctx context.Context) (int32, error
 
 	return res.(int32), nil
 }
-func (class *ClassNoExceptClass) PropertySetX(ctx context.Context, val int32) error {
+func (class *ClassNoExceptClass) SetPropertyX(ctx context.Context, val int32) error {
 	return class.SetProperty(ctx, class, "x", val)
 }
 
@@ -2311,7 +2311,7 @@ type ClassSecondBase struct {
 	embind.ClassBase
 }
 
-func (class *ClassSecondBase) PropertyGetMember(ctx context.Context) (int32, error) {
+func (class *ClassSecondBase) GetPropertyMember(ctx context.Context) (int32, error) {
 	res, err := class.GetProperty(ctx, class, "member")
 	if err != nil {
 		return int32(0), err
@@ -2319,11 +2319,11 @@ func (class *ClassSecondBase) PropertyGetMember(ctx context.Context) (int32, err
 
 	return res.(int32), nil
 }
-func (class *ClassSecondBase) PropertySetMember(ctx context.Context, val int32) error {
+func (class *ClassSecondBase) SetPropertyMember(ctx context.Context, val int32) error {
 	return class.SetProperty(ctx, class, "member", val)
 }
 
-func (class *ClassSecondBase) PropertyGetSecondBaseMember(ctx context.Context) (int32, error) {
+func (class *ClassSecondBase) GetPropertySecondBaseMember(ctx context.Context) (int32, error) {
 	res, err := class.GetProperty(ctx, class, "secondBaseMember")
 	if err != nil {
 		return int32(0), err
@@ -2331,7 +2331,7 @@ func (class *ClassSecondBase) PropertyGetSecondBaseMember(ctx context.Context) (
 
 	return res.(int32), nil
 }
-func (class *ClassSecondBase) PropertySetSecondBaseMember(ctx context.Context, val int32) error {
+func (class *ClassSecondBase) SetPropertySecondBaseMember(ctx context.Context, val int32) error {
 	return class.SetProperty(ctx, class, "secondBaseMember", val)
 }
 
@@ -2506,7 +2506,7 @@ type ClassSmallClass struct {
 	embind.ClassBase
 }
 
-func (class *ClassSmallClass) PropertyGetMember(ctx context.Context) (int32, error) {
+func (class *ClassSmallClass) GetPropertyMember(ctx context.Context) (int32, error) {
 	res, err := class.GetProperty(ctx, class, "member")
 	if err != nil {
 		return int32(0), err
@@ -2514,7 +2514,7 @@ func (class *ClassSmallClass) PropertyGetMember(ctx context.Context) (int32, err
 
 	return res.(int32), nil
 }
-func (class *ClassSmallClass) PropertySetMember(ctx context.Context, val int32) error {
+func (class *ClassSmallClass) SetPropertyMember(ctx context.Context, val int32) error {
 	return class.SetProperty(ctx, class, "member", val)
 }
 
@@ -2751,7 +2751,7 @@ type ClassValHolder struct {
 	embind.ClassBase
 }
 
-func (class *ClassValHolder) PropertyGetFunction_val(ctx context.Context) (any, error) {
+func (class *ClassValHolder) GetPropertyFunction_val(ctx context.Context) (any, error) {
 	res, err := class.GetProperty(ctx, class, "function_val")
 	if err != nil {
 		return nil, err
@@ -2759,11 +2759,11 @@ func (class *ClassValHolder) PropertyGetFunction_val(ctx context.Context) (any, 
 
 	return res.(any), nil
 }
-func (class *ClassValHolder) PropertySetFunction_val(ctx context.Context, val any) error {
+func (class *ClassValHolder) SetPropertyFunction_val(ctx context.Context, val any) error {
 	return class.SetProperty(ctx, class, "function_val", val)
 }
 
-func (class *ClassValHolder) PropertyGetFunctor_val(ctx context.Context) (any, error) {
+func (class *ClassValHolder) GetPropertyFunctor_val(ctx context.Context) (any, error) {
 	res, err := class.GetProperty(ctx, class, "functor_val")
 	if err != nil {
 		return nil, err
@@ -2771,11 +2771,11 @@ func (class *ClassValHolder) PropertyGetFunctor_val(ctx context.Context) (any, e
 
 	return res.(any), nil
 }
-func (class *ClassValHolder) PropertySetFunctor_val(ctx context.Context, val any) error {
+func (class *ClassValHolder) SetPropertyFunctor_val(ctx context.Context, val any) error {
 	return class.SetProperty(ctx, class, "functor_val", val)
 }
 
-func (class *ClassValHolder) PropertyGetReadonly_function_val(ctx context.Context) (any, error) {
+func (class *ClassValHolder) GetPropertyReadonly_function_val(ctx context.Context) (any, error) {
 	res, err := class.GetProperty(ctx, class, "readonly_function_val")
 	if err != nil {
 		return nil, err
@@ -2784,7 +2784,7 @@ func (class *ClassValHolder) PropertyGetReadonly_function_val(ctx context.Contex
 	return res.(any), nil
 }
 
-func (class *ClassValHolder) PropertyGetReadonly_functor_val(ctx context.Context) (any, error) {
+func (class *ClassValHolder) GetPropertyReadonly_functor_val(ctx context.Context) (any, error) {
 	res, err := class.GetProperty(ctx, class, "readonly_functor_val")
 	if err != nil {
 		return nil, err
@@ -2793,7 +2793,7 @@ func (class *ClassValHolder) PropertyGetReadonly_functor_val(ctx context.Context
 	return res.(any), nil
 }
 
-func (class *ClassValHolder) PropertyGetVal(ctx context.Context) (any, error) {
+func (class *ClassValHolder) GetPropertyVal(ctx context.Context) (any, error) {
 	res, err := class.GetProperty(ctx, class, "val")
 	if err != nil {
 		return nil, err
@@ -2801,11 +2801,11 @@ func (class *ClassValHolder) PropertyGetVal(ctx context.Context) (any, error) {
 
 	return res.(any), nil
 }
-func (class *ClassValHolder) PropertySetVal(ctx context.Context, val any) error {
+func (class *ClassValHolder) SetPropertyVal(ctx context.Context, val any) error {
 	return class.SetProperty(ctx, class, "val", val)
 }
 
-func (class *ClassValHolder) PropertyGetVal_readonly(ctx context.Context) (any, error) {
+func (class *ClassValHolder) GetPropertyVal_readonly(ctx context.Context) (any, error) {
 	res, err := class.GetProperty(ctx, class, "val_readonly")
 	if err != nil {
 		return nil, err

@@ -82,7 +82,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = newClassInstance.SetX(ctx, 42)
+	err = newClassInstance.SetPropertyX(ctx, 42)
 	if err != nil {
 		log.Fatal(err)
 	}

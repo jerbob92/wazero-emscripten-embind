@@ -11,7 +11,7 @@ type ClassMyClass struct {
 	embind.ClassBase
 }
 
-func (class *ClassMyClass) GetX(ctx context.Context) (int32, error) {
+func (class *ClassMyClass) GetPropertyX(ctx context.Context) (int32, error) {
 	res, err := class.GetProperty(ctx, class, "x")
 	if err != nil {
 		return int32(0), err
@@ -19,7 +19,7 @@ func (class *ClassMyClass) GetX(ctx context.Context) (int32, error) {
 
 	return res.(int32), nil
 }
-func (class *ClassMyClass) SetX(ctx context.Context, val int32) error {
+func (class *ClassMyClass) SetPropertyX(ctx context.Context, val int32) error {
 	return class.SetProperty(ctx, class, "x", val)
 }
 

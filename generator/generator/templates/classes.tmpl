@@ -12,7 +12,7 @@ type {{ $class.GoName }} struct {
     embind.ClassBase
 }
 {{ range $index, $property := $class.Properties }}
-func (class *{{ $class.GoName }}) PropertyGet{{ $property.GoName }}(ctx context.Context) ({{ $property.GetterType }}, error)  {
+func (class *{{ $class.GoName }}) GetProperty{{ $property.GoName }}(ctx context.Context) ({{ $property.GetterType }}, error)  {
     res, err := class.GetProperty(ctx, class, "{{ $property.Name }}")
     if err != nil {
         return {{ $property.ErrorValue }}, err
@@ -21,7 +21,7 @@ func (class *{{ $class.GoName }}) PropertyGet{{ $property.GoName }}(ctx context.
     return res.({{ $property.GetterType }}), nil
 }
 {{ if not ($property.ReadOnly) -}}
-func (class *{{ $class.GoName }}) PropertySet{{ $property.GoName }}(ctx context.Context, val {{ $property.SetterType }}) error  {
+func (class *{{ $class.GoName }}) SetProperty{{ $property.GoName }}(ctx context.Context, val {{ $property.SetterType }}) error  {
     return class.SetProperty(ctx, class, "{{ $property.Name }}", val)
 }
 {{ end }}
