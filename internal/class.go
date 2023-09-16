@@ -450,6 +450,11 @@ func (ecb *ClassBase) CallMethod(ctx context.Context, this any, name string, arg
 	// Ensure that the engine is attached. Allows calling methods on the class
 	// without keeping track of the engine.
 	ctx = ecb.engine.Attach(ctx)
+
+	if method.isStatic {
+		return nil, fmt.Errorf("method %s on %T is static", name, this)
+	}
+
 	return method.fn(ctx, this, arguments...)
 }
 
@@ -462,6 +467,10 @@ func (ecb *ClassBase) SetProperty(ctx context.Context, this any, name string, va
 	// Ensure that the engine is attached. Allows setting properties on the
 	// class without keeping track of the engine.
 	ctx = ecb.engine.Attach(ctx)
+
+	if property.Static() {
+		return fmt.Errorf("property %s on %T is static", name, this)
+	}
 
 	if property.ReadOnly() {
 		return fmt.Errorf("property %s on %T is read-only", name, this)
@@ -479,6 +488,11 @@ func (ecb *ClassBase) GetProperty(ctx context.Context, this any, name string) (a
 	// Ensure that the engine is attached. Allows setting properties on the
 	// class without keeping track of the engine.
 	ctx = ecb.engine.Attach(ctx)
+
+	if property.Static() {
+		return nil, fmt.Errorf("property %s on %T is static", name, this)
+	}
+
 	return property.get(ctx, this)
 }
 
