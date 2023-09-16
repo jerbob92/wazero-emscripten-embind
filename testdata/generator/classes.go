@@ -1057,7 +1057,7 @@ type ClassHasStaticMember struct {
 	embind.ClassBase
 }
 
-func ClassHasStaticMemberGetStaticPropertyC(ctx context.Context) (int32, error) {
+func ClassHasStaticMemberGetStaticPropertyC(e embind.Engine, ctx context.Context) (int32, error) {
 	res, err := e.GetStaticClassProperty(ctx, "HasStaticMember", "c")
 	if err != nil {
 		return int32(0), err
@@ -1066,7 +1066,7 @@ func ClassHasStaticMemberGetStaticPropertyC(ctx context.Context) (int32, error) 
 	return res.(int32), nil
 }
 
-func ClassHasStaticMemberGetStaticPropertyV(ctx context.Context) (int32, error) {
+func ClassHasStaticMemberGetStaticPropertyV(e embind.Engine, ctx context.Context) (int32, error) {
 	res, err := e.GetStaticClassProperty(ctx, "HasStaticMember", "v")
 	if err != nil {
 		return int32(0), err
@@ -1074,7 +1074,7 @@ func ClassHasStaticMemberGetStaticPropertyV(ctx context.Context) (int32, error) 
 
 	return res.(int32), nil
 }
-func ClassHasStaticMemberSetStaticPropertyV(ctx context.Context, val int32) error {
+func ClassHasStaticMemberSetStaticPropertyV(e embind.Engine, ctx context.Context, val int32) error {
 	return e.SetStaticClassProperty(ctx, "HasStaticMember", "v", val)
 }
 

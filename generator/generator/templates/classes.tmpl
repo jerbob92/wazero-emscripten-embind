@@ -61,7 +61,7 @@ func {{ $class.GoName }}Static{{ $method.GoName }}(e embind.Engine, ctx context.
 {{ end }}
 {{ end }}
 {{ range $index, $property := $class.StaticProperties }}
-func {{ $class.GoName }}GetStaticProperty{{ $property.GoName }}(ctx context.Context) ({{ $property.GetterType }}, error)  {
+func {{ $class.GoName }}GetStaticProperty{{ $property.GoName }}(e embind.Engine, ctx context.Context) ({{ $property.GetterType }}, error)  {
     res, err := e.GetStaticClassProperty(ctx, "{{ $class.Name }}", "{{ $property.Name }}")
     if err != nil {
         return {{ $property.ErrorValue }}, err
@@ -70,7 +70,7 @@ func {{ $class.GoName }}GetStaticProperty{{ $property.GoName }}(ctx context.Cont
     return res.({{ $property.GetterType }}), nil
 }
 {{ if not ($property.ReadOnly) -}}
-func {{ $class.GoName }}SetStaticProperty{{ $property.GoName }}(ctx context.Context, val {{ $property.SetterType }}) error  {
+func {{ $class.GoName }}SetStaticProperty{{ $property.GoName }}(e embind.Engine, ctx context.Context, val {{ $property.SetterType }}) error  {
     return e.SetStaticClassProperty(ctx, "{{ $class.Name }}", "{{ $property.Name }}", val)
 }
 {{ end }}

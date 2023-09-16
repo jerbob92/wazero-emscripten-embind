@@ -1229,7 +1229,7 @@ func Foo(e embind.Engine, ctx context.Context) (*ClassFoo, error) {
 	return res.(*ClassFoo), nil
 }
 
-func Foo(e embind.Engine, ctx context.Context) (*ClassFoo, error) {
+func Foo_(e embind.Engine, ctx context.Context) (*ClassFoo, error) {
 	res, err := e.CallPublicSymbol(ctx, "foo")
 	if err != nil {
 		return nil, err

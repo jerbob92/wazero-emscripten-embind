@@ -202,8 +202,22 @@ func Generate(dir string, fileName string, wasm []byte, initFunction string) err
 	}
 
 	sort.Slice(data.Symbols, func(i, j int) bool {
+		if data.Symbols[i].GoName == data.Symbols[j].GoName {
+			return data.Symbols[i].Symbol < data.Symbols[j].Symbol
+		}
 		return data.Symbols[i].GoName < data.Symbols[j].GoName
 	})
+
+	// Prevent duplicate names.
+	seenNames := map[string]bool{}
+	for i := range data.Symbols {
+		_, ok := seenNames[data.Symbols[i].GoName]
+		if ok {
+			data.Symbols[i].GoName += "_"
+		}
+
+		seenNames[data.Symbols[i].GoName] = true
+	}
 
 	enums := engine.GetEnums()
 	for i := range enums {
