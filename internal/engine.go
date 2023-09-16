@@ -162,9 +162,9 @@ func (e *engine) newInvokeFunc(signaturePtr, rawInvoker int32, expectedParamType
 			if recoverErr := recover(); recoverErr != nil {
 				realError, ok := recoverErr.(error)
 				if ok {
-					lookupErr = fmt.Errorf("could not crate invoke func for signature %s on invoker %d: %w", signature, rawInvoker, realError)
+					lookupErr = fmt.Errorf("could not create invoke func for signature %s on invoker %d: %w", signature, rawInvoker, realError)
 				}
-				lookupErr = fmt.Errorf("could not crate invoke func for signature %s on invoker %d: %v", signature, rawInvoker, recoverErr)
+				lookupErr = fmt.Errorf("could not create invoke func for signature %s on invoker %d: %v", signature, rawInvoker, recoverErr)
 			}
 		}()
 
@@ -227,6 +227,8 @@ func (e *engine) ensureOverloadTable(registry map[string]*publicSymbol, methodNa
 	if registry[methodName].overloadTable == nil {
 		prevFunc := registry[methodName].fn
 		prevArgCount := registry[methodName].argCount
+
+		registry[methodName].isOverload = true
 
 		// Inject an overload resolver function that routes to the appropriate overload based on the number of arguments.
 		registry[methodName].fn = func(ctx context.Context, this any, arguments ...any) (any, error) {

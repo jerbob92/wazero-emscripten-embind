@@ -49,16 +49,136 @@ func Attach(e embind.Engine) error {
 	if err := e.RegisterConstant("SOME_CONSTANT_9", Constant_SOME_CONSTANT_9); err != nil {
 		return err
 	}
+	if err := e.RegisterConstant("hasUnboundTypeNames", Constant_hasUnboundTypeNames); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("AbstractClass", &ClassAbstractClass{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("AbstractClassWithConstructor", &ClassAbstractClassWithConstructor{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("AbstractClassWithConstructorWrapper", &ClassAbstractClassWithConstructorWrapper{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("AbstractClassWrapper", &ClassAbstractClassWrapper{}); err != nil {
+		return err
+	}
 	if err := e.RegisterClass("Base", &ClassBase{}); err != nil {
 		return err
 	}
-	if err := e.RegisterClass("BaseWrapper", &ClassBaseWrapper{}); err != nil {
+	if err := e.RegisterClass("Base1", &ClassBase1{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("Base2", &ClassBase2{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("BaseClass", &ClassBaseClass{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("BaseClassWrapper", &ClassBaseClassWrapper{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("BigClass", &ClassBigClass{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("BoundClass", &ClassBoundClass{}); err != nil {
 		return err
 	}
 	if err := e.RegisterClass("C", &ClassC{}); err != nil {
 		return err
 	}
+	if err := e.RegisterClass("CharVector", &ClassCharVector{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("ConstAndNonConst", &ClassConstAndNonConst{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("ConstructFromFunctionObject", &ClassConstructFromFunctionObject{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("ConstructFromStdFunction", &ClassConstructFromStdFunction{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("ContainsTemplatedMemberClass", &ClassContainsTemplatedMemberClass{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("CustomStruct", &ClassCustomStruct{}); err != nil {
+		return err
+	}
 	if err := e.RegisterClass("Derived", &ClassDerived{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("DerivedClass", &ClassDerivedClass{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("DerivedHolder", &ClassDerivedHolder{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("DerivedThrice", &ClassDerivedThrice{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("DerivedTwice", &ClassDerivedTwice{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("DerivedWithMixin", &ClassDerivedWithMixin{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("DerivedWithOffset", &ClassDerivedWithOffset{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("DummyForOverloads", &ClassDummyForOverloads{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("DummyForPointer", &ClassDummyForPointer{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("EmValVector", &ClassEmValVector{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("FirstElement", &ClassFirstElement{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("FloatVector", &ClassFloatVector{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("Foo", &ClassFoo{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("HasConstructorUsingUnboundArgument", &ClassHasConstructorUsingUnboundArgument{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("HasExternalConstructor", &ClassHasExternalConstructor{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("HasReadOnlyProperty", &ClassHasReadOnlyProperty{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("HasStaticMember", &ClassHasStaticMember{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("HasTwoBases", &ClassHasTwoBases{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("HeldAbstractClass", &ClassHeldAbstractClass{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("HeldAbstractClassWrapper", &ClassHeldAbstractClassWrapper{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("HeldByCustomSmartPtr", &ClassHeldByCustomSmartPtr{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("HeldBySmartPtr", &ClassHeldBySmartPtr{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("IntTemplateClass", &ClassIntTemplateClass{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("IntegerVector", &ClassIntegerVector{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("IntegerVectorVector", &ClassIntegerVectorVector{}); err != nil {
 		return err
 	}
 	if err := e.RegisterClass("Interface", &ClassInterface{}); err != nil {
@@ -67,13 +187,136 @@ func Attach(e embind.Engine) error {
 	if err := e.RegisterClass("InterfaceWrapper", &ClassInterfaceWrapper{}); err != nil {
 		return err
 	}
+	if err := e.RegisterClass("IntrusiveClass", &ClassIntrusiveClass{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("IntrusiveClassHolder", &ClassIntrusiveClassHolder{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("IntrusiveClassWrapper", &ClassIntrusiveClassWrapper{}); err != nil {
+		return err
+	}
 	if err := e.RegisterClass("map_int__string_", &ClassMap_int__string_{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("MultipleAccessors", &ClassMultipleAccessors{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("MultipleCtors", &ClassMultipleCtors{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("MultipleOverloads", &ClassMultipleOverloads{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("MultipleOverloadsDependingOnDummy", &ClassMultipleOverloadsDependingOnDummy{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("MultipleOverloadsDerived", &ClassMultipleOverloadsDerived{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("MultipleSmartCtors", &ClassMultipleSmartCtors{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("MultiplyDerived", &ClassMultiplyDerived{}); err != nil {
 		return err
 	}
 	if err := e.RegisterClass("MyClass", &ClassMyClass{}); err != nil {
 		return err
 	}
-	if err := e.RegisterClass("vector_int_", &ClassVector_int_{}); err != nil {
+	if err := e.RegisterClass("NoExceptClass", &ClassNoExceptClass{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("Noncopyable", &ClassNoncopyable{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("ParentClass", &ClassParentClass{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("PolyBase", &ClassPolyBase{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("PolyDerived", &ClassPolyDerived{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("PolyDerivedThrice", &ClassPolyDerivedThrice{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("PolyDiamondBase", &ClassPolyDiamondBase{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("PolyDiamondDerived", &ClassPolyDiamondDerived{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("PolyDiamondMultiplyDerived", &ClassPolyDiamondMultiplyDerived{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("PolyDiamondSiblingDerived", &ClassPolyDiamondSiblingDerived{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("PolyMultiplyDerived", &ClassPolyMultiplyDerived{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("PolySecondBase", &ClassPolySecondBase{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("PolySiblingDerived", &ClassPolySiblingDerived{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("SecondBase", &ClassSecondBase{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("SecondElement", &ClassSecondElement{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("SharedPtrHolder", &ClassSharedPtrHolder{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("SharedPtrVector", &ClassSharedPtrVector{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("SiblingDerived", &ClassSiblingDerived{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("SmallClass", &ClassSmallClass{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("StringFunctorString", &ClassStringFunctorString{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("StringHolder", &ClassStringHolder{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("StringHolderVector", &ClassStringHolderVector{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("StringIntMap", &ClassStringIntMap{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("StringVector", &ClassStringVector{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("UniquePtrLifetimeMock", &ClassUniquePtrLifetimeMock{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("UniquePtrToConstructor", &ClassUniquePtrToConstructor{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("ValHolder", &ClassValHolder{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("VectorHolder", &ClassVectorHolder{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("VectorUnsigned", &ClassVectorUnsigned{}); err != nil {
+		return err
+	}
+	if err := e.RegisterClass("VectorUnsignedChar", &ClassVectorUnsignedChar{}); err != nil {
+		return err
+	}
+	if err := e.RegisterEnum("Enum", EnumEnum(0)); err != nil {
+		return err
+	}
+	if err := e.RegisterEnum("EnumClass", EnumEnumClass(0)); err != nil {
 		return err
 	}
 	if err := e.RegisterEnum("NewStyle", EnumNewStyle(0)); err != nil {

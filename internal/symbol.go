@@ -3,7 +3,6 @@ package embind
 import (
 	"context"
 	"fmt"
-
 	"github.com/tetratelabs/wazero/api"
 )
 
@@ -31,6 +30,9 @@ func (ps *publicSymbol) Symbol() string {
 }
 
 func (ps *publicSymbol) ReturnType() IType {
+	if ps.resultType == nil {
+		return nil
+	}
 	return &exposedType{ps.resultType}
 }
 

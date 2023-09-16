@@ -185,12 +185,17 @@ func Generate(dir string, fileName string, wasm []byte, initFunction string) err
 			goName += strconv.Itoa(len(argumentTypes))
 		}
 
+		returnType := symbols[i].ReturnType()
+		if returnType == nil {
+			continue
+		}
+
 		symbol := TemplateSymbol{
 			Symbol:        symbols[i].Symbol(),
 			GoName:        goName,
 			ArgumentTypes: argumentTypes,
-			ReturnType:    typeNameToGeneratedName(symbols[i].ReturnType().Type(), symbols[i].ReturnType().IsClass(), symbols[i].ReturnType().IsEnum()),
-			ErrorValue:    typeNameToErrorValue(symbols[i].ReturnType().Type(), symbols[i].ReturnType().IsClass(), symbols[i].ReturnType().IsEnum()),
+			ReturnType:    typeNameToGeneratedName(returnType.Type(), returnType.IsClass(), returnType.IsEnum()),
+			ErrorValue:    typeNameToErrorValue(returnType.Type(), returnType.IsClass(), returnType.IsEnum()),
 		}
 
 		data.Symbols = append(data.Symbols, symbol)
@@ -259,16 +264,25 @@ func Generate(dir string, fileName string, wasm []byte, initFunction string) err
 
 		properties := classes[i].Properties()
 		for pi := range properties {
+			getterType := properties[pi].GetterType()
+			if getterType == nil {
+				continue
+			}
+
 			property := TemplateClassProperty{
 				Name:       properties[pi].Name(),
 				GoName:     generateGoName(properties[pi].Name()),
 				ReadOnly:   properties[pi].ReadOnly(),
-				GetterType: typeNameToGeneratedName(properties[pi].GetterType().Type(), properties[pi].GetterType().IsClass(), properties[pi].GetterType().IsEnum()),
-				ErrorValue: typeNameToErrorValue(properties[pi].GetterType().Type(), properties[pi].GetterType().IsClass(), properties[pi].GetterType().IsEnum()),
+				GetterType: typeNameToGeneratedName(getterType.Type(), getterType.IsClass(), getterType.IsEnum()),
+				ErrorValue: typeNameToErrorValue(getterType.Type(), getterType.IsClass(), getterType.IsEnum()),
 			}
 
 			if !property.ReadOnly {
-				property.SetterType = typeNameToGeneratedName(properties[pi].SetterType().Type(), properties[pi].SetterType().IsClass(), properties[pi].SetterType().IsEnum())
+				setterType := properties[pi].SetterType()
+				if setterType == nil {
+					continue
+				}
+				property.SetterType = typeNameToGeneratedName(setterType.Type(), setterType.IsClass(), setterType.IsEnum())
 			}
 
 			class.Properties = append(class.Properties, property)
@@ -291,12 +305,17 @@ func Generate(dir string, fileName string, wasm []byte, initFunction string) err
 				goName += strconv.Itoa(len(argumentTypes))
 			}
 
+			returnType := methods[mi].ReturnType()
+			if returnType == nil {
+				continue
+			}
+
 			method := TemplateClassMethod{
 				Name:          methods[mi].Symbol(),
 				GoName:        goName,
 				ArgumentTypes: argumentTypes,
-				ReturnType:    typeNameToGeneratedName(methods[mi].ReturnType().Type(), methods[mi].ReturnType().IsClass(), methods[mi].ReturnType().IsEnum()),
-				ErrorValue:    typeNameToErrorValue(methods[mi].ReturnType().Type(), methods[mi].ReturnType().IsClass(), methods[mi].ReturnType().IsEnum()),
+				ReturnType:    typeNameToGeneratedName(returnType.Type(), returnType.IsClass(), returnType.IsEnum()),
+				ErrorValue:    typeNameToErrorValue(returnType.Type(), returnType.IsClass(), returnType.IsEnum()),
 			}
 
 			class.Methods = append(class.Methods, method)
@@ -314,12 +333,22 @@ func Generate(dir string, fileName string, wasm []byte, initFunction string) err
 				argumentTypes[i] = typeNameToGeneratedName(exposedArgumentTypes[i].Type(), exposedArgumentTypes[i].IsClass(), exposedArgumentTypes[i].IsEnum())
 			}
 
+			goName := generateGoName(staticMethods[smi].Symbol())
+			if staticMethods[smi].IsOverload() {
+				goName += strconv.Itoa(len(argumentTypes))
+			}
+
+			returnType := staticMethods[smi].ReturnType()
+			if returnType == nil {
+				continue
+			}
+
 			method := TemplateClassMethod{
 				Name:          staticMethods[smi].Symbol(),
-				GoName:        generateGoName(staticMethods[smi].Symbol()),
+				GoName:        goName,
 				ArgumentTypes: argumentTypes,
-				ReturnType:    typeNameToGeneratedName(staticMethods[smi].ReturnType().Type(), staticMethods[smi].ReturnType().IsClass(), staticMethods[smi].ReturnType().IsEnum()),
-				ErrorValue:    typeNameToErrorValue(staticMethods[smi].ReturnType().Type(), staticMethods[smi].ReturnType().IsClass(), staticMethods[smi].ReturnType().IsEnum()),
+				ReturnType:    typeNameToGeneratedName(returnType.Type(), returnType.IsClass(), returnType.IsEnum()),
+				ErrorValue:    typeNameToErrorValue(returnType.Type(), returnType.IsClass(), returnType.IsEnum()),
 			}
 
 			class.StaticMethods = append(class.StaticMethods, method)
@@ -391,7 +420,7 @@ func ExecuteTemplate(tmpl *template.Template, name string, path string, data Tem
 	fileBytes := writer.Bytes()
 	formattedSource, err := format.Source(fileBytes)
 	if err != nil {
-		return err
+		return fmt.Errorf("could not format %s: %w", name, err)
 	}
 
 	fileWriter, err := os.Create(path)

@@ -425,7 +425,7 @@ func (e functionExporter) ExportFunctions(b wazero.HostModuleBuilder) error {
 			"setterSignature",
 			"setter",
 		).
-		WithGoModuleFunction(internal.RegisterClassClassFunction, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{}).
+		WithGoModuleFunction(internal.RegisterClassClassProperty, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{}).
 		Export("_embind_register_class_class_property")
 
 	b.NewFunctionBuilder().

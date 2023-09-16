@@ -28,12 +28,18 @@ func (cp *classProperty) Name() string {
 }
 
 func (cp *classProperty) GetterType() IType {
+	if cp.getterType == nil {
+		return nil
+	}
 	return &exposedType{
 		registeredType: cp.getterType,
 	}
 }
 
 func (cp *classProperty) SetterType() IType {
+	if cp.setterType == nil {
+		return nil
+	}
 	return &exposedType{
 		registeredType: cp.setterType,
 	}
@@ -312,7 +318,14 @@ func (erc *classType) StaticMethods() []IClassTypeMethod {
 		if !erc.methods[i].isStatic {
 			continue
 		}
-		methods = append(methods, erc.methods[i])
+
+		if erc.methods[i].overloadTable != nil {
+			for overload := range erc.methods[i].overloadTable {
+				methods = append(methods, erc.methods[i].overloadTable[overload])
+			}
+		} else {
+			methods = append(methods, erc.methods[i])
+		}
 	}
 
 	return methods
@@ -720,7 +733,7 @@ var RegisterClassFunction = api.GoModuleFunc(func(ctx context.Context, mod api.M
 		humanName := classType.Name() + "." + methodName
 
 		if strings.HasPrefix(methodName, "@@") {
-			methodName = engine.emvalEngine.globals[strings.TrimPrefix(methodName, "@@")].(string)
+			return nil, fmt.Errorf("could not get function name %s: well-known symbols are not supported in Go", methodName)
 		}
 
 		if isPureVirtual > 0 {
@@ -728,6 +741,7 @@ var RegisterClassFunction = api.GoModuleFunc(func(ctx context.Context, mod api.M
 		}
 
 		unboundTypesHandler := &publicSymbol{
+			name: methodName,
 			fn: func(ctx context.Context, this any, arguments ...any) (any, error) {
 				return nil, engine.createUnboundTypeError(ctx, fmt.Sprintf("Cannot call %s due to unbound types", humanName), rawArgTypes)
 			},
@@ -740,6 +754,7 @@ var RegisterClassFunction = api.GoModuleFunc(func(ctx context.Context, mod api.M
 			// function in the base class with a function in the derived class.
 			unboundTypesHandler.argCount = &newMethodArgCount
 			unboundTypesHandler.className = classType.name
+			unboundTypesHandler.isOverload = true
 			classType.registeredClass.methods[methodName] = unboundTypesHandler
 		} else {
 			// There was an existing function with the same name registered. Set up
@@ -815,10 +830,12 @@ var RegisterClassClassFunction = api.GoModuleFunc(func(ctx context.Context, mod 
 		humanName := classType.Name() + "." + methodName
 
 		if strings.HasPrefix(methodName, "@@") {
-			methodName = engine.emvalEngine.globals[strings.TrimPrefix(methodName, "@@")].(string)
+			return nil, fmt.Errorf("could not get class function name %s: well-known symbols are not supported in Go", methodName)
 		}
 
 		unboundTypesHandler := &publicSymbol{
+			name:     methodName,
+			isStatic: true,
 			fn: func(ctx context.Context, this any, arguments ...any) (any, error) {
 				return nil, engine.createUnboundTypeError(ctx, fmt.Sprintf("Cannot call %s due to unbound types", humanName), rawArgTypes)
 			},
@@ -852,12 +869,13 @@ var RegisterClassClassFunction = api.GoModuleFunc(func(ctx context.Context, mod 
 				panic(fmt.Errorf("could not create raw invoke func: %w", err))
 			}
 
+			fn := engine.craftInvokerFunction(humanName, invokerArgsArray, nil, rawInvokerFunc, fn, isAsync > 0)
 			memberFunction := &publicSymbol{
 				name:          methodName,
 				argumentTypes: argTypes[1:],
 				resultType:    argTypes[0],
 				isStatic:      true,
-				fn:            engine.craftInvokerFunction(humanName, invokerArgsArray, nil, rawInvokerFunc, fn, isAsync > 0),
+				fn:            fn,
 			}
 
 			// Replace the initial unbound-handler-stub function with the appropriate member function, now that all types
@@ -867,16 +885,31 @@ var RegisterClassClassFunction = api.GoModuleFunc(func(ctx context.Context, mod 
 				memberFunction.argCount = &newArgCount
 				classType.registeredClass.methods[methodName] = memberFunction
 			} else {
+				memberFunction.isOverload = true
 				classType.registeredClass.methods[methodName].overloadTable[argCount-1] = memberFunction
 			}
 
 			if classType.registeredClass.derivedClasses != nil {
 				for i := range classType.registeredClass.derivedClasses {
+					derivedMemberFunction := &publicSymbol{
+						name:          methodName,
+						argumentTypes: argTypes[1:],
+						resultType:    argTypes[0],
+						isStatic:      true,
+						fn:            fn,
+					}
+
 					derivedClass := classType.registeredClass.derivedClasses[i]
 					_, ok := derivedClass.methods[methodName]
 					if !ok {
-						// TODO: Add support for overloads (comment from Emscripten)
-						derivedClass.methods[methodName] = memberFunction
+						// This is the first function to be registered with this name.
+						derivedClass.methods[methodName] = derivedMemberFunction
+					} else {
+						// There was an existing function with the same name registered. Set up
+						// a function overload routing table.
+						engine.ensureOverloadTable(derivedClass.methods, methodName, humanName)
+						derivedMemberFunction.isOverload = true
+						derivedClass.methods[methodName].overloadTable[argCount-1] = derivedMemberFunction
 					}
 				}
 			}
@@ -892,8 +925,108 @@ var RegisterClassClassFunction = api.GoModuleFunc(func(ctx context.Context, mod 
 })
 
 var RegisterClassClassProperty = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
-	// @todo: implement me.
-	panic("RegisterClassClassProperty call unimplemented")
+	engine := MustGetEngineFromContext(ctx, mod).(*engine)
+	rawClassType := api.DecodeI32(stack[0])
+	fieldNamePtr := api.DecodeI32(stack[1])
+	rawFieldType := api.DecodeI32(stack[2])
+	rawFieldPtr := api.DecodeI32(stack[3])
+	getterSignaturePtr := api.DecodeI32(stack[4])
+	getter := api.DecodeI32(stack[5])
+	setterSignaturePtr := api.DecodeI32(stack[6])
+	setter := api.DecodeI32(stack[7])
+
+	fieldName, err := engine.readCString(uint32(fieldNamePtr))
+	if err != nil {
+		panic(fmt.Errorf("could not read method name: %w", err))
+	}
+
+	getterFunc, err := engine.newInvokeFunc(getterSignaturePtr, getter, []api.ValueType{api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32})
+	if err != nil {
+		panic(fmt.Errorf("could not read getter: %w", err))
+	}
+
+	err = engine.whenDependentTypesAreResolved([]int32{}, []int32{rawClassType}, func(classTypes []registeredType) ([]registeredType, error) {
+		classType := classTypes[0].(*registeredPointerType)
+
+		humanName := classType.Name() + "." + fieldName
+
+		desc := &classProperty{
+			name: fieldName,
+			get: func(ctx context.Context, this any) (any, error) {
+				return nil, engine.createUnboundTypeError(ctx, fmt.Sprintf("Cannot access %s due to unbound types", humanName), []int32{rawFieldType})
+			},
+			enumerable:   true,
+			configurable: true,
+		}
+
+		if setter > 0 {
+			desc.set = func(ctx context.Context, this any, v any) error {
+				return engine.createUnboundTypeError(ctx, fmt.Sprintf("Cannot access %s due to unbound types", humanName), []int32{rawFieldType})
+			}
+		} else {
+			desc.readOnly = true
+			desc.set = func(ctx context.Context, this any, v any) error {
+				return fmt.Errorf("%s is a read-only property", humanName)
+			}
+		}
+
+		classType.registeredClass.properties[fieldName] = desc
+		err = engine.whenDependentTypesAreResolved([]int32{}, []int32{rawFieldType}, func(fieldTypes []registeredType) ([]registeredType, error) {
+			fieldType := fieldTypes[0]
+
+			desc := &classProperty{
+				name:       fieldName,
+				getterType: fieldType,
+				get: func(ctx context.Context, this any) (any, error) {
+					res, err := getterFunc.Call(ctx, api.EncodeI32(rawFieldPtr))
+					if err != nil {
+						return nil, err
+					}
+					return fieldType.FromWireType(ctx, engine.mod, res[0])
+				},
+				enumerable: true,
+				readOnly:   true,
+			}
+
+			if setter > 0 {
+				setterFunc, err := engine.newInvokeFunc(setterSignaturePtr, setter, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{})
+				if err != nil {
+					return nil, fmt.Errorf("could not create _embind_register_class_class_property setterFunc: %w", err)
+				}
+
+				desc.readOnly = false
+				desc.setterType = fieldType
+				desc.set = func(ctx context.Context, this any, v any) error {
+					destructors := &[]*destructorFunc{}
+					setterRes, err := fieldType.ToWireType(ctx, engine.mod, destructors, v)
+					if err != nil {
+						return err
+					}
+
+					_, err = setterFunc.Call(ctx, api.EncodeI32(rawFieldPtr), setterRes)
+					if err != nil {
+						return err
+					}
+
+					err = engine.runDestructors(ctx, *destructors)
+					if err != nil {
+						return err
+					}
+
+					return nil
+				}
+			}
+
+			classType.registeredClass.properties[fieldName] = desc
+
+			return []registeredType{}, err
+		})
+		return []registeredType{}, err
+	})
+
+	if err != nil {
+		panic(fmt.Errorf("could not call whenDependentTypesAreResolved: %w", err))
+	}
 })
 
 var RegisterClassProperty = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
@@ -1029,8 +1162,8 @@ var RegisterSmartPtr = api.GoModuleFunc(func(ctx context.Context, mod api.Module
 	rawGetPointee := api.DecodeI32(stack[5])
 	constructorSignature := api.DecodeI32(stack[6])
 	rawConstructor := api.DecodeI32(stack[7])
-	shareSignature := api.DecodeI32(stack[8])
-	rawShare := api.DecodeI32(stack[9])
+	//shareSignature := api.DecodeI32(stack[8])
+	//rawShare := api.DecodeI32(stack[9])
 	destructorSignature := api.DecodeI32(stack[10])
 	rawDestructor := api.DecodeI32(stack[11])
 
@@ -1049,10 +1182,10 @@ var RegisterSmartPtr = api.GoModuleFunc(func(ctx context.Context, mod api.Module
 		panic(fmt.Errorf("could not read constructorSignature: %w", err))
 	}
 
-	rawShareFunc, err := engine.newInvokeFunc(shareSignature, rawShare, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32})
-	if err != nil {
-		panic(fmt.Errorf("could not read rawShare: %w", err))
-	}
+	//rawShareFunc, err := engine.newInvokeFunc(shareSignature, rawShare, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32})
+	//if err != nil {
+	//	panic(fmt.Errorf("could not read rawShare: %w", err))
+	//}
 
 	rawDestructorFunc, err := engine.newInvokeFunc(destructorSignature, rawDestructor, []api.ValueType{api.ValueTypeI32}, []api.ValueType{})
 	if err != nil {
@@ -1075,8 +1208,8 @@ var RegisterSmartPtr = api.GoModuleFunc(func(ctx context.Context, mod api.Module
 			sharingPolicy:   sharingPolicy,
 			rawGetPointee:   rawGetPointeeFunc,
 			rawConstructor:  rawConstructorFunc,
-			rawShare:        rawShareFunc,
-			rawDestructor:   rawDestructorFunc,
+			//rawShare:        rawShareFunc,
+			rawDestructor: rawDestructorFunc,
 		}
 
 		return []registeredType{smartPointerType}, nil

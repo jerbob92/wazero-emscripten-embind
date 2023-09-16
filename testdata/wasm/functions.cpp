@@ -176,7 +176,8 @@ EMSCRIPTEN_BINDINGS(functions) {
     function("std_wstring_return_std_wstring", &std_wstring_return_std_wstring);
     function("std_u16string_return_std_u16string", &std_u16string_return_std_u16string);
 
-    register_vector<int>("vector<int>");
+    // Already registered in embind_test.cpp
+    //register_vector<int>("vector<int>");
     register_map<int, std::string>("map<int, string>");
 
     function("return_vector", &return_vector);

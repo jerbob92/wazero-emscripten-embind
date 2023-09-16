@@ -8,21 +8,21 @@ struct Point2f {
 };
 
 // Array fields are treated as if they were std::array<type,size>
-struct ArrayInStruct {
+struct ArrayInStructStruct {
     int field[2];
 };
 
 struct PersonRecord {
     std::string name;
     int age;
-    ArrayInStruct structArray;
+    ArrayInStructStruct structArray;
 };
 
 PersonRecord findPersonAtLocation(Point2f)  {
     return PersonRecord{
       .name="123",
       .age=12,
-      .structArray=ArrayInStruct{
+      .structArray=ArrayInStructStruct{
         .field={1,2}
       },
     };
@@ -43,15 +43,16 @@ EMSCRIPTEN_BINDINGS(structs) {
       .field("structArray", &PersonRecord::structArray)
       ;
 
-  value_object<ArrayInStruct>("ArrayInStruct")
-      .field("field", &ArrayInStruct::field) // Need to register the array type
+  value_object<ArrayInStructStruct>("ArrayInStructStruct")
+      .field("field", &ArrayInStructStruct::field) // Need to register the array type
       ;
 
-  // Register std::array<int, 2> because ArrayInStruct::field is interpreted as such
-  value_array<std::array<int, 2>>("array_int_2")
-      .element(emscripten::index<0>())
-      .element(emscripten::index<1>())
-      ;
+  // Register std::array<int, 2> because ArrayInStructStruct::field is interpreted as such
+  // Already registered in embind_test.cpp
+  //value_array<std::array<int, 2>>("array_int_2")
+  //    .element(emscripten::index<0>())
+  //    .element(emscripten::index<1>())
+  //    ;
 
   function("findPersonAtLocation", &findPersonAtLocation);
 

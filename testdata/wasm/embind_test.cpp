@@ -2008,11 +2008,12 @@ EMSCRIPTEN_BINDINGS(tests) {
         .function("getTestTemplate", &ContainsTemplatedMemberClass::getTestTemplate)
         ;
 
-    class_<SymbolNameClass>("SymbolNameClass")
-        .constructor<>()
-        .function("@@iterator", &SymbolNameClass::iterator)
-        .class_function("@@species", &SymbolNameClass::species)
-        ;
+    // Not supported in Go.
+    //class_<SymbolNameClass>("SymbolNameClass")
+    //    .constructor<>()
+    //    .function("@@iterator", &SymbolNameClass::iterator)
+    //    .class_function("@@species", &SymbolNameClass::species)
+    //    ;
 
     // register Derived before Base as a test that it's possible to
     // register base classes afterwards

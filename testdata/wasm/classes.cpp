@@ -52,22 +52,22 @@ struct InterfaceWrapper : public wrapper<Interface> {
 
 class C {};
 
-struct Base {
+struct BaseClass {
     virtual void invoke(const std::string& str) {
         // default implementation
     }
 };
 
-struct BaseWrapper : public wrapper<Base> {
-    EMSCRIPTEN_WRAPPER(BaseWrapper);
+struct BaseClassWrapper : public wrapper<BaseClass> {
+    EMSCRIPTEN_WRAPPER(BaseClassWrapper);
     void invoke(const std::string& str) {
         return call<void>("invoke", str);
     }
 };
 
-class Derived : public Base {};
-Base* getDerivedInstance() {
-    return new Derived;
+class DerivedClass : public BaseClass {};
+BaseClass* getDerivedInstance() {
+    return new DerivedClass;
 }
 
 EMSCRIPTEN_BINDINGS(classes) {
@@ -93,13 +93,13 @@ EMSCRIPTEN_BINDINGS(classes) {
         .smart_ptr_constructor("C", &std::make_shared<C>)
         ;
 
-      class_<Base>("Base")
-        .allow_subclass<BaseWrapper>("BaseWrapper")
-        .function("invoke", optional_override([](Base& self, const std::string& str) {
-            return self.Base::invoke(str);
+      class_<BaseClass>("BaseClass")
+        .allow_subclass<BaseClassWrapper>("BaseClassWrapper")
+        .function("invoke", optional_override([](BaseClass& self, const std::string& str) {
+            return self.BaseClass::invoke(str);
         }))
         ;
 
-    class_<Derived, base<Base>>("Derived");
-    function("getDerivedInstance", &getDerivedInstance, allow_raw_pointers());
+    class_<DerivedClass, base<BaseClass>>("DerivedClass");
+    function("getDerivedClassInstance", &getDerivedInstance, allow_raw_pointers());
 }

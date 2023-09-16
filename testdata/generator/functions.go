@@ -7,6 +7,38 @@ import (
 	"github.com/jerbob92/wazero-emscripten-embind"
 )
 
+func AbstractClass(e embind.Engine, ctx context.Context) (*ClassAbstractClass, error) {
+	res, err := e.CallPublicSymbol(ctx, "AbstractClass")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassAbstractClass), nil
+}
+
+func AbstractClassWithConstructor(e embind.Engine, ctx context.Context) (*ClassAbstractClassWithConstructor, error) {
+	res, err := e.CallPublicSymbol(ctx, "AbstractClassWithConstructor")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassAbstractClassWithConstructor), nil
+}
+
+func AbstractClassWithConstructorWrapper(e embind.Engine, ctx context.Context) (*ClassAbstractClassWithConstructorWrapper, error) {
+	res, err := e.CallPublicSymbol(ctx, "AbstractClassWithConstructorWrapper")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassAbstractClassWithConstructorWrapper), nil
+}
+
+func AbstractClassWrapper(e embind.Engine, ctx context.Context) (*ClassAbstractClassWrapper, error) {
+	res, err := e.CallPublicSymbol(ctx, "AbstractClassWrapper")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassAbstractClassWrapper), nil
+}
+
 func Base(e embind.Engine, ctx context.Context) (*ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "Base")
 	if err != nil {
@@ -15,12 +47,44 @@ func Base(e embind.Engine, ctx context.Context) (*ClassBase, error) {
 	return res.(*ClassBase), nil
 }
 
-func BaseWrapper(e embind.Engine, ctx context.Context) (*ClassBaseWrapper, error) {
-	res, err := e.CallPublicSymbol(ctx, "BaseWrapper")
+func Base1(e embind.Engine, ctx context.Context) (*ClassBase1, error) {
+	res, err := e.CallPublicSymbol(ctx, "Base1")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassBaseWrapper), nil
+	return res.(*ClassBase1), nil
+}
+
+func Base2(e embind.Engine, ctx context.Context) (*ClassBase2, error) {
+	res, err := e.CallPublicSymbol(ctx, "Base2")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassBase2), nil
+}
+
+func BaseClass(e embind.Engine, ctx context.Context) (*ClassBaseClass, error) {
+	res, err := e.CallPublicSymbol(ctx, "BaseClass")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassBaseClass), nil
+}
+
+func BaseClassWrapper(e embind.Engine, ctx context.Context) (*ClassBaseClassWrapper, error) {
+	res, err := e.CallPublicSymbol(ctx, "BaseClassWrapper")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassBaseClassWrapper), nil
+}
+
+func BigClass(e embind.Engine, ctx context.Context) (*ClassBigClass, error) {
+	res, err := e.CallPublicSymbol(ctx, "BigClass")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassBigClass), nil
 }
 
 func Bool_return_bool(e embind.Engine, ctx context.Context, arg0 bool) (bool, error) {
@@ -47,12 +111,75 @@ func Bool_return_true(e embind.Engine, ctx context.Context) (bool, error) {
 	return res.(bool), nil
 }
 
+func BoundClass(e embind.Engine, ctx context.Context) (*ClassBoundClass, error) {
+	res, err := e.CallPublicSymbol(ctx, "BoundClass")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassBoundClass), nil
+}
+
 func C(e embind.Engine, ctx context.Context) (*ClassC, error) {
 	res, err := e.CallPublicSymbol(ctx, "C")
 	if err != nil {
 		return nil, err
 	}
 	return res.(*ClassC), nil
+}
+
+func CallAbstractMethod(e embind.Engine, ctx context.Context, arg0 *ClassAbstractClass) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "callAbstractMethod", arg0)
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func CallAbstractMethod2(e embind.Engine, ctx context.Context, arg0 *ClassAbstractClassWithConstructor) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "callAbstractMethod2", arg0)
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func CallDifferentArguments(e embind.Engine, ctx context.Context, arg0 *ClassAbstractClass, arg1 int32, arg2 float64, arg3 uint8, arg4 float64, arg5 string) error {
+	_, err := e.CallPublicSymbol(ctx, "callDifferentArguments", arg0, arg1, arg2, arg3, arg4, arg5)
+	return err
+}
+
+func CallOptionalMethod(e embind.Engine, ctx context.Context, arg0 *ClassAbstractClass, arg1 string) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "callOptionalMethod", arg0, arg1)
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func CallReturnsSharedPtrMethod(e embind.Engine, ctx context.Context, arg0 *ClassAbstractClass) error {
+	_, err := e.CallPublicSymbol(ctx, "callReturnsSharedPtrMethod", arg0)
+	return err
+}
+
+func CallWithMemoryView(e embind.Engine, ctx context.Context, arg0 any) error {
+	_, err := e.CallPublicSymbol(ctx, "callWithMemoryView", arg0)
+	return err
+}
+
+func Call_StringHolder_func(e embind.Engine, ctx context.Context, arg0 any) (*ClassStringHolder, error) {
+	res, err := e.CallPublicSymbol(ctx, "call_StringHolder_func", arg0)
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassStringHolder), nil
+}
+
+func CharVector(e embind.Engine, ctx context.Context) (*ClassCharVector, error) {
+	res, err := e.CallPublicSymbol(ctx, "CharVector")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassCharVector), nil
 }
 
 func Char_return_char(e embind.Engine, ctx context.Context, arg0 int8) (int8, error) {
@@ -63,12 +190,158 @@ func Char_return_char(e embind.Engine, ctx context.Context, arg0 int8) (int8, er
 	return res.(int8), nil
 }
 
+func Char_to_string(e embind.Engine, ctx context.Context, arg0 int8) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "char_to_string", arg0)
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func Clear_StringHolder(e embind.Engine, ctx context.Context, arg0 *ClassStringHolder) error {
+	_, err := e.CallPublicSymbol(ctx, "clear_StringHolder", arg0)
+	return err
+}
+
+func ConstAndNonConst(e embind.Engine, ctx context.Context) (*ClassConstAndNonConst, error) {
+	res, err := e.CallPublicSymbol(ctx, "ConstAndNonConst")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassConstAndNonConst), nil
+}
+
+func Const_ref_adder(e embind.Engine, ctx context.Context, arg0 int32, arg1 float32) (float32, error) {
+	res, err := e.CallPublicSymbol(ctx, "const_ref_adder", arg0, arg1)
+	if err != nil {
+		return float32(0), err
+	}
+	return res.(float32), nil
+}
+
+func ConstructFromFunctionObject(e embind.Engine, ctx context.Context) (*ClassConstructFromFunctionObject, error) {
+	res, err := e.CallPublicSymbol(ctx, "ConstructFromFunctionObject")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassConstructFromFunctionObject), nil
+}
+
+func ConstructFromStdFunction(e embind.Engine, ctx context.Context) (*ClassConstructFromStdFunction, error) {
+	res, err := e.CallPublicSymbol(ctx, "ConstructFromStdFunction")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassConstructFromStdFunction), nil
+}
+
+func Construct_with_6_arguments(e embind.Engine, ctx context.Context, arg0 any) (any, error) {
+	res, err := e.CallPublicSymbol(ctx, "construct_with_6_arguments", arg0)
+	if err != nil {
+		return nil, err
+	}
+	return res.(any), nil
+}
+
+func Construct_with_arguments_before_and_after_memory_growth(e embind.Engine, ctx context.Context) (any, error) {
+	res, err := e.CallPublicSymbol(ctx, "construct_with_arguments_before_and_after_memory_growth")
+	if err != nil {
+		return nil, err
+	}
+	return res.(any), nil
+}
+
+func Construct_with_ints_and_float(e embind.Engine, ctx context.Context, arg0 any) (any, error) {
+	res, err := e.CallPublicSymbol(ctx, "construct_with_ints_and_float", arg0)
+	if err != nil {
+		return nil, err
+	}
+	return res.(any), nil
+}
+
+func Construct_with_memory_view(e embind.Engine, ctx context.Context, arg0 any) (any, error) {
+	res, err := e.CallPublicSymbol(ctx, "construct_with_memory_view", arg0)
+	if err != nil {
+		return nil, err
+	}
+	return res.(any), nil
+}
+
+func ContainsTemplatedMemberClass(e embind.Engine, ctx context.Context) (*ClassContainsTemplatedMemberClass, error) {
+	res, err := e.CallPublicSymbol(ctx, "ContainsTemplatedMemberClass")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassContainsTemplatedMemberClass), nil
+}
+
+func CustomStruct(e embind.Engine, ctx context.Context) (*ClassCustomStruct, error) {
+	res, err := e.CallPublicSymbol(ctx, "CustomStruct")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassCustomStruct), nil
+}
+
 func Derived(e embind.Engine, ctx context.Context) (*ClassDerived, error) {
 	res, err := e.CallPublicSymbol(ctx, "Derived")
 	if err != nil {
 		return nil, err
 	}
 	return res.(*ClassDerived), nil
+}
+
+func DerivedClass(e embind.Engine, ctx context.Context) (*ClassDerivedClass, error) {
+	res, err := e.CallPublicSymbol(ctx, "DerivedClass")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassDerivedClass), nil
+}
+
+func DerivedHolder(e embind.Engine, ctx context.Context) (*ClassDerivedHolder, error) {
+	res, err := e.CallPublicSymbol(ctx, "DerivedHolder")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassDerivedHolder), nil
+}
+
+func DerivedThrice(e embind.Engine, ctx context.Context) (*ClassDerivedThrice, error) {
+	res, err := e.CallPublicSymbol(ctx, "DerivedThrice")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassDerivedThrice), nil
+}
+
+func DerivedTwice(e embind.Engine, ctx context.Context) (*ClassDerivedTwice, error) {
+	res, err := e.CallPublicSymbol(ctx, "DerivedTwice")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassDerivedTwice), nil
+}
+
+func DerivedWithMixin(e embind.Engine, ctx context.Context) (*ClassDerivedWithMixin, error) {
+	res, err := e.CallPublicSymbol(ctx, "DerivedWithMixin")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassDerivedWithMixin), nil
+}
+
+func DerivedWithOffset(e embind.Engine, ctx context.Context) (*ClassDerivedWithOffset, error) {
+	res, err := e.CallPublicSymbol(ctx, "DerivedWithOffset")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassDerivedWithOffset), nil
+}
+
+func DoCustomMarshalTest(e embind.Engine, ctx context.Context) error {
+	_, err := e.CallPublicSymbol(ctx, "doCustomMarshalTest")
+	return err
 }
 
 func DoEmval(e embind.Engine, ctx context.Context) (string, error) {
@@ -87,6 +360,822 @@ func Double_return_double(e embind.Engine, ctx context.Context, arg0 float64) (f
 	return res.(float64), nil
 }
 
+func DummyForOverloads(e embind.Engine, ctx context.Context) (*ClassDummyForOverloads, error) {
+	res, err := e.CallPublicSymbol(ctx, "DummyForOverloads")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassDummyForOverloads), nil
+}
+
+func DummyForPointer(e embind.Engine, ctx context.Context) (*ClassDummyForPointer, error) {
+	res, err := e.CallPublicSymbol(ctx, "DummyForPointer")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassDummyForPointer), nil
+}
+
+func EmValVector(e embind.Engine, ctx context.Context) (*ClassEmValVector, error) {
+	res, err := e.CallPublicSymbol(ctx, "EmValVector")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassEmValVector), nil
+}
+
+func Embind_attempt_to_modify_smart_pointer_when_passed_by_value(e embind.Engine, ctx context.Context, arg0 *ClassBase) error {
+	_, err := e.CallPublicSymbol(ctx, "embind_attempt_to_modify_smart_pointer_when_passed_by_value", arg0)
+	return err
+}
+
+func Embind_modify_smart_pointer_passed_by_reference(e embind.Engine, ctx context.Context, arg0 *ClassBase) error {
+	_, err := e.CallPublicSymbol(ctx, "embind_modify_smart_pointer_passed_by_reference", arg0)
+	return err
+}
+
+func Embind_save_smart_base_pointer(e embind.Engine, ctx context.Context, arg0 *ClassBase) error {
+	_, err := e.CallPublicSymbol(ctx, "embind_save_smart_base_pointer", arg0)
+	return err
+}
+
+func Embind_test_accept_big_class_instance(e embind.Engine, ctx context.Context, arg0 *ClassBigClass) (int32, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_accept_big_class_instance", arg0)
+	if err != nil {
+		return int32(0), err
+	}
+	return res.(int32), nil
+}
+
+func Embind_test_accept_small_class_instance(e embind.Engine, ctx context.Context, arg0 *ClassSmallClass) (int32, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_accept_small_class_instance", arg0)
+	if err != nil {
+		return int32(0), err
+	}
+	return res.(int32), nil
+}
+
+func Embind_test_accept_unique_ptr(e embind.Engine, ctx context.Context, arg0 int32) (int32, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_accept_unique_ptr", arg0)
+	if err != nil {
+		return int32(0), err
+	}
+	return res.(int32), nil
+}
+
+func Embind_test_construct_class_with_unique_ptr(e embind.Engine, ctx context.Context, arg0 int32) (*ClassUniquePtrToConstructor, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_construct_class_with_unique_ptr", arg0)
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassUniquePtrToConstructor), nil
+}
+
+func Embind_test_get_class_name_via_base_ptr(e embind.Engine, ctx context.Context, arg0 *ClassBase) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_get_class_name_via_base_ptr", arg0)
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func Embind_test_get_class_name_via_polymorphic_base_ptr(e embind.Engine, ctx context.Context, arg0 *ClassPolyBase) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_get_class_name_via_polymorphic_base_ptr", arg0)
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func Embind_test_get_class_name_via_polymorphic_second_base_ptr(e embind.Engine, ctx context.Context, arg0 *ClassPolySecondBase) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_get_class_name_via_polymorphic_second_base_ptr", arg0)
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func Embind_test_get_class_name_via_reference_to_smart_base_ptr(e embind.Engine, ctx context.Context, arg0 *ClassBase) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_get_class_name_via_reference_to_smart_base_ptr", arg0)
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func Embind_test_get_class_name_via_second_base_ptr(e embind.Engine, ctx context.Context, arg0 *ClassSecondBase) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_get_class_name_via_second_base_ptr", arg0)
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func Embind_test_get_class_name_via_smart_base_ptr(e embind.Engine, ctx context.Context, arg0 *ClassBase) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_get_class_name_via_smart_base_ptr", arg0)
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func Embind_test_get_class_name_via_smart_polymorphic_base_ptr(e embind.Engine, ctx context.Context, arg0 *ClassPolyBase) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_get_class_name_via_smart_polymorphic_base_ptr", arg0)
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func Embind_test_get_class_name_via_smart_polymorphic_second_base_ptr(e embind.Engine, ctx context.Context, arg0 *ClassPolySecondBase) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_get_class_name_via_smart_polymorphic_second_base_ptr", arg0)
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func Embind_test_get_class_name_via_smart_second_base_ptr(e embind.Engine, ctx context.Context, arg0 *ClassSecondBase) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_get_class_name_via_smart_second_base_ptr", arg0)
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func Embind_test_get_string_int_map(e embind.Engine, ctx context.Context) (*ClassStringIntMap, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_get_string_int_map")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassStringIntMap), nil
+}
+
+func Embind_test_get_virtual_class_name_via_smart_polymorphic_base_ptr(e embind.Engine, ctx context.Context, arg0 *ClassPolyBase) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_get_virtual_class_name_via_smart_polymorphic_base_ptr", arg0)
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func Embind_test_getglobal(e embind.Engine, ctx context.Context) (any, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_getglobal")
+	if err != nil {
+		return nil, err
+	}
+	return res.(any), nil
+}
+
+func Embind_test_new_Object(e embind.Engine, ctx context.Context) (any, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_new_Object")
+	if err != nil {
+		return nil, err
+	}
+	return res.(any), nil
+}
+
+func Embind_test_new_factory(e embind.Engine, ctx context.Context, arg0 any, arg1 any) (any, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_new_factory", arg0, arg1)
+	if err != nil {
+		return nil, err
+	}
+	return res.(any), nil
+}
+
+func Embind_test_return_big_class_instance(e embind.Engine, ctx context.Context) (*ClassBigClass, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_return_big_class_instance")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassBigClass), nil
+}
+
+func Embind_test_return_poly_derived_twice_without_smart_pointer_as_poly_base(e embind.Engine, ctx context.Context) (*ClassPolyBase, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_return_poly_derived_twice_without_smart_pointer_as_poly_base")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassPolyBase), nil
+}
+
+func Embind_test_return_raw_base_ptr(e embind.Engine, ctx context.Context) (*ClassBase, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_return_raw_base_ptr")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassBase), nil
+}
+
+func Embind_test_return_raw_derived_ptr_as_base(e embind.Engine, ctx context.Context) (*ClassBase, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_return_raw_derived_ptr_as_base")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassBase), nil
+}
+
+func Embind_test_return_raw_polymorphic_derived_four_times_not_bound_as_base(e embind.Engine, ctx context.Context) (*ClassPolyBase, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_return_raw_polymorphic_derived_four_times_not_bound_as_base")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassPolyBase), nil
+}
+
+func Embind_test_return_raw_polymorphic_derived_ptr_as_base(e embind.Engine, ctx context.Context) (*ClassPolyBase, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_return_raw_polymorphic_derived_ptr_as_base")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassPolyBase), nil
+}
+
+func Embind_test_return_raw_polymorphic_multiply_derived_ptr_as_base(e embind.Engine, ctx context.Context) (*ClassPolyBase, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_return_raw_polymorphic_multiply_derived_ptr_as_base")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassPolyBase), nil
+}
+
+func Embind_test_return_raw_polymorphic_multiply_derived_ptr_as_second_base(e embind.Engine, ctx context.Context) (*ClassPolySecondBase, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_return_raw_polymorphic_multiply_derived_ptr_as_second_base")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassPolySecondBase), nil
+}
+
+func Embind_test_return_raw_polymorphic_sibling_derived_ptr_as_base(e embind.Engine, ctx context.Context) (*ClassPolyBase, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_return_raw_polymorphic_sibling_derived_ptr_as_base")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassPolyBase), nil
+}
+
+func Embind_test_return_raw_sibling_derived_ptr_as_base(e embind.Engine, ctx context.Context) (*ClassBase, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_return_raw_sibling_derived_ptr_as_base")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassBase), nil
+}
+
+func Embind_test_return_small_class_instance(e embind.Engine, ctx context.Context) (*ClassSmallClass, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_return_small_class_instance")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassSmallClass), nil
+}
+
+func Embind_test_return_smart_base_ptr(e embind.Engine, ctx context.Context) (*ClassBase, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_return_smart_base_ptr")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassBase), nil
+}
+
+func Embind_test_return_smart_derived_ptr(e embind.Engine, ctx context.Context) (*ClassDerived, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_return_smart_derived_ptr")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassDerived), nil
+}
+
+func Embind_test_return_smart_derived_ptr_as_base(e embind.Engine, ctx context.Context) (*ClassPolyBase, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_return_smart_derived_ptr_as_base")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassPolyBase), nil
+}
+
+func Embind_test_return_smart_derived_ptr_as_val(e embind.Engine, ctx context.Context) (any, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_return_smart_derived_ptr_as_val")
+	if err != nil {
+		return nil, err
+	}
+	return res.(any), nil
+}
+
+func Embind_test_return_smart_derived_thrice_ptr(e embind.Engine, ctx context.Context) (*ClassDerivedThrice, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_return_smart_derived_thrice_ptr")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassDerivedThrice), nil
+}
+
+func Embind_test_return_smart_multiply_derived_ptr(e embind.Engine, ctx context.Context) (*ClassMultiplyDerived, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_return_smart_multiply_derived_ptr")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassMultiplyDerived), nil
+}
+
+func Embind_test_return_smart_poly_derived_thrice_ptr(e embind.Engine, ctx context.Context) (*ClassPolyDerivedThrice, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_return_smart_poly_derived_thrice_ptr")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassPolyDerivedThrice), nil
+}
+
+func Embind_test_return_smart_polymorphic_base_ptr(e embind.Engine, ctx context.Context) (*ClassPolyBase, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_return_smart_polymorphic_base_ptr")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassPolyBase), nil
+}
+
+func Embind_test_return_smart_polymorphic_derived_ptr(e embind.Engine, ctx context.Context) (*ClassPolyDerived, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_return_smart_polymorphic_derived_ptr")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassPolyDerived), nil
+}
+
+func Embind_test_return_smart_polymorphic_derived_ptr_as_base(e embind.Engine, ctx context.Context) (*ClassPolyBase, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_return_smart_polymorphic_derived_ptr_as_base")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassPolyBase), nil
+}
+
+func Embind_test_return_smart_polymorphic_multiply_derived_ptr(e embind.Engine, ctx context.Context) (*ClassPolyMultiplyDerived, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_return_smart_polymorphic_multiply_derived_ptr")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassPolyMultiplyDerived), nil
+}
+
+func Embind_test_return_smart_polymorphic_sibling_derived_ptr(e embind.Engine, ctx context.Context) (*ClassPolySiblingDerived, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_return_smart_polymorphic_sibling_derived_ptr")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassPolySiblingDerived), nil
+}
+
+func Embind_test_return_smart_polymorphic_sibling_derived_ptr_as_base(e embind.Engine, ctx context.Context) (*ClassPolyBase, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_return_smart_polymorphic_sibling_derived_ptr_as_base")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassPolyBase), nil
+}
+
+func Embind_test_return_smart_sibling_derived_ptr(e embind.Engine, ctx context.Context) (*ClassSiblingDerived, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_return_smart_sibling_derived_ptr")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassSiblingDerived), nil
+}
+
+func Embind_test_return_unique_ptr(e embind.Engine, ctx context.Context, arg0 int32) (int32, error) {
+	res, err := e.CallPublicSymbol(ctx, "embind_test_return_unique_ptr", arg0)
+	if err != nil {
+		return int32(0), err
+	}
+	return res.(int32), nil
+}
+
+func Emval_array(e embind.Engine, ctx context.Context, arg0 *ClassIntegerVector) (any, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_array", arg0)
+	if err != nil {
+		return nil, err
+	}
+	return res.(any), nil
+}
+
+func Emval_await(e embind.Engine, ctx context.Context, arg0 any) (any, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_await", arg0)
+	if err != nil {
+		return nil, err
+	}
+	return res.(any), nil
+}
+
+func Emval_delete(e embind.Engine, ctx context.Context, arg0 any) error {
+	_, err := e.CallPublicSymbol(ctx, "emval_delete", arg0)
+	return err
+}
+
+func Emval_in(e embind.Engine, ctx context.Context, arg0 any, arg1 any) (bool, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_in", arg0, arg1)
+	if err != nil {
+		return bool(false), err
+	}
+	return res.(bool), nil
+}
+
+func Emval_instance_of(e embind.Engine, ctx context.Context, arg0 any, arg1 any) (bool, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_instance_of", arg0, arg1)
+	if err != nil {
+		return bool(false), err
+	}
+	return res.(bool), nil
+}
+
+func Emval_is_array(e embind.Engine, ctx context.Context, arg0 any) (bool, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_is_array", arg0)
+	if err != nil {
+		return bool(false), err
+	}
+	return res.(bool), nil
+}
+
+func Emval_is_number(e embind.Engine, ctx context.Context, arg0 any) (bool, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_is_number", arg0)
+	if err != nil {
+		return bool(false), err
+	}
+	return res.(bool), nil
+}
+
+func Emval_is_string(e embind.Engine, ctx context.Context, arg0 any) (bool, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_is_string", arg0)
+	if err != nil {
+		return bool(false), err
+	}
+	return res.(bool), nil
+}
+
+func Emval_test_add(e embind.Engine, ctx context.Context, arg0 int8, arg1 int8, arg2 uint8, arg3 int16, arg4 uint16, arg5 int32, arg6 uint32, arg7 int32, arg8 uint32, arg9 float32, arg10 float64) (float64, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_add", arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
+	if err != nil {
+		return float64(0), err
+	}
+	return res.(float64), nil
+}
+
+func Emval_test_as_unsigned(e embind.Engine, ctx context.Context, arg0 any) (uint32, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_as_unsigned", arg0)
+	if err != nil {
+		return uint32(0), err
+	}
+	return res.(uint32), nil
+}
+
+func Emval_test_call_function(e embind.Engine, ctx context.Context, arg0 any, arg1 int32, arg2 float32, arg3 []any, arg4 map[string]any) error {
+	_, err := e.CallPublicSymbol(ctx, "emval_test_call_function", arg0, arg1, arg2, arg3, arg4)
+	return err
+}
+
+func Emval_test_equals(e embind.Engine, ctx context.Context, arg0 any, arg1 any) (bool, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_equals", arg0, arg1)
+	if err != nil {
+		return bool(false), err
+	}
+	return res.(bool), nil
+}
+
+func Emval_test_get_function_ptr(e embind.Engine, ctx context.Context) (*ClassStringFunctorString, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_get_function_ptr")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassStringFunctorString), nil
+}
+
+func Emval_test_get_length(e embind.Engine, ctx context.Context, arg0 any) (uint32, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_get_length", arg0)
+	if err != nil {
+		return uint32(0), err
+	}
+	return res.(uint32), nil
+}
+
+func Emval_test_get_string_from_val(e embind.Engine, ctx context.Context, arg0 any) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_get_string_from_val", arg0)
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func Emval_test_instance_pointer(e embind.Engine, ctx context.Context) (any, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_instance_pointer")
+	if err != nil {
+		return nil, err
+	}
+	return res.(any), nil
+}
+
+func Emval_test_is_false(e embind.Engine, ctx context.Context, arg0 any) (bool, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_is_false", arg0)
+	if err != nil {
+		return bool(false), err
+	}
+	return res.(bool), nil
+}
+
+func Emval_test_is_null(e embind.Engine, ctx context.Context, arg0 any) (bool, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_is_null", arg0)
+	if err != nil {
+		return bool(false), err
+	}
+	return res.(bool), nil
+}
+
+func Emval_test_is_shared_ptr_null(e embind.Engine, ctx context.Context, arg0 *ClassValHolder) (bool, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_is_shared_ptr_null", arg0)
+	if err != nil {
+		return bool(false), err
+	}
+	return res.(bool), nil
+}
+
+func Emval_test_is_true(e embind.Engine, ctx context.Context, arg0 any) (bool, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_is_true", arg0)
+	if err != nil {
+		return bool(false), err
+	}
+	return res.(bool), nil
+}
+
+func Emval_test_is_undefined(e embind.Engine, ctx context.Context, arg0 any) (bool, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_is_undefined", arg0)
+	if err != nil {
+		return bool(false), err
+	}
+	return res.(bool), nil
+}
+
+func Emval_test_new_integer(e embind.Engine, ctx context.Context) (any, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_new_integer")
+	if err != nil {
+		return nil, err
+	}
+	return res.(any), nil
+}
+
+func Emval_test_new_object(e embind.Engine, ctx context.Context) (any, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_new_object")
+	if err != nil {
+		return nil, err
+	}
+	return res.(any), nil
+}
+
+func Emval_test_new_string(e embind.Engine, ctx context.Context) (any, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_new_string")
+	if err != nil {
+		return nil, err
+	}
+	return res.(any), nil
+}
+
+func Emval_test_not(e embind.Engine, ctx context.Context, arg0 bool) (bool, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_not", arg0)
+	if err != nil {
+		return bool(false), err
+	}
+	return res.(bool), nil
+}
+
+func Emval_test_passthrough(e embind.Engine, ctx context.Context, arg0 any) (any, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_passthrough", arg0)
+	if err != nil {
+		return nil, err
+	}
+	return res.(any), nil
+}
+
+func Emval_test_passthrough_unsigned(e embind.Engine, ctx context.Context, arg0 uint32) (uint32, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_passthrough_unsigned", arg0)
+	if err != nil {
+		return uint32(0), err
+	}
+	return res.(uint32), nil
+}
+
+func Emval_test_return_StructVector(e embind.Engine, ctx context.Context) (map[string]any, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_return_StructVector")
+	if err != nil {
+		return nil, err
+	}
+	return res.(map[string]any), nil
+}
+
+func Emval_test_return_TupleVector(e embind.Engine, ctx context.Context) ([]any, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_return_TupleVector")
+	if err != nil {
+		return nil, err
+	}
+	return res.([]any), nil
+}
+
+func Emval_test_return_TupleVectorTuple(e embind.Engine, ctx context.Context) ([]any, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_return_TupleVectorTuple")
+	if err != nil {
+		return nil, err
+	}
+	return res.([]any), nil
+}
+
+func Emval_test_return_ValHolder(e embind.Engine, ctx context.Context) (*ClassValHolder, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_return_ValHolder")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassValHolder), nil
+}
+
+func Emval_test_return_empty_shared_ptr(e embind.Engine, ctx context.Context) (*ClassValHolder, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_return_empty_shared_ptr")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassValHolder), nil
+}
+
+func Emval_test_return_shared_ptr(e embind.Engine, ctx context.Context) (*ClassValHolder, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_return_shared_ptr")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassValHolder), nil
+}
+
+func Emval_test_return_shared_ptr_vector(e embind.Engine, ctx context.Context) (*ClassSharedPtrVector, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_return_shared_ptr_vector")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassSharedPtrVector), nil
+}
+
+func Emval_test_return_unique_ptr(e embind.Engine, ctx context.Context) (*ClassValHolder, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_return_unique_ptr")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassValHolder), nil
+}
+
+func Emval_test_return_unique_ptr_lifetime(e embind.Engine, ctx context.Context, arg0 any) (*ClassUniquePtrLifetimeMock, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_return_unique_ptr_lifetime", arg0)
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassUniquePtrLifetimeMock), nil
+}
+
+func Emval_test_return_vector(e embind.Engine, ctx context.Context) (*ClassIntegerVector, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_return_vector")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassIntegerVector), nil
+}
+
+func Emval_test_return_vector_of_vectors(e embind.Engine, ctx context.Context) (*ClassIntegerVectorVector, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_return_vector_of_vectors")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassIntegerVectorVector), nil
+}
+
+func Emval_test_return_void(e embind.Engine, ctx context.Context) error {
+	_, err := e.CallPublicSymbol(ctx, "emval_test_return_void")
+	return err
+}
+
+func Emval_test_set_ValHolder_to_empty_object(e embind.Engine, ctx context.Context, arg0 *ClassValHolder) error {
+	_, err := e.CallPublicSymbol(ctx, "emval_test_set_ValHolder_to_empty_object", arg0)
+	return err
+}
+
+func Emval_test_strictly_equals(e embind.Engine, ctx context.Context, arg0 any, arg1 any) (bool, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_strictly_equals", arg0, arg1)
+	if err != nil {
+		return bool(false), err
+	}
+	return res.(bool), nil
+}
+
+func Emval_test_sum(e embind.Engine, ctx context.Context, arg0 any) (uint32, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_sum", arg0)
+	if err != nil {
+		return uint32(0), err
+	}
+	return res.(uint32), nil
+}
+
+func Emval_test_take_and_call_functor(e embind.Engine, ctx context.Context, arg0 *ClassStringFunctorString) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_take_and_call_functor", arg0)
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func Emval_test_take_and_return_ArrayInStruct(e embind.Engine, ctx context.Context, arg0 map[string]any) (map[string]any, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_take_and_return_ArrayInStruct", arg0)
+	if err != nil {
+		return nil, err
+	}
+	return res.(map[string]any), nil
+}
+
+func Emval_test_take_and_return_Enum(e embind.Engine, ctx context.Context, arg0 EnumEnum) (EnumEnum, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_take_and_return_Enum", arg0)
+	if err != nil {
+		return EnumEnum(0), err
+	}
+	return res.(EnumEnum), nil
+}
+
+func Emval_test_take_and_return_EnumClass(e embind.Engine, ctx context.Context, arg0 EnumEnumClass) (EnumEnumClass, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_take_and_return_EnumClass", arg0)
+	if err != nil {
+		return EnumEnumClass(0), err
+	}
+	return res.(EnumEnumClass), nil
+}
+
+func Emval_test_take_and_return_StructVector(e embind.Engine, ctx context.Context, arg0 map[string]any) (map[string]any, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_take_and_return_StructVector", arg0)
+	if err != nil {
+		return nil, err
+	}
+	return res.(map[string]any), nil
+}
+
+func Emval_test_take_and_return_TupleInStruct(e embind.Engine, ctx context.Context, arg0 map[string]any) (map[string]any, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_take_and_return_TupleInStruct", arg0)
+	if err != nil {
+		return nil, err
+	}
+	return res.(map[string]any), nil
+}
+
+func Emval_test_take_and_return_TupleVector(e embind.Engine, ctx context.Context, arg0 []any) ([]any, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_take_and_return_TupleVector", arg0)
+	if err != nil {
+		return nil, err
+	}
+	return res.([]any), nil
+}
+
+func Emval_test_take_and_return_std_basic_string_unsigned_char(e embind.Engine, ctx context.Context, arg0 string) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_take_and_return_std_basic_string_unsigned_char", arg0)
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func Emval_test_take_and_return_std_string(e embind.Engine, ctx context.Context, arg0 string) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_take_and_return_std_string", arg0)
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func Emval_test_take_and_return_std_string_const_ref(e embind.Engine, ctx context.Context, arg0 string) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_take_and_return_std_string_const_ref", arg0)
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func Emval_test_value_from_instance_pointer(e embind.Engine, ctx context.Context, arg0 any) (int32, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_test_value_from_instance_pointer", arg0)
+	if err != nil {
+		return int32(0), err
+	}
+	return res.(int32), nil
+}
+
+func Emval_throw(e embind.Engine, ctx context.Context, arg0 any) error {
+	_, err := e.CallPublicSymbol(ctx, "emval_throw", arg0)
+	return err
+}
+
+func Emval_type_of(e embind.Engine, ctx context.Context, arg0 any) (any, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_type_of", arg0)
+	if err != nil {
+		return nil, err
+	}
+	return res.(any), nil
+}
+
 func Enum_in_enum_out(e embind.Engine, ctx context.Context, arg0 EnumNewStyle) (EnumOldStyle, error) {
 	res, err := e.CallPublicSymbol(ctx, "enum_in_enum_out", arg0)
 	if err != nil {
@@ -103,6 +1192,22 @@ func FindPersonAtLocation(e embind.Engine, ctx context.Context, arg0 []any) (map
 	return res.(map[string]any), nil
 }
 
+func FirstElement(e embind.Engine, ctx context.Context) (*ClassFirstElement, error) {
+	res, err := e.CallPublicSymbol(ctx, "FirstElement")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassFirstElement), nil
+}
+
+func FloatVector(e embind.Engine, ctx context.Context) (*ClassFloatVector, error) {
+	res, err := e.CallPublicSymbol(ctx, "FloatVector")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassFloatVector), nil
+}
+
 func Float_return_float(e embind.Engine, ctx context.Context, arg0 float32) (float32, error) {
 	res, err := e.CallPublicSymbol(ctx, "float_return_float", arg0)
 	if err != nil {
@@ -113,6 +1218,27 @@ func Float_return_float(e embind.Engine, ctx context.Context, arg0 float32) (flo
 
 func Float_return_void(e embind.Engine, ctx context.Context, arg0 float32) error {
 	_, err := e.CallPublicSymbol(ctx, "float_return_void", arg0)
+	return err
+}
+
+func Foo(e embind.Engine, ctx context.Context) (*ClassFoo, error) {
+	res, err := e.CallPublicSymbol(ctx, "foo")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassFoo), nil
+}
+
+func Foo(e embind.Engine, ctx context.Context) (*ClassFoo, error) {
+	res, err := e.CallPublicSymbol(ctx, "Foo")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassFoo), nil
+}
+
+func Force_memory_growth(e embind.Engine, ctx context.Context) error {
+	_, err := e.CallPublicSymbol(ctx, "force_memory_growth")
 	return err
 }
 
@@ -132,12 +1258,92 @@ func Function_overload1(e embind.Engine, ctx context.Context, arg0 int32) (int32
 	return res.(int32), nil
 }
 
-func GetDerivedInstance(e embind.Engine, ctx context.Context) (*ClassBase, error) {
-	res, err := e.CallPublicSymbol(ctx, "getDerivedInstance")
+func GetAbstractClass(e embind.Engine, ctx context.Context) (*ClassAbstractClass, error) {
+	res, err := e.CallPublicSymbol(ctx, "getAbstractClass")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassBase), nil
+	return res.(*ClassAbstractClass), nil
+}
+
+func GetDerivedClassInstance(e embind.Engine, ctx context.Context) (*ClassBaseClass, error) {
+	res, err := e.CallPublicSymbol(ctx, "getDerivedClassInstance")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassBaseClass), nil
+}
+
+func GetDummy0(e embind.Engine, ctx context.Context) (*ClassDummyForOverloads, error) {
+	res, err := e.CallPublicSymbol(ctx, "getDummy")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassDummyForOverloads), nil
+}
+
+func GetDummy1(e embind.Engine, ctx context.Context, arg0 *ClassDummyForOverloads) (*ClassDummyForOverloads, error) {
+	res, err := e.CallPublicSymbol(ctx, "getDummy", arg0)
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassDummyForOverloads), nil
+}
+
+func GetNoncopyable(e embind.Engine, ctx context.Context) (*ClassNoncopyable, error) {
+	res, err := e.CallPublicSymbol(ctx, "getNoncopyable")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassNoncopyable), nil
+}
+
+func GetOrderedStruct(e embind.Engine, ctx context.Context) (map[string]any, error) {
+	res, err := e.CallPublicSymbol(ctx, "getOrderedStruct")
+	if err != nil {
+		return nil, err
+	}
+	return res.(map[string]any), nil
+}
+
+func GetOrderedTuple(e embind.Engine, ctx context.Context) ([]any, error) {
+	res, err := e.CallPublicSymbol(ctx, "getOrderedTuple")
+	if err != nil {
+		return nil, err
+	}
+	return res.([]any), nil
+}
+
+func GetTypeOfVal(e embind.Engine, ctx context.Context, arg0 any) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "getTypeOfVal", arg0)
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func Get_literal_u16string(e embind.Engine, ctx context.Context) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "get_literal_u16string")
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func Get_literal_u32string(e embind.Engine, ctx context.Context) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "get_literal_u32string")
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func Get_literal_wstring(e embind.Engine, ctx context.Context) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "get_literal_wstring")
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
 }
 
 func Get_memory_view_char(e embind.Engine, ctx context.Context) (any, error) {
@@ -236,12 +1442,156 @@ func Get_memory_view_unsigned_short(e embind.Engine, ctx context.Context) (any, 
 	return res.(any), nil
 }
 
+func Get_module_property(e embind.Engine, ctx context.Context, arg0 string) (any, error) {
+	res, err := e.CallPublicSymbol(ctx, "get_module_property", arg0)
+	if err != nil {
+		return nil, err
+	}
+	return res.(any), nil
+}
+
+func Get_non_ascii_string(e embind.Engine, ctx context.Context, arg0 bool) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "get_non_ascii_string", arg0)
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func Get_non_ascii_u16string(e embind.Engine, ctx context.Context) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "get_non_ascii_u16string")
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func Get_non_ascii_u32string(e embind.Engine, ctx context.Context) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "get_non_ascii_u32string")
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func Get_non_ascii_wstring(e embind.Engine, ctx context.Context) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "get_non_ascii_wstring")
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func HasConstructorUsingUnboundArgument(e embind.Engine, ctx context.Context) (*ClassHasConstructorUsingUnboundArgument, error) {
+	res, err := e.CallPublicSymbol(ctx, "HasConstructorUsingUnboundArgument")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassHasConstructorUsingUnboundArgument), nil
+}
+
+func HasExternalConstructor(e embind.Engine, ctx context.Context) (*ClassHasExternalConstructor, error) {
+	res, err := e.CallPublicSymbol(ctx, "HasExternalConstructor")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassHasExternalConstructor), nil
+}
+
+func HasReadOnlyProperty(e embind.Engine, ctx context.Context) (*ClassHasReadOnlyProperty, error) {
+	res, err := e.CallPublicSymbol(ctx, "HasReadOnlyProperty")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassHasReadOnlyProperty), nil
+}
+
+func HasStaticMember(e embind.Engine, ctx context.Context) (*ClassHasStaticMember, error) {
+	res, err := e.CallPublicSymbol(ctx, "HasStaticMember")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassHasStaticMember), nil
+}
+
+func HasTwoBases(e embind.Engine, ctx context.Context) (*ClassHasTwoBases, error) {
+	res, err := e.CallPublicSymbol(ctx, "HasTwoBases")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassHasTwoBases), nil
+}
+
+func HeldAbstractClass(e embind.Engine, ctx context.Context) (*ClassHeldAbstractClass, error) {
+	res, err := e.CallPublicSymbol(ctx, "HeldAbstractClass")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassHeldAbstractClass), nil
+}
+
+func HeldAbstractClassWrapper(e embind.Engine, ctx context.Context) (*ClassHeldAbstractClassWrapper, error) {
+	res, err := e.CallPublicSymbol(ctx, "HeldAbstractClassWrapper")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassHeldAbstractClassWrapper), nil
+}
+
+func HeldByCustomSmartPtr(e embind.Engine, ctx context.Context) (*ClassHeldByCustomSmartPtr, error) {
+	res, err := e.CallPublicSymbol(ctx, "HeldByCustomSmartPtr")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassHeldByCustomSmartPtr), nil
+}
+
+func HeldBySmartPtr(e embind.Engine, ctx context.Context) (*ClassHeldBySmartPtr, error) {
+	res, err := e.CallPublicSymbol(ctx, "HeldBySmartPtr")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassHeldBySmartPtr), nil
+}
+
+func IntTemplateClass(e embind.Engine, ctx context.Context) (*ClassIntTemplateClass, error) {
+	res, err := e.CallPublicSymbol(ctx, "IntTemplateClass")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassIntTemplateClass), nil
+}
+
 func Int_return_int(e embind.Engine, ctx context.Context, arg0 int32) (int32, error) {
 	res, err := e.CallPublicSymbol(ctx, "int_return_int", arg0)
 	if err != nil {
 		return int32(0), err
 	}
 	return res.(int32), nil
+}
+
+func Int_to_string(e embind.Engine, ctx context.Context, arg0 int32) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "int_to_string", arg0)
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func IntegerVector(e embind.Engine, ctx context.Context) (*ClassIntegerVector, error) {
+	res, err := e.CallPublicSymbol(ctx, "IntegerVector")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassIntegerVector), nil
+}
+
+func IntegerVectorVector(e embind.Engine, ctx context.Context) (*ClassIntegerVectorVector, error) {
+	res, err := e.CallPublicSymbol(ctx, "IntegerVectorVector")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassIntegerVectorVector), nil
 }
 
 func Interface(e embind.Engine, ctx context.Context) (*ClassInterface, error) {
@@ -260,12 +1610,76 @@ func InterfaceWrapper(e embind.Engine, ctx context.Context) (*ClassInterfaceWrap
 	return res.(*ClassInterfaceWrapper), nil
 }
 
+func IntrusiveClass(e embind.Engine, ctx context.Context) (*ClassIntrusiveClass, error) {
+	res, err := e.CallPublicSymbol(ctx, "IntrusiveClass")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassIntrusiveClass), nil
+}
+
+func IntrusiveClassHolder(e embind.Engine, ctx context.Context) (*ClassIntrusiveClassHolder, error) {
+	res, err := e.CallPublicSymbol(ctx, "IntrusiveClassHolder")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassIntrusiveClassHolder), nil
+}
+
+func IntrusiveClassWrapper(e embind.Engine, ctx context.Context) (*ClassIntrusiveClassWrapper, error) {
+	res, err := e.CallPublicSymbol(ctx, "IntrusiveClassWrapper")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassIntrusiveClassWrapper), nil
+}
+
+func Load_unsigned_char(e embind.Engine, ctx context.Context) (uint8, error) {
+	res, err := e.CallPublicSymbol(ctx, "load_unsigned_char")
+	if err != nil {
+		return uint8(0), err
+	}
+	return res.(uint8), nil
+}
+
+func Load_unsigned_int(e embind.Engine, ctx context.Context) (uint32, error) {
+	res, err := e.CallPublicSymbol(ctx, "load_unsigned_int")
+	if err != nil {
+		return uint32(0), err
+	}
+	return res.(uint32), nil
+}
+
+func Load_unsigned_long(e embind.Engine, ctx context.Context) (uint32, error) {
+	res, err := e.CallPublicSymbol(ctx, "load_unsigned_long")
+	if err != nil {
+		return uint32(0), err
+	}
+	return res.(uint32), nil
+}
+
+func Load_unsigned_short(e embind.Engine, ctx context.Context) (uint16, error) {
+	res, err := e.CallPublicSymbol(ctx, "load_unsigned_short")
+	if err != nil {
+		return uint16(0), err
+	}
+	return res.(uint16), nil
+}
+
 func Long_return_long(e embind.Engine, ctx context.Context, arg0 int32) (int32, error) {
 	res, err := e.CallPublicSymbol(ctx, "long_return_long", arg0)
 	if err != nil {
 		return int32(0), err
 	}
 	return res.(int32), nil
+}
+
+func Long_to_string(e embind.Engine, ctx context.Context, arg0 int32) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "long_to_string", arg0)
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
 }
 
 func Longlong_return_longlong(e embind.Engine, ctx context.Context, arg0 int64) (int64, error) {
@@ -276,12 +1690,76 @@ func Longlong_return_longlong(e embind.Engine, ctx context.Context, arg0 int64) 
 	return res.(int64), nil
 }
 
+func Mallinfo(e embind.Engine, ctx context.Context) (any, error) {
+	res, err := e.CallPublicSymbol(ctx, "mallinfo")
+	if err != nil {
+		return nil, err
+	}
+	return res.(any), nil
+}
+
 func Map_int__string_(e embind.Engine, ctx context.Context) (*ClassMap_int__string_, error) {
 	res, err := e.CallPublicSymbol(ctx, "map_int__string_")
 	if err != nil {
 		return nil, err
 	}
 	return res.(*ClassMap_int__string_), nil
+}
+
+func MultipleAccessors(e embind.Engine, ctx context.Context) (*ClassMultipleAccessors, error) {
+	res, err := e.CallPublicSymbol(ctx, "MultipleAccessors")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassMultipleAccessors), nil
+}
+
+func MultipleCtors(e embind.Engine, ctx context.Context) (*ClassMultipleCtors, error) {
+	res, err := e.CallPublicSymbol(ctx, "MultipleCtors")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassMultipleCtors), nil
+}
+
+func MultipleOverloads(e embind.Engine, ctx context.Context) (*ClassMultipleOverloads, error) {
+	res, err := e.CallPublicSymbol(ctx, "MultipleOverloads")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassMultipleOverloads), nil
+}
+
+func MultipleOverloadsDependingOnDummy(e embind.Engine, ctx context.Context) (*ClassMultipleOverloadsDependingOnDummy, error) {
+	res, err := e.CallPublicSymbol(ctx, "MultipleOverloadsDependingOnDummy")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassMultipleOverloadsDependingOnDummy), nil
+}
+
+func MultipleOverloadsDerived(e embind.Engine, ctx context.Context) (*ClassMultipleOverloadsDerived, error) {
+	res, err := e.CallPublicSymbol(ctx, "MultipleOverloadsDerived")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassMultipleOverloadsDerived), nil
+}
+
+func MultipleSmartCtors(e embind.Engine, ctx context.Context) (*ClassMultipleSmartCtors, error) {
+	res, err := e.CallPublicSymbol(ctx, "MultipleSmartCtors")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassMultipleSmartCtors), nil
+}
+
+func MultiplyDerived(e embind.Engine, ctx context.Context) (*ClassMultiplyDerived, error) {
+	res, err := e.CallPublicSymbol(ctx, "MultiplyDerived")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassMultiplyDerived), nil
 }
 
 func MyClass(e embind.Engine, ctx context.Context) (*ClassMyClass, error) {
@@ -292,12 +1770,198 @@ func MyClass(e embind.Engine, ctx context.Context) (*ClassMyClass, error) {
 	return res.(*ClassMyClass), nil
 }
 
+func NoExceptClass(e embind.Engine, ctx context.Context) (*ClassNoExceptClass, error) {
+	res, err := e.CallPublicSymbol(ctx, "NoExceptClass")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassNoExceptClass), nil
+}
+
+func Noncopyable(e embind.Engine, ctx context.Context) (*ClassNoncopyable, error) {
+	res, err := e.CallPublicSymbol(ctx, "Noncopyable")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassNoncopyable), nil
+}
+
+func Overloaded_function1(e embind.Engine, ctx context.Context, arg0 int32) (int32, error) {
+	res, err := e.CallPublicSymbol(ctx, "overloaded_function", arg0)
+	if err != nil {
+		return int32(0), err
+	}
+	return res.(int32), nil
+}
+
+func Overloaded_function2(e embind.Engine, ctx context.Context, arg0 int32, arg1 int32) (int32, error) {
+	res, err := e.CallPublicSymbol(ctx, "overloaded_function", arg0, arg1)
+	if err != nil {
+		return int32(0), err
+	}
+	return res.(int32), nil
+}
+
+func PFoo(e embind.Engine, ctx context.Context) (*ClassFoo, error) {
+	res, err := e.CallPublicSymbol(ctx, "pFoo")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassFoo), nil
+}
+
+func ParentClass(e embind.Engine, ctx context.Context) (*ClassParentClass, error) {
+	res, err := e.CallPublicSymbol(ctx, "ParentClass")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassParentClass), nil
+}
+
+func PassHeldAbstractClass(e embind.Engine, ctx context.Context, arg0 *ClassHeldAbstractClass) (*ClassPolySecondBase, error) {
+	res, err := e.CallPublicSymbol(ctx, "passHeldAbstractClass", arg0)
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassPolySecondBase), nil
+}
+
+func PassShared(e embind.Engine, ctx context.Context, arg0 *ClassAbstractClass) error {
+	_, err := e.CallPublicSymbol(ctx, "passShared", arg0)
+	return err
+}
+
 func PassThrough(e embind.Engine, ctx context.Context, arg0 *ClassMyClass) (*ClassMyClass, error) {
 	res, err := e.CallPublicSymbol(ctx, "passThrough", arg0)
 	if err != nil {
 		return nil, err
 	}
 	return res.(*ClassMyClass), nil
+}
+
+func PassThroughCustomSmartPtr(e embind.Engine, ctx context.Context, arg0 *ClassHeldByCustomSmartPtr) (*ClassHeldByCustomSmartPtr, error) {
+	res, err := e.CallPublicSymbol(ctx, "passThroughCustomSmartPtr", arg0)
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassHeldByCustomSmartPtr), nil
+}
+
+func PassThroughIntrusiveClass(e embind.Engine, ctx context.Context, arg0 *ClassIntrusiveClass) (*ClassIntrusiveClass, error) {
+	res, err := e.CallPublicSymbol(ctx, "passThroughIntrusiveClass", arg0)
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassIntrusiveClass), nil
+}
+
+func PassThroughRawPtr(e embind.Engine, ctx context.Context, arg0 *ClassHeldByCustomSmartPtr) (*ClassHeldByCustomSmartPtr, error) {
+	res, err := e.CallPublicSymbol(ctx, "passThroughRawPtr", arg0)
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassHeldByCustomSmartPtr), nil
+}
+
+func PassVal(e embind.Engine, ctx context.Context, arg0 *ClassAbstractClass, arg1 any) error {
+	_, err := e.CallPublicSymbol(ctx, "passVal", arg0, arg1)
+	return err
+}
+
+func PolyBase(e embind.Engine, ctx context.Context) (*ClassPolyBase, error) {
+	res, err := e.CallPublicSymbol(ctx, "PolyBase")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassPolyBase), nil
+}
+
+func PolyDerived(e embind.Engine, ctx context.Context) (*ClassPolyDerived, error) {
+	res, err := e.CallPublicSymbol(ctx, "PolyDerived")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassPolyDerived), nil
+}
+
+func PolyDerivedThrice(e embind.Engine, ctx context.Context) (*ClassPolyDerivedThrice, error) {
+	res, err := e.CallPublicSymbol(ctx, "PolyDerivedThrice")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassPolyDerivedThrice), nil
+}
+
+func PolyDiamondBase(e embind.Engine, ctx context.Context) (*ClassPolyDiamondBase, error) {
+	res, err := e.CallPublicSymbol(ctx, "PolyDiamondBase")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassPolyDiamondBase), nil
+}
+
+func PolyDiamondDerived(e embind.Engine, ctx context.Context) (*ClassPolyDiamondDerived, error) {
+	res, err := e.CallPublicSymbol(ctx, "PolyDiamondDerived")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassPolyDiamondDerived), nil
+}
+
+func PolyDiamondMultiplyDerived(e embind.Engine, ctx context.Context) (*ClassPolyDiamondMultiplyDerived, error) {
+	res, err := e.CallPublicSymbol(ctx, "PolyDiamondMultiplyDerived")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassPolyDiamondMultiplyDerived), nil
+}
+
+func PolyDiamondSiblingDerived(e embind.Engine, ctx context.Context) (*ClassPolyDiamondSiblingDerived, error) {
+	res, err := e.CallPublicSymbol(ctx, "PolyDiamondSiblingDerived")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassPolyDiamondSiblingDerived), nil
+}
+
+func PolyMultiplyDerived(e embind.Engine, ctx context.Context) (*ClassPolyMultiplyDerived, error) {
+	res, err := e.CallPublicSymbol(ctx, "PolyMultiplyDerived")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassPolyMultiplyDerived), nil
+}
+
+func PolySecondBase(e embind.Engine, ctx context.Context) (*ClassPolySecondBase, error) {
+	res, err := e.CallPublicSymbol(ctx, "PolySecondBase")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassPolySecondBase), nil
+}
+
+func PolySiblingDerived(e embind.Engine, ctx context.Context) (*ClassPolySiblingDerived, error) {
+	res, err := e.CallPublicSymbol(ctx, "PolySiblingDerived")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassPolySiblingDerived), nil
+}
+
+func Return_Base_from_DerivedWithOffset(e embind.Engine, ctx context.Context, arg0 *ClassDerivedWithOffset) (*ClassBase, error) {
+	res, err := e.CallPublicSymbol(ctx, "return_Base_from_DerivedWithOffset", arg0)
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassBase), nil
+}
+
+func Return_StringHolder_copy(e embind.Engine, ctx context.Context, arg0 any) (*ClassStringHolder, error) {
+	res, err := e.CallPublicSymbol(ctx, "return_StringHolder_copy", arg0)
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassStringHolder), nil
 }
 
 func Return_map(e embind.Engine, ctx context.Context) (*ClassMap_int__string_, error) {
@@ -308,17 +1972,64 @@ func Return_map(e embind.Engine, ctx context.Context) (*ClassMap_int__string_, e
 	return res.(*ClassMap_int__string_), nil
 }
 
-func Return_vector(e embind.Engine, ctx context.Context) (*ClassVector_int_, error) {
+func Return_vector(e embind.Engine, ctx context.Context) (*ClassIntegerVector, error) {
 	res, err := e.CallPublicSymbol(ctx, "return_vector")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassVector_int_), nil
+	return res.(*ClassIntegerVector), nil
+}
+
+func SecondBase(e embind.Engine, ctx context.Context) (*ClassSecondBase, error) {
+	res, err := e.CallPublicSymbol(ctx, "SecondBase")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassSecondBase), nil
+}
+
+func SecondElement(e embind.Engine, ctx context.Context) (*ClassSecondElement, error) {
+	res, err := e.CallPublicSymbol(ctx, "SecondElement")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassSecondElement), nil
 }
 
 func SetPersonAtLocation(e embind.Engine, ctx context.Context, arg0 []any, arg1 map[string]any) error {
 	_, err := e.CallPublicSymbol(ctx, "setPersonAtLocation", arg0, arg1)
 	return err
+}
+
+func Set_bind_f64(e embind.Engine, ctx context.Context, arg0 any) error {
+	_, err := e.CallPublicSymbol(ctx, "set_bind_f64", arg0)
+	return err
+}
+
+func Set_bind_u32(e embind.Engine, ctx context.Context, arg0 any) error {
+	_, err := e.CallPublicSymbol(ctx, "set_bind_u32", arg0)
+	return err
+}
+
+func Set_bind_u64(e embind.Engine, ctx context.Context, arg0 any) error {
+	_, err := e.CallPublicSymbol(ctx, "set_bind_u64", arg0)
+	return err
+}
+
+func SharedPtrHolder(e embind.Engine, ctx context.Context) (*ClassSharedPtrHolder, error) {
+	res, err := e.CallPublicSymbol(ctx, "SharedPtrHolder")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassSharedPtrHolder), nil
+}
+
+func SharedPtrVector(e embind.Engine, ctx context.Context) (*ClassSharedPtrVector, error) {
+	res, err := e.CallPublicSymbol(ctx, "SharedPtrVector")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassSharedPtrVector), nil
 }
 
 func Short_return_short(e embind.Engine, ctx context.Context, arg0 int16) (int16, error) {
@@ -327,6 +2038,38 @@ func Short_return_short(e embind.Engine, ctx context.Context, arg0 int16) (int16
 		return int16(0), err
 	}
 	return res.(int16), nil
+}
+
+func Short_to_string(e embind.Engine, ctx context.Context, arg0 int16) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "short_to_string", arg0)
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func SiblingDerived(e embind.Engine, ctx context.Context) (*ClassSiblingDerived, error) {
+	res, err := e.CallPublicSymbol(ctx, "SiblingDerived")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassSiblingDerived), nil
+}
+
+func Signed_char_to_string(e embind.Engine, ctx context.Context, arg0 int8) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "signed_char_to_string", arg0)
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func SmallClass(e embind.Engine, ctx context.Context) (*ClassSmallClass, error) {
+	res, err := e.CallPublicSymbol(ctx, "SmallClass")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassSmallClass), nil
 }
 
 func Std_string_return_std_string(e embind.Engine, ctx context.Context, arg0 string) (string, error) {
@@ -351,6 +2094,111 @@ func Std_wstring_return_std_wstring(e embind.Engine, ctx context.Context, arg0 s
 		return "", err
 	}
 	return res.(string), nil
+}
+
+func Store_unsigned_char(e embind.Engine, ctx context.Context, arg0 uint8) error {
+	_, err := e.CallPublicSymbol(ctx, "store_unsigned_char", arg0)
+	return err
+}
+
+func Store_unsigned_int(e embind.Engine, ctx context.Context, arg0 uint32) error {
+	_, err := e.CallPublicSymbol(ctx, "store_unsigned_int", arg0)
+	return err
+}
+
+func Store_unsigned_long(e embind.Engine, ctx context.Context, arg0 uint32) error {
+	_, err := e.CallPublicSymbol(ctx, "store_unsigned_long", arg0)
+	return err
+}
+
+func Store_unsigned_short(e embind.Engine, ctx context.Context, arg0 uint16) error {
+	_, err := e.CallPublicSymbol(ctx, "store_unsigned_short", arg0)
+	return err
+}
+
+func StringFunctorString(e embind.Engine, ctx context.Context) (*ClassStringFunctorString, error) {
+	res, err := e.CallPublicSymbol(ctx, "StringFunctorString")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassStringFunctorString), nil
+}
+
+func StringHolder(e embind.Engine, ctx context.Context) (*ClassStringHolder, error) {
+	res, err := e.CallPublicSymbol(ctx, "StringHolder")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassStringHolder), nil
+}
+
+func StringHolderVector(e embind.Engine, ctx context.Context) (*ClassStringHolderVector, error) {
+	res, err := e.CallPublicSymbol(ctx, "StringHolderVector")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassStringHolderVector), nil
+}
+
+func StringIntMap(e embind.Engine, ctx context.Context) (*ClassStringIntMap, error) {
+	res, err := e.CallPublicSymbol(ctx, "StringIntMap")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassStringIntMap), nil
+}
+
+func StringVector(e embind.Engine, ctx context.Context) (*ClassStringVector, error) {
+	res, err := e.CallPublicSymbol(ctx, "StringVector")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassStringVector), nil
+}
+
+func Take_and_return_std_u16string(e embind.Engine, ctx context.Context, arg0 string) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "take_and_return_std_u16string", arg0)
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func Take_and_return_std_u32string(e embind.Engine, ctx context.Context, arg0 string) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "take_and_return_std_u32string", arg0)
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func Take_and_return_std_wstring(e embind.Engine, ctx context.Context, arg0 string) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "take_and_return_std_wstring", arg0)
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func TakesHeldBySmartPtr(e embind.Engine, ctx context.Context, arg0 *ClassHeldBySmartPtr) (*ClassHeldBySmartPtr, error) {
+	res, err := e.CallPublicSymbol(ctx, "takesHeldBySmartPtr", arg0)
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassHeldBySmartPtr), nil
+}
+
+func TakesHeldBySmartPtrSharedPtr(e embind.Engine, ctx context.Context, arg0 *ClassHeldBySmartPtr) (*ClassHeldBySmartPtr, error) {
+	res, err := e.CallPublicSymbol(ctx, "takesHeldBySmartPtrSharedPtr", arg0)
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassHeldBySmartPtr), nil
+}
+
+func Test_string_with_vec(e embind.Engine, ctx context.Context, arg0 string, arg1 *ClassStringVector) error {
+	_, err := e.CallPublicSymbol(ctx, "test_string_with_vec", arg0, arg1)
+	return err
 }
 
 func Uchar_return_uchar(e embind.Engine, ctx context.Context, arg0 uint8) (uint8, error) {
@@ -385,6 +2233,54 @@ func Ulonglong_return_ulonglong(e embind.Engine, ctx context.Context, arg0 uint6
 	return res.(uint64), nil
 }
 
+func UniquePtrLifetimeMock(e embind.Engine, ctx context.Context) (*ClassUniquePtrLifetimeMock, error) {
+	res, err := e.CallPublicSymbol(ctx, "UniquePtrLifetimeMock")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassUniquePtrLifetimeMock), nil
+}
+
+func UniquePtrToConstructor(e embind.Engine, ctx context.Context) (*ClassUniquePtrToConstructor, error) {
+	res, err := e.CallPublicSymbol(ctx, "UniquePtrToConstructor")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassUniquePtrToConstructor), nil
+}
+
+func Unsigned_char_to_string(e embind.Engine, ctx context.Context, arg0 uint8) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "unsigned_char_to_string", arg0)
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func Unsigned_int_to_string(e embind.Engine, ctx context.Context, arg0 uint32) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "unsigned_int_to_string", arg0)
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func Unsigned_long_to_string(e embind.Engine, ctx context.Context, arg0 uint32) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "unsigned_long_to_string", arg0)
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func Unsigned_short_to_string(e embind.Engine, ctx context.Context, arg0 uint16) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "unsigned_short_to_string", arg0)
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
 func Ushort_return_ushort(e embind.Engine, ctx context.Context, arg0 uint16) (uint16, error) {
 	res, err := e.CallPublicSymbol(ctx, "ushort_return_ushort", arg0)
 	if err != nil {
@@ -393,10 +2289,154 @@ func Ushort_return_ushort(e embind.Engine, ctx context.Context, arg0 uint16) (ui
 	return res.(uint16), nil
 }
 
-func Vector_int_(e embind.Engine, ctx context.Context) (*ClassVector_int_, error) {
-	res, err := e.CallPublicSymbol(ctx, "vector_int_")
+func ValHolder(e embind.Engine, ctx context.Context) (*ClassValHolder, error) {
+	res, err := e.CallPublicSymbol(ctx, "ValHolder")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassVector_int_), nil
+	return res.(*ClassValHolder), nil
+}
+
+func Val_as_bool(e embind.Engine, ctx context.Context, arg0 any) (bool, error) {
+	res, err := e.CallPublicSymbol(ctx, "val_as_bool", arg0)
+	if err != nil {
+		return bool(false), err
+	}
+	return res.(bool), nil
+}
+
+func Val_as_char(e embind.Engine, ctx context.Context, arg0 any) (int8, error) {
+	res, err := e.CallPublicSymbol(ctx, "val_as_char", arg0)
+	if err != nil {
+		return int8(0), err
+	}
+	return res.(int8), nil
+}
+
+func Val_as_double(e embind.Engine, ctx context.Context, arg0 any) (float64, error) {
+	res, err := e.CallPublicSymbol(ctx, "val_as_double", arg0)
+	if err != nil {
+		return float64(0), err
+	}
+	return res.(float64), nil
+}
+
+func Val_as_enum(e embind.Engine, ctx context.Context, arg0 any) (EnumEnum, error) {
+	res, err := e.CallPublicSymbol(ctx, "val_as_enum", arg0)
+	if err != nil {
+		return EnumEnum(0), err
+	}
+	return res.(EnumEnum), nil
+}
+
+func Val_as_float(e embind.Engine, ctx context.Context, arg0 any) (float32, error) {
+	res, err := e.CallPublicSymbol(ctx, "val_as_float", arg0)
+	if err != nil {
+		return float32(0), err
+	}
+	return res.(float32), nil
+}
+
+func Val_as_int(e embind.Engine, ctx context.Context, arg0 any) (int32, error) {
+	res, err := e.CallPublicSymbol(ctx, "val_as_int", arg0)
+	if err != nil {
+		return int32(0), err
+	}
+	return res.(int32), nil
+}
+
+func Val_as_int64_t(e embind.Engine, ctx context.Context, arg0 any) (int64, error) {
+	res, err := e.CallPublicSymbol(ctx, "val_as_int64_t", arg0)
+	if err != nil {
+		return int64(0), err
+	}
+	return res.(int64), nil
+}
+
+func Val_as_long(e embind.Engine, ctx context.Context, arg0 any) (int32, error) {
+	res, err := e.CallPublicSymbol(ctx, "val_as_long", arg0)
+	if err != nil {
+		return int32(0), err
+	}
+	return res.(int32), nil
+}
+
+func Val_as_short(e embind.Engine, ctx context.Context, arg0 any) (int16, error) {
+	res, err := e.CallPublicSymbol(ctx, "val_as_short", arg0)
+	if err != nil {
+		return int16(0), err
+	}
+	return res.(int16), nil
+}
+
+func Val_as_string(e embind.Engine, ctx context.Context, arg0 any) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "val_as_string", arg0)
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func Val_as_uint64_t(e embind.Engine, ctx context.Context, arg0 any) (uint64, error) {
+	res, err := e.CallPublicSymbol(ctx, "val_as_uint64_t", arg0)
+	if err != nil {
+		return uint64(0), err
+	}
+	return res.(uint64), nil
+}
+
+func Val_as_val(e embind.Engine, ctx context.Context, arg0 any) (any, error) {
+	res, err := e.CallPublicSymbol(ctx, "val_as_val", arg0)
+	if err != nil {
+		return nil, err
+	}
+	return res.(any), nil
+}
+
+func Val_as_value_array(e embind.Engine, ctx context.Context, arg0 any) ([]any, error) {
+	res, err := e.CallPublicSymbol(ctx, "val_as_value_array", arg0)
+	if err != nil {
+		return nil, err
+	}
+	return res.([]any), nil
+}
+
+func Val_as_value_object(e embind.Engine, ctx context.Context, arg0 any) (map[string]any, error) {
+	res, err := e.CallPublicSymbol(ctx, "val_as_value_object", arg0)
+	if err != nil {
+		return nil, err
+	}
+	return res.(map[string]any), nil
+}
+
+func Val_as_wstring(e embind.Engine, ctx context.Context, arg0 any) (string, error) {
+	res, err := e.CallPublicSymbol(ctx, "val_as_wstring", arg0)
+	if err != nil {
+		return "", err
+	}
+	return res.(string), nil
+}
+
+func VectorHolder(e embind.Engine, ctx context.Context) (*ClassVectorHolder, error) {
+	res, err := e.CallPublicSymbol(ctx, "VectorHolder")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassVectorHolder), nil
+}
+
+func VectorUnsigned(e embind.Engine, ctx context.Context) (*ClassVectorUnsigned, error) {
+	res, err := e.CallPublicSymbol(ctx, "VectorUnsigned")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassVectorUnsigned), nil
+}
+
+func VectorUnsignedChar(e embind.Engine, ctx context.Context) (*ClassVectorUnsignedChar, error) {
+	res, err := e.CallPublicSymbol(ctx, "VectorUnsignedChar")
+	if err != nil {
+		return nil, err
+	}
+	return res.(*ClassVectorUnsignedChar), nil
 }
