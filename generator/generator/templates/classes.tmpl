@@ -60,6 +60,21 @@ func {{ $class.GoName }}Static{{ $method.GoName }}(e embind.Engine, ctx context.
 }
 {{ end }}
 {{ end }}
+{{ range $index, $property := $class.StaticProperties }}
+func {{ $class.GoName }}GetStaticProperty{{ $property.GoName }}(ctx context.Context) ({{ $property.GetterType }}, error)  {
+    res, err := e.GetStaticClassProperty(ctx, "{{ $class.Name }}", "{{ $property.Name }}")
+    if err != nil {
+        return {{ $property.ErrorValue }}, err
+    }
+
+    return res.({{ $property.GetterType }}), nil
+}
+{{ if not ($property.ReadOnly) -}}
+func {{ $class.GoName }}SetStaticProperty{{ $property.GoName }}(ctx context.Context, val {{ $property.SetterType }}) error  {
+    return e.SetStaticClassProperty(ctx, "{{ $class.Name }}", "{{ $property.Name }}", val)
+}
+{{ end }}
+{{ end }}
 {{ range $index, $constructor := $class.Constructors }}
 func New{{ $class.GoName }}{{ $constructor.Name }}(e embind.Engine, ctx context.Context{{ range $index, $argumentType := $constructor.ArgumentTypes -}}, arg{{ $index }} {{ $argumentType }}{{ end }}) (*{{ $class.GoName }}, error) {
     res, err := e.CallPublicSymbol(ctx, "{{ $class.Name }}"{{ range $index, $argumentType := $constructor.ArgumentTypes -}}, arg{{ $index }}{{ end }})

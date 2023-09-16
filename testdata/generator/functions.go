@@ -1222,7 +1222,7 @@ func Float_return_void(e embind.Engine, ctx context.Context, arg0 float32) error
 }
 
 func Foo(e embind.Engine, ctx context.Context) (*ClassFoo, error) {
-	res, err := e.CallPublicSymbol(ctx, "foo")
+	res, err := e.CallPublicSymbol(ctx, "Foo")
 	if err != nil {
 		return nil, err
 	}
@@ -1230,7 +1230,7 @@ func Foo(e embind.Engine, ctx context.Context) (*ClassFoo, error) {
 }
 
 func Foo(e embind.Engine, ctx context.Context) (*ClassFoo, error) {
-	res, err := e.CallPublicSymbol(ctx, "Foo")
+	res, err := e.CallPublicSymbol(ctx, "foo")
 	if err != nil {
 		return nil, err
 	}

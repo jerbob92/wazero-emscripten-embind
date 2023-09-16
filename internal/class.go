@@ -17,6 +17,7 @@ type classProperty struct {
 	enumerable   bool
 	configurable bool
 	readOnly     bool
+	isStatic     bool
 	setterType   registeredType
 	getterType   registeredType
 	set          func(ctx context.Context, this any, v any) error
@@ -47,6 +48,10 @@ func (cp *classProperty) SetterType() IType {
 
 func (cp *classProperty) ReadOnly() bool {
 	return cp.readOnly
+}
+
+func (cp *classProperty) Static() bool {
+	return cp.isStatic
 }
 
 type classConstructor struct {
@@ -248,6 +253,7 @@ type IClassType interface {
 	Name() string
 	Type() IType
 	Properties() []IClassTypeProperty
+	StaticProperties() []IClassTypeProperty
 	Constructors() []IClassTypeConstructor
 	Methods() []IClassTypeMethod
 	StaticMethods() []IClassTypeMethod
@@ -285,6 +291,22 @@ func (erc *classType) Properties() []IClassTypeProperty {
 	properties := make([]IClassTypeProperty, 0)
 
 	for i := range erc.properties {
+		if erc.properties[i].isStatic {
+			continue
+		}
+		properties = append(properties, erc.properties[i])
+	}
+
+	return properties
+}
+
+func (erc *classType) StaticProperties() []IClassTypeProperty {
+	properties := make([]IClassTypeProperty, 0)
+
+	for i := range erc.properties {
+		if !erc.properties[i].isStatic {
+			continue
+		}
 		properties = append(properties, erc.properties[i])
 	}
 
@@ -951,7 +973,8 @@ var RegisterClassClassProperty = api.GoModuleFunc(func(ctx context.Context, mod 
 		humanName := classType.Name() + "." + fieldName
 
 		desc := &classProperty{
-			name: fieldName,
+			name:     fieldName,
+			isStatic: true,
 			get: func(ctx context.Context, this any) (any, error) {
 				return nil, engine.createUnboundTypeError(ctx, fmt.Sprintf("Cannot access %s due to unbound types", humanName), []int32{rawFieldType})
 			},
@@ -977,6 +1000,7 @@ var RegisterClassClassProperty = api.GoModuleFunc(func(ctx context.Context, mod 
 			desc := &classProperty{
 				name:       fieldName,
 				getterType: fieldType,
+				isStatic:   true,
 				get: func(ctx context.Context, this any) (any, error) {
 					res, err := getterFunc.Call(ctx, api.EncodeI32(rawFieldPtr))
 					if err != nil {
@@ -1238,3 +1262,79 @@ var CreateInheritingConstructor = api.GoModuleFunc(func(ctx context.Context, mod
 	// @todo: i can't get embind to call this.
 	panic("CreateInheritingConstructor call unimplemented")
 })
+
+func (e *engine) CallStaticClassMethod(ctx context.Context, className, name string, arguments ...any) (any, error) {
+	_, ok := e.publicSymbols[className]
+	if !ok {
+		return nil, fmt.Errorf("could not find class %s", className)
+	}
+
+	_, ok = e.registeredClasses[className].methods[name]
+	if !ok {
+		return nil, fmt.Errorf("could not find method %s on class %s", name, className)
+	}
+
+	if !e.registeredClasses[className].methods[name].isStatic {
+		return nil, fmt.Errorf("method %s on class %s is not static", name, className)
+	}
+
+	ctx = e.Attach(ctx)
+	res, err := e.registeredClasses[className].methods[name].fn(ctx, nil, arguments...)
+	if err != nil {
+		return nil, fmt.Errorf("error while calling embind function %s on class %s: %w", name, className, err)
+	}
+
+	return res, nil
+}
+
+func (e *engine) GetStaticClassProperty(ctx context.Context, className, name string) (any, error) {
+	_, ok := e.publicSymbols[className]
+	if !ok {
+		return nil, fmt.Errorf("could not find class %s", className)
+	}
+
+	_, ok = e.registeredClasses[className].methods[name]
+	if !ok {
+		return nil, fmt.Errorf("could not find property %s on class %s", name, className)
+	}
+
+	if !e.registeredClasses[className].properties[name].isStatic {
+		return nil, fmt.Errorf("property %s on class %s is not static", name, className)
+	}
+
+	ctx = e.Attach(ctx)
+	res, err := e.registeredClasses[className].properties[name].get(ctx, nil)
+	if err != nil {
+		return nil, fmt.Errorf("error while calling embind property getter %s on class %s: %w", name, className, err)
+	}
+
+	return res, nil
+}
+
+func (e *engine) SetStaticClassProperty(ctx context.Context, className, name string, value any) error {
+	_, ok := e.publicSymbols[className]
+	if !ok {
+		return fmt.Errorf("could not find class %s", className)
+	}
+
+	_, ok = e.registeredClasses[className].methods[name]
+	if !ok {
+		return fmt.Errorf("could not find property %s on class %s", name, className)
+	}
+
+	if !e.registeredClasses[className].properties[name].isStatic {
+		return fmt.Errorf("property %s on class %s is not static", name, className)
+	}
+
+	if e.registeredClasses[className].properties[name].readOnly {
+		return fmt.Errorf("property %s on class %s is read-only", name, className)
+	}
+
+	ctx = e.Attach(ctx)
+	err := e.registeredClasses[className].properties[name].set(ctx, nil, value)
+	if err != nil {
+		return fmt.Errorf("error while calling embind property setter %s on class %s: %w", name, className, err)
+	}
+
+	return nil
+}

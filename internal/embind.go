@@ -11,7 +11,6 @@ import (
 type IEngine interface {
 	Attach(ctx context.Context) context.Context
 	CallPublicSymbol(ctx context.Context, name string, arguments ...any) (any, error)
-	CallStaticClassMethod(ctx context.Context, className, name string, arguments ...any) (any, error)
 	GetSymbols() []ISymbol
 	RegisterConstant(name string, val any) error
 	GetConstants() []IConstant
@@ -19,6 +18,9 @@ type IEngine interface {
 	GetEnums() []IEnumType
 	RegisterClass(name string, class any) error
 	GetClasses() []IClassType
+	CallStaticClassMethod(ctx context.Context, className, name string, arguments ...any) (any, error)
+	GetStaticClassProperty(ctx context.Context, className, name string) (any, error)
+	SetStaticClassProperty(ctx context.Context, className, name string, value any) error
 	RegisterEmvalSymbol(name string, symbol any) error
 	EmvalToHandle(value any) int32
 	EmvalToValue(handle int32) (any, error)

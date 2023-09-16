@@ -292,6 +292,36 @@ func Generate(dir string, fileName string, wasm []byte, initFunction string) err
 			return class.Properties[i].GoName < class.Properties[j].GoName
 		})
 
+		staticProperties := classes[i].StaticProperties()
+		for pi := range staticProperties {
+			getterType := staticProperties[pi].GetterType()
+			if getterType == nil {
+				continue
+			}
+
+			property := TemplateClassProperty{
+				Name:       staticProperties[pi].Name(),
+				GoName:     generateGoName(staticProperties[pi].Name()),
+				ReadOnly:   staticProperties[pi].ReadOnly(),
+				GetterType: typeNameToGeneratedName(getterType.Type(), getterType.IsClass(), getterType.IsEnum()),
+				ErrorValue: typeNameToErrorValue(getterType.Type(), getterType.IsClass(), getterType.IsEnum()),
+			}
+
+			if !property.ReadOnly {
+				setterType := staticProperties[pi].SetterType()
+				if setterType == nil {
+					continue
+				}
+				property.SetterType = typeNameToGeneratedName(setterType.Type(), setterType.IsClass(), setterType.IsEnum())
+			}
+
+			class.StaticProperties = append(class.StaticProperties, property)
+		}
+
+		sort.Slice(class.StaticProperties, func(i, j int) bool {
+			return class.StaticProperties[i].GoName < class.StaticProperties[j].GoName
+		})
+
 		methods := classes[i].Methods()
 		for mi := range methods {
 			exposedArgumentTypes := methods[mi].ArgumentTypes()
@@ -467,12 +497,13 @@ type TemplateEnumValue struct {
 }
 
 type TemplateClass struct {
-	Name          string
-	GoName        string
-	Constructors  []TemplateClassConstructor
-	Properties    []TemplateClassProperty
-	Methods       []TemplateClassMethod
-	StaticMethods []TemplateClassMethod
+	Name             string
+	GoName           string
+	Constructors     []TemplateClassConstructor
+	Properties       []TemplateClassProperty
+	StaticProperties []TemplateClassProperty
+	Methods          []TemplateClassMethod
+	StaticMethods    []TemplateClassMethod
 }
 
 type TemplateClassProperty struct {
