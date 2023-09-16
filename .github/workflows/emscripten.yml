@@ -15,7 +15,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        emscripten: [ "3.1.44", "3.1.45" ]
+        emscripten: [ "3.1.44", "3.1.45", "3.1.46" ]
     runs-on: "ubuntu-latest"
     steps:
       - uses: actions/checkout@v3
