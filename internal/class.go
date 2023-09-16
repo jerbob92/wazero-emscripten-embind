@@ -1182,6 +1182,7 @@ var RegisterSmartPtr = api.GoModuleFunc(func(ctx context.Context, mod api.Module
 		panic(fmt.Errorf("could not read constructorSignature: %w", err))
 	}
 
+	// @todo: figure out why this fails for some types. Why would some have a different signature?
 	//rawShareFunc, err := engine.newInvokeFunc(shareSignature, rawShare, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32})
 	//if err != nil {
 	//	panic(fmt.Errorf("could not read rawShare: %w", err))
@@ -1234,5 +1235,6 @@ var CreateInheritingConstructor = api.GoModuleFunc(func(ctx context.Context, mod
 	log.Println(constructorName)
 
 	// @todo: implement me.
+	// @todo: i can't get embind to call this.
 	panic("CreateInheritingConstructor call unimplemented")
 })
