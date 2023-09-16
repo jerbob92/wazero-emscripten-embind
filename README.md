@@ -30,6 +30,7 @@ But not everything is supported:
 * ASYNCIFY: does not make a lot of sense in Go, might come later to allow Async C++ implementations to work
 * EM_ASM/EM_JS (and related methods): naturally, you can't run JS in Go/Wazero. Since Go is not an interpreted language,
   I don't see much sense to add support for Go code in it, as that would require a Go interpreter.
+* Binding class method names to well-known symbols (which is something JS specific).
 
 ## What does Embind do?
 
