@@ -249,6 +249,15 @@ func (erc *classType) getNewInstance(ctx context.Context, record *registeredPoin
 	return classBase, nil
 }
 
+func (erc *classType) getDerivedClassesRecursive() []*classType {
+	derivedClasses := []*classType{}
+	for i := range erc.derivedClasses {
+		derivedClasses = append(derivedClasses, erc.derivedClasses[i])
+		derivedClasses = append(derivedClasses, erc.derivedClasses[i].getDerivedClassesRecursive()...)
+	}
+	return derivedClasses
+}
+
 type IClassType interface {
 	Name() string
 	Type() IType
@@ -277,6 +286,7 @@ type IClassTypeMethod interface {
 	ReturnType() IType
 	ArgumentTypes() []IType
 	IsOverload() bool
+	OverloadCount() int
 }
 
 func (erc *classType) Name() string {
@@ -323,6 +333,7 @@ func (erc *classType) Methods() []IClassTypeMethod {
 
 		if erc.methods[i].overloadTable != nil {
 			for overload := range erc.methods[i].overloadTable {
+				erc.methods[i].overloadTable[overload].overloadCount = len(erc.methods[i].overloadTable)
 				methods = append(methods, erc.methods[i].overloadTable[overload])
 			}
 		} else {
@@ -343,6 +354,7 @@ func (erc *classType) StaticMethods() []IClassTypeMethod {
 
 		if erc.methods[i].overloadTable != nil {
 			for overload := range erc.methods[i].overloadTable {
+				erc.methods[i].overloadTable[overload].overloadCount = len(erc.methods[i].overloadTable)
 				methods = append(methods, erc.methods[i].overloadTable[overload])
 			}
 		} else {
@@ -811,11 +823,13 @@ var RegisterClassFunction = api.GoModuleFunc(func(ctx context.Context, mod api.M
 				panic(fmt.Errorf("could not create _embind_register_class_function raw invoke func: %w", err))
 			}
 
+			fn := engine.craftInvokerFunction(humanName, argTypes, classType, rawInvokerFunc, contextPtr, isAsync > 0)
+
 			memberFunction := &publicSymbol{
 				name:          methodName,
 				resultType:    argTypes[0],
 				argumentTypes: argTypes[2:],
-				fn:            engine.craftInvokerFunction(humanName, argTypes, classType, rawInvokerFunc, contextPtr, isAsync > 0),
+				fn:            fn,
 			}
 
 			// Replace the initial unbound-handler-stub function with the appropriate member function, now that all types
@@ -827,6 +841,37 @@ var RegisterClassFunction = api.GoModuleFunc(func(ctx context.Context, mod api.M
 			} else {
 				memberFunction.isOverload = true
 				classType.registeredClass.methods[methodName].overloadTable[argCount-2] = memberFunction
+			}
+
+			derivesClasses := classType.registeredClass.getDerivedClassesRecursive()
+			if derivesClasses != nil {
+				for i := range derivesClasses {
+					derivedMemberFunction := &publicSymbol{
+						name:          methodName,
+						resultType:    argTypes[0],
+						argumentTypes: argTypes[2:],
+						fn:            fn,
+					}
+
+					derivedClass := derivesClasses[i]
+					_, ok := derivedClass.methods[methodName]
+					if !ok {
+						derivedMemberFunction.argCount = &newMethodArgCount
+						// This is the first function to be registered with this name.
+						derivedClass.methods[methodName] = derivedMemberFunction
+					} else {
+						// There was an existing function with the same name registered. Set up
+						// a function overload routing table.
+						engine.ensureOverloadTable(derivedClass.methods, methodName, humanName)
+						derivedMemberFunction.isOverload = true
+
+						// Do not override already registered methods.
+						_, ok := derivedClass.methods[methodName].overloadTable[argCount-2]
+						if !ok {
+							derivedClass.methods[methodName].overloadTable[argCount-2] = derivedMemberFunction
+						}
+					}
+				}
 			}
 
 			return []registeredType{}, nil
@@ -925,8 +970,9 @@ var RegisterClassClassFunction = api.GoModuleFunc(func(ctx context.Context, mod 
 				classType.registeredClass.methods[methodName].overloadTable[argCount-1] = memberFunction
 			}
 
-			if classType.registeredClass.derivedClasses != nil {
-				for i := range classType.registeredClass.derivedClasses {
+			derivesClasses := classType.registeredClass.getDerivedClassesRecursive()
+			if derivesClasses != nil {
+				for i := range derivesClasses {
 					derivedMemberFunction := &publicSymbol{
 						name:          methodName,
 						argumentTypes: argTypes[1:],
@@ -935,17 +981,23 @@ var RegisterClassClassFunction = api.GoModuleFunc(func(ctx context.Context, mod 
 						fn:            fn,
 					}
 
-					derivedClass := classType.registeredClass.derivedClasses[i]
+					derivedClass := derivesClasses[i]
 					_, ok := derivedClass.methods[methodName]
 					if !ok {
 						// This is the first function to be registered with this name.
+						derivedMemberFunction.argCount = &newArgCount
 						derivedClass.methods[methodName] = derivedMemberFunction
 					} else {
 						// There was an existing function with the same name registered. Set up
 						// a function overload routing table.
 						engine.ensureOverloadTable(derivedClass.methods, methodName, humanName)
 						derivedMemberFunction.isOverload = true
-						derivedClass.methods[methodName].overloadTable[argCount-1] = derivedMemberFunction
+
+						// Do not override already registered methods.
+						_, ok := derivedClass.methods[methodName].overloadTable[argCount-1]
+						if !ok {
+							derivedClass.methods[methodName].overloadTable[argCount-1] = derivedMemberFunction
+						}
 					}
 				}
 			}
@@ -1056,6 +1108,19 @@ var RegisterClassClassProperty = api.GoModuleFunc(func(ctx context.Context, mod 
 			}
 
 			classType.registeredClass.properties[fieldName] = desc
+
+			derivesClasses := classType.registeredClass.getDerivedClassesRecursive()
+			if derivesClasses != nil {
+				for i := range derivesClasses {
+					derivedClass := derivesClasses[i]
+
+					// Do not override already registered methods.
+					_, ok := derivedClass.properties[fieldName]
+					if !ok {
+						derivedClass.properties[fieldName] = desc
+					}
+				}
+			}
 
 			return []registeredType{}, err
 		})
@@ -1179,6 +1244,19 @@ var RegisterClassProperty = api.GoModuleFunc(func(ctx context.Context, mod api.M
 			}
 
 			classType.registeredClass.properties[fieldName] = desc
+
+			derivesClasses := classType.registeredClass.getDerivedClassesRecursive()
+			if derivesClasses != nil {
+				for i := range derivesClasses {
+					derivedClass := derivesClasses[i]
+
+					// Do not override already registered methods.
+					_, ok := derivedClass.properties[fieldName]
+					if !ok {
+						derivedClass.properties[fieldName] = desc
+					}
+				}
+			}
 
 			return []registeredType{}, err
 		})

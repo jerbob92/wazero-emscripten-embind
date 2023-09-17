@@ -1122,7 +1122,7 @@ var _ = Describe("Using embind classes", Label("library"), func() {
 var _ = Describe("Using the generator", Label("generator"), func() {
 	When("generating the code", func() {
 		It("succeeds generating the code", func() {
-			err := generator.Generate("./testdata/generator", "./testdata/generator/generate.go", wasmData, "_initialize")
+			err := generator.Generate("./tests/generated", "./tests/generated/generate.go", wasmData, "_initialize")
 			Expect(err).To(BeNil())
 		})
 	})

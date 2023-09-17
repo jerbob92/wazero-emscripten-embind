@@ -110,6 +110,24 @@ type ClassAbstractClassWithConstructorWrapper struct {
 	embind.ClassBase
 }
 
+func (class *ClassAbstractClassWithConstructorWrapper) AbstractMethod(ctx context.Context) (string, error) {
+	res, err := class.CallMethod(ctx, class, "abstractMethod")
+	if err != nil {
+		return "", err
+	}
+
+	return res.(string), nil
+}
+
+func (class *ClassAbstractClassWithConstructorWrapper) ConcreteMethod(ctx context.Context) (string, error) {
+	res, err := class.CallMethod(ctx, class, "concreteMethod")
+	if err != nil {
+		return "", err
+	}
+
+	return res.(string), nil
+}
+
 func (class *ClassAbstractClassWithConstructorWrapper) NotifyOnDestruction(ctx context.Context) error {
 	_, err := class.CallMethod(ctx, class, "notifyOnDestruction")
 	return err
@@ -137,8 +155,45 @@ type ClassAbstractClassWrapper struct {
 	embind.ClassBase
 }
 
+func (class *ClassAbstractClassWrapper) AbstractMethod(ctx context.Context) (string, error) {
+	res, err := class.CallMethod(ctx, class, "abstractMethod")
+	if err != nil {
+		return "", err
+	}
+
+	return res.(string), nil
+}
+
+func (class *ClassAbstractClassWrapper) ConcreteMethod(ctx context.Context) (string, error) {
+	res, err := class.CallMethod(ctx, class, "concreteMethod")
+	if err != nil {
+		return "", err
+	}
+
+	return res.(string), nil
+}
+
 func (class *ClassAbstractClassWrapper) NotifyOnDestruction(ctx context.Context) error {
 	_, err := class.CallMethod(ctx, class, "notifyOnDestruction")
+	return err
+}
+
+func (class *ClassAbstractClassWrapper) OptionalMethod(ctx context.Context, arg0 string) (string, error) {
+	res, err := class.CallMethod(ctx, class, "optionalMethod", arg0)
+	if err != nil {
+		return "", err
+	}
+
+	return res.(string), nil
+}
+
+func (class *ClassAbstractClassWrapper) PassShared(ctx context.Context, arg0 *ClassDerived) error {
+	_, err := class.CallMethod(ctx, class, "passShared", arg0)
+	return err
+}
+
+func (class *ClassAbstractClassWrapper) PassVal(ctx context.Context, arg0 any) error {
+	_, err := class.CallMethod(ctx, class, "passVal", arg0)
 	return err
 }
 
@@ -337,6 +392,11 @@ func ClassBaseClassStaticImplement(e embind.Engine, ctx context.Context, arg0 an
 
 type ClassBaseClassWrapper struct {
 	embind.ClassBase
+}
+
+func (class *ClassBaseClassWrapper) Invoke(ctx context.Context, arg0 string) error {
+	_, err := class.CallMethod(ctx, class, "invoke", arg0)
+	return err
 }
 
 func (class *ClassBaseClassWrapper) NotifyOnDestruction(ctx context.Context) error {
@@ -631,6 +691,18 @@ type ClassDerived struct {
 	embind.ClassBase
 }
 
+func (class *ClassDerived) GetPropertyBaseMember(ctx context.Context) (int32, error) {
+	res, err := class.GetProperty(ctx, class, "baseMember")
+	if err != nil {
+		return int32(0), err
+	}
+
+	return res.(int32), nil
+}
+func (class *ClassDerived) SetPropertyBaseMember(ctx context.Context, val int32) error {
+	return class.SetProperty(ctx, class, "baseMember", val)
+}
+
 func (class *ClassDerived) GetPropertyMember(ctx context.Context) (int32, error) {
 	res, err := class.GetProperty(ctx, class, "member")
 	if err != nil {
@@ -643,8 +715,35 @@ func (class *ClassDerived) SetPropertyMember(ctx context.Context, val int32) err
 	return class.SetProperty(ctx, class, "member", val)
 }
 
+func (class *ClassDerived) GetBaseMember(ctx context.Context) (int32, error) {
+	res, err := class.CallMethod(ctx, class, "getBaseMember")
+	if err != nil {
+		return int32(0), err
+	}
+
+	return res.(int32), nil
+}
+
 func (class *ClassDerived) GetClassName(ctx context.Context) (string, error) {
 	res, err := class.CallMethod(ctx, class, "getClassName")
+	if err != nil {
+		return "", err
+	}
+
+	return res.(string), nil
+}
+
+func (class *ClassDerived) GetClassNameFromBase(ctx context.Context) (string, error) {
+	res, err := class.CallMethod(ctx, class, "getClassNameFromBase")
+	if err != nil {
+		return "", err
+	}
+
+	return res.(string), nil
+}
+
+func (class *ClassDerived) GetClassNameNotAvailableInDerivedClasses(ctx context.Context) (string, error) {
+	res, err := class.CallMethod(ctx, class, "getClassNameNotAvailableInDerivedClasses")
 	if err != nil {
 		return "", err
 	}
@@ -661,12 +760,17 @@ func (class *ClassDerived) GetMember(ctx context.Context) (int32, error) {
 	return res.(int32), nil
 }
 
+func (class *ClassDerived) SetBaseMember(ctx context.Context, arg0 int32) error {
+	_, err := class.CallMethod(ctx, class, "setBaseMember", arg0)
+	return err
+}
+
 func (class *ClassDerived) SetMember(ctx context.Context, arg0 int32) error {
 	_, err := class.CallMethod(ctx, class, "setMember", arg0)
 	return err
 }
 
-func ClassDerivedStaticClassFunction0(e embind.Engine, ctx context.Context) (string, error) {
+func ClassDerivedStaticClassFunction(e embind.Engine, ctx context.Context) (string, error) {
 	res, err := e.CallStaticClassMethod(ctx, "Derived", "classFunction")
 	if err != nil {
 		return "", err
@@ -686,6 +790,11 @@ func NewClassDerived(e embind.Engine, ctx context.Context) (*ClassDerived, error
 
 type ClassDerivedClass struct {
 	embind.ClassBase
+}
+
+func (class *ClassDerivedClass) Invoke(ctx context.Context, arg0 string) error {
+	_, err := class.CallMethod(ctx, class, "invoke", arg0)
+	return err
 }
 
 func ClassDerivedClassStaticExtend(e embind.Engine, ctx context.Context, arg0 string, arg1 any) (any, error) {
@@ -751,6 +860,39 @@ type ClassDerivedThrice struct {
 	embind.ClassBase
 }
 
+func (class *ClassDerivedThrice) GetPropertyBaseMember(ctx context.Context) (int32, error) {
+	res, err := class.GetProperty(ctx, class, "baseMember")
+	if err != nil {
+		return int32(0), err
+	}
+
+	return res.(int32), nil
+}
+func (class *ClassDerivedThrice) SetPropertyBaseMember(ctx context.Context, val int32) error {
+	return class.SetProperty(ctx, class, "baseMember", val)
+}
+
+func (class *ClassDerivedThrice) GetPropertyMember(ctx context.Context) (int32, error) {
+	res, err := class.GetProperty(ctx, class, "member")
+	if err != nil {
+		return int32(0), err
+	}
+
+	return res.(int32), nil
+}
+func (class *ClassDerivedThrice) SetPropertyMember(ctx context.Context, val int32) error {
+	return class.SetProperty(ctx, class, "member", val)
+}
+
+func (class *ClassDerivedThrice) GetBaseMember(ctx context.Context) (int32, error) {
+	res, err := class.CallMethod(ctx, class, "getBaseMember")
+	if err != nil {
+		return int32(0), err
+	}
+
+	return res.(int32), nil
+}
+
 func (class *ClassDerivedThrice) GetClassName(ctx context.Context) (string, error) {
 	res, err := class.CallMethod(ctx, class, "getClassName")
 	if err != nil {
@@ -758,6 +900,43 @@ func (class *ClassDerivedThrice) GetClassName(ctx context.Context) (string, erro
 	}
 
 	return res.(string), nil
+}
+
+func (class *ClassDerivedThrice) GetClassNameFromBase(ctx context.Context) (string, error) {
+	res, err := class.CallMethod(ctx, class, "getClassNameFromBase")
+	if err != nil {
+		return "", err
+	}
+
+	return res.(string), nil
+}
+
+func (class *ClassDerivedThrice) GetClassNameNotAvailableInDerivedClasses(ctx context.Context) (string, error) {
+	res, err := class.CallMethod(ctx, class, "getClassNameNotAvailableInDerivedClasses")
+	if err != nil {
+		return "", err
+	}
+
+	return res.(string), nil
+}
+
+func (class *ClassDerivedThrice) GetMember(ctx context.Context) (int32, error) {
+	res, err := class.CallMethod(ctx, class, "getMember")
+	if err != nil {
+		return int32(0), err
+	}
+
+	return res.(int32), nil
+}
+
+func (class *ClassDerivedThrice) SetBaseMember(ctx context.Context, arg0 int32) error {
+	_, err := class.CallMethod(ctx, class, "setBaseMember", arg0)
+	return err
+}
+
+func (class *ClassDerivedThrice) SetMember(ctx context.Context, arg0 int32) error {
+	_, err := class.CallMethod(ctx, class, "setMember", arg0)
+	return err
 }
 
 func ClassDerivedThriceStaticClassFunction(e embind.Engine, ctx context.Context) (string, error) {
@@ -782,6 +961,39 @@ type ClassDerivedTwice struct {
 	embind.ClassBase
 }
 
+func (class *ClassDerivedTwice) GetPropertyBaseMember(ctx context.Context) (int32, error) {
+	res, err := class.GetProperty(ctx, class, "baseMember")
+	if err != nil {
+		return int32(0), err
+	}
+
+	return res.(int32), nil
+}
+func (class *ClassDerivedTwice) SetPropertyBaseMember(ctx context.Context, val int32) error {
+	return class.SetProperty(ctx, class, "baseMember", val)
+}
+
+func (class *ClassDerivedTwice) GetPropertyMember(ctx context.Context) (int32, error) {
+	res, err := class.GetProperty(ctx, class, "member")
+	if err != nil {
+		return int32(0), err
+	}
+
+	return res.(int32), nil
+}
+func (class *ClassDerivedTwice) SetPropertyMember(ctx context.Context, val int32) error {
+	return class.SetProperty(ctx, class, "member", val)
+}
+
+func (class *ClassDerivedTwice) GetBaseMember(ctx context.Context) (int32, error) {
+	res, err := class.CallMethod(ctx, class, "getBaseMember")
+	if err != nil {
+		return int32(0), err
+	}
+
+	return res.(int32), nil
+}
+
 func (class *ClassDerivedTwice) GetClassName(ctx context.Context) (string, error) {
 	res, err := class.CallMethod(ctx, class, "getClassName")
 	if err != nil {
@@ -789,6 +1001,43 @@ func (class *ClassDerivedTwice) GetClassName(ctx context.Context) (string, error
 	}
 
 	return res.(string), nil
+}
+
+func (class *ClassDerivedTwice) GetClassNameFromBase(ctx context.Context) (string, error) {
+	res, err := class.CallMethod(ctx, class, "getClassNameFromBase")
+	if err != nil {
+		return "", err
+	}
+
+	return res.(string), nil
+}
+
+func (class *ClassDerivedTwice) GetClassNameNotAvailableInDerivedClasses(ctx context.Context) (string, error) {
+	res, err := class.CallMethod(ctx, class, "getClassNameNotAvailableInDerivedClasses")
+	if err != nil {
+		return "", err
+	}
+
+	return res.(string), nil
+}
+
+func (class *ClassDerivedTwice) GetMember(ctx context.Context) (int32, error) {
+	res, err := class.CallMethod(ctx, class, "getMember")
+	if err != nil {
+		return int32(0), err
+	}
+
+	return res.(int32), nil
+}
+
+func (class *ClassDerivedTwice) SetBaseMember(ctx context.Context, arg0 int32) error {
+	_, err := class.CallMethod(ctx, class, "setBaseMember", arg0)
+	return err
+}
+
+func (class *ClassDerivedTwice) SetMember(ctx context.Context, arg0 int32) error {
+	_, err := class.CallMethod(ctx, class, "setMember", arg0)
+	return err
 }
 
 func ClassDerivedTwiceStaticClassFunction(e embind.Engine, ctx context.Context) (string, error) {
@@ -813,6 +1062,30 @@ type ClassDerivedWithMixin struct {
 	embind.ClassBase
 }
 
+func (class *ClassDerivedWithMixin) GetPropertyBaseMember(ctx context.Context) (int32, error) {
+	res, err := class.GetProperty(ctx, class, "baseMember")
+	if err != nil {
+		return int32(0), err
+	}
+
+	return res.(int32), nil
+}
+func (class *ClassDerivedWithMixin) SetPropertyBaseMember(ctx context.Context, val int32) error {
+	return class.SetProperty(ctx, class, "baseMember", val)
+}
+
+func (class *ClassDerivedWithMixin) GetPropertyMember(ctx context.Context) (int32, error) {
+	res, err := class.GetProperty(ctx, class, "member")
+	if err != nil {
+		return int32(0), err
+	}
+
+	return res.(int32), nil
+}
+func (class *ClassDerivedWithMixin) SetPropertyMember(ctx context.Context, val int32) error {
+	return class.SetProperty(ctx, class, "member", val)
+}
+
 func (class *ClassDerivedWithMixin) Get10(ctx context.Context) (int32, error) {
 	res, err := class.CallMethod(ctx, class, "get10")
 	if err != nil {
@@ -820,6 +1093,61 @@ func (class *ClassDerivedWithMixin) Get10(ctx context.Context) (int32, error) {
 	}
 
 	return res.(int32), nil
+}
+
+func (class *ClassDerivedWithMixin) GetBaseMember(ctx context.Context) (int32, error) {
+	res, err := class.CallMethod(ctx, class, "getBaseMember")
+	if err != nil {
+		return int32(0), err
+	}
+
+	return res.(int32), nil
+}
+
+func (class *ClassDerivedWithMixin) GetClassName(ctx context.Context) (string, error) {
+	res, err := class.CallMethod(ctx, class, "getClassName")
+	if err != nil {
+		return "", err
+	}
+
+	return res.(string), nil
+}
+
+func (class *ClassDerivedWithMixin) GetClassNameFromBase(ctx context.Context) (string, error) {
+	res, err := class.CallMethod(ctx, class, "getClassNameFromBase")
+	if err != nil {
+		return "", err
+	}
+
+	return res.(string), nil
+}
+
+func (class *ClassDerivedWithMixin) GetClassNameNotAvailableInDerivedClasses(ctx context.Context) (string, error) {
+	res, err := class.CallMethod(ctx, class, "getClassNameNotAvailableInDerivedClasses")
+	if err != nil {
+		return "", err
+	}
+
+	return res.(string), nil
+}
+
+func (class *ClassDerivedWithMixin) GetMember(ctx context.Context) (int32, error) {
+	res, err := class.CallMethod(ctx, class, "getMember")
+	if err != nil {
+		return int32(0), err
+	}
+
+	return res.(int32), nil
+}
+
+func (class *ClassDerivedWithMixin) SetBaseMember(ctx context.Context, arg0 int32) error {
+	_, err := class.CallMethod(ctx, class, "setBaseMember", arg0)
+	return err
+}
+
+func (class *ClassDerivedWithMixin) SetMember(ctx context.Context, arg0 int32) error {
+	_, err := class.CallMethod(ctx, class, "setMember", arg0)
+	return err
 }
 
 func ClassDerivedWithMixinStaticClassFunction(e embind.Engine, ctx context.Context) (string, error) {
@@ -842,6 +1170,85 @@ func NewClassDerivedWithMixin(e embind.Engine, ctx context.Context) (*ClassDeriv
 
 type ClassDerivedWithOffset struct {
 	embind.ClassBase
+}
+
+func (class *ClassDerivedWithOffset) GetPropertyBaseMember(ctx context.Context) (int32, error) {
+	res, err := class.GetProperty(ctx, class, "baseMember")
+	if err != nil {
+		return int32(0), err
+	}
+
+	return res.(int32), nil
+}
+func (class *ClassDerivedWithOffset) SetPropertyBaseMember(ctx context.Context, val int32) error {
+	return class.SetProperty(ctx, class, "baseMember", val)
+}
+
+func (class *ClassDerivedWithOffset) GetPropertyMember(ctx context.Context) (int32, error) {
+	res, err := class.GetProperty(ctx, class, "member")
+	if err != nil {
+		return int32(0), err
+	}
+
+	return res.(int32), nil
+}
+func (class *ClassDerivedWithOffset) SetPropertyMember(ctx context.Context, val int32) error {
+	return class.SetProperty(ctx, class, "member", val)
+}
+
+func (class *ClassDerivedWithOffset) GetBaseMember(ctx context.Context) (int32, error) {
+	res, err := class.CallMethod(ctx, class, "getBaseMember")
+	if err != nil {
+		return int32(0), err
+	}
+
+	return res.(int32), nil
+}
+
+func (class *ClassDerivedWithOffset) GetClassName(ctx context.Context) (string, error) {
+	res, err := class.CallMethod(ctx, class, "getClassName")
+	if err != nil {
+		return "", err
+	}
+
+	return res.(string), nil
+}
+
+func (class *ClassDerivedWithOffset) GetClassNameFromBase(ctx context.Context) (string, error) {
+	res, err := class.CallMethod(ctx, class, "getClassNameFromBase")
+	if err != nil {
+		return "", err
+	}
+
+	return res.(string), nil
+}
+
+func (class *ClassDerivedWithOffset) GetClassNameNotAvailableInDerivedClasses(ctx context.Context) (string, error) {
+	res, err := class.CallMethod(ctx, class, "getClassNameNotAvailableInDerivedClasses")
+	if err != nil {
+		return "", err
+	}
+
+	return res.(string), nil
+}
+
+func (class *ClassDerivedWithOffset) GetMember(ctx context.Context) (int32, error) {
+	res, err := class.CallMethod(ctx, class, "getMember")
+	if err != nil {
+		return int32(0), err
+	}
+
+	return res.(int32), nil
+}
+
+func (class *ClassDerivedWithOffset) SetBaseMember(ctx context.Context, arg0 int32) error {
+	_, err := class.CallMethod(ctx, class, "setBaseMember", arg0)
+	return err
+}
+
+func (class *ClassDerivedWithOffset) SetMember(ctx context.Context, arg0 int32) error {
+	_, err := class.CallMethod(ctx, class, "setMember", arg0)
+	return err
 }
 
 func ClassDerivedWithOffsetStaticClassFunction(e embind.Engine, ctx context.Context) (string, error) {
@@ -1082,6 +1489,27 @@ type ClassHasTwoBases struct {
 	embind.ClassBase
 }
 
+func (class *ClassHasTwoBases) GetPropertyField(ctx context.Context) (string, error) {
+	res, err := class.GetProperty(ctx, class, "field")
+	if err != nil {
+		return "", err
+	}
+
+	return res.(string), nil
+}
+func (class *ClassHasTwoBases) SetPropertyField(ctx context.Context, val string) error {
+	return class.SetProperty(ctx, class, "field", val)
+}
+
+func (class *ClassHasTwoBases) GetField(ctx context.Context) (string, error) {
+	res, err := class.CallMethod(ctx, class, "getField")
+	if err != nil {
+		return "", err
+	}
+
+	return res.(string), nil
+}
+
 func NewClassHasTwoBases(e embind.Engine, ctx context.Context) (*ClassHasTwoBases, error) {
 	res, err := e.CallPublicSymbol(ctx, "HasTwoBases")
 	if err != nil {
@@ -1093,6 +1521,15 @@ func NewClassHasTwoBases(e embind.Engine, ctx context.Context) (*ClassHasTwoBase
 
 type ClassHeldAbstractClass struct {
 	embind.ClassBase
+}
+
+func (class *ClassHeldAbstractClass) GetClassName(ctx context.Context) (string, error) {
+	res, err := class.CallMethod(ctx, class, "getClassName")
+	if err != nil {
+		return "", err
+	}
+
+	return res.(string), nil
 }
 
 func (class *ClassHeldAbstractClass) Method(ctx context.Context) error {
@@ -1120,6 +1557,20 @@ func ClassHeldAbstractClassStaticImplement(e embind.Engine, ctx context.Context,
 
 type ClassHeldAbstractClassWrapper struct {
 	embind.ClassBase
+}
+
+func (class *ClassHeldAbstractClassWrapper) GetClassName(ctx context.Context) (string, error) {
+	res, err := class.CallMethod(ctx, class, "getClassName")
+	if err != nil {
+		return "", err
+	}
+
+	return res.(string), nil
+}
+
+func (class *ClassHeldAbstractClassWrapper) Method(ctx context.Context) error {
+	_, err := class.CallMethod(ctx, class, "method")
+	return err
 }
 
 func (class *ClassHeldAbstractClassWrapper) NotifyOnDestruction(ctx context.Context) error {
@@ -1397,6 +1848,11 @@ func ClassInterfaceStaticImplement(e embind.Engine, ctx context.Context, arg0 an
 
 type ClassInterfaceWrapper struct {
 	embind.ClassBase
+}
+
+func (class *ClassInterfaceWrapper) Invoke(ctx context.Context, arg0 string) error {
+	_, err := class.CallMethod(ctx, class, "invoke", arg0)
+	return err
 }
 
 func (class *ClassInterfaceWrapper) NotifyOnDestruction(ctx context.Context) error {
@@ -1725,6 +2181,24 @@ type ClassMultipleOverloadsDerived struct {
 	embind.ClassBase
 }
 
+func (class *ClassMultipleOverloadsDerived) Func1(ctx context.Context, arg0 int32) (int32, error) {
+	res, err := class.CallMethod(ctx, class, "Func", arg0)
+	if err != nil {
+		return int32(0), err
+	}
+
+	return res.(int32), nil
+}
+
+func (class *ClassMultipleOverloadsDerived) Func2(ctx context.Context, arg0 int32, arg1 int32) (int32, error) {
+	res, err := class.CallMethod(ctx, class, "Func", arg0, arg1)
+	if err != nil {
+		return int32(0), err
+	}
+
+	return res.(int32), nil
+}
+
 func (class *ClassMultipleOverloadsDerived) Func3(ctx context.Context, arg0 int32, arg1 int32, arg2 int32) (int32, error) {
 	res, err := class.CallMethod(ctx, class, "Func", arg0, arg1, arg2)
 	if err != nil {
@@ -1736,6 +2210,15 @@ func (class *ClassMultipleOverloadsDerived) Func3(ctx context.Context, arg0 int3
 
 func (class *ClassMultipleOverloadsDerived) Func4(ctx context.Context, arg0 int32, arg1 int32, arg2 int32, arg3 int32) (int32, error) {
 	res, err := class.CallMethod(ctx, class, "Func", arg0, arg1, arg2, arg3)
+	if err != nil {
+		return int32(0), err
+	}
+
+	return res.(int32), nil
+}
+
+func (class *ClassMultipleOverloadsDerived) WhichFuncCalled(ctx context.Context) (int32, error) {
+	res, err := class.CallMethod(ctx, class, "WhichFuncCalled")
 	if err != nil {
 		return int32(0), err
 	}
@@ -1832,6 +2315,39 @@ type ClassMultiplyDerived struct {
 	embind.ClassBase
 }
 
+func (class *ClassMultiplyDerived) GetPropertyBaseMember(ctx context.Context) (int32, error) {
+	res, err := class.GetProperty(ctx, class, "baseMember")
+	if err != nil {
+		return int32(0), err
+	}
+
+	return res.(int32), nil
+}
+func (class *ClassMultiplyDerived) SetPropertyBaseMember(ctx context.Context, val int32) error {
+	return class.SetProperty(ctx, class, "baseMember", val)
+}
+
+func (class *ClassMultiplyDerived) GetPropertyMember(ctx context.Context) (int32, error) {
+	res, err := class.GetProperty(ctx, class, "member")
+	if err != nil {
+		return int32(0), err
+	}
+
+	return res.(int32), nil
+}
+func (class *ClassMultiplyDerived) SetPropertyMember(ctx context.Context, val int32) error {
+	return class.SetProperty(ctx, class, "member", val)
+}
+
+func (class *ClassMultiplyDerived) GetBaseMember(ctx context.Context) (int32, error) {
+	res, err := class.CallMethod(ctx, class, "getBaseMember")
+	if err != nil {
+		return int32(0), err
+	}
+
+	return res.(int32), nil
+}
+
 func (class *ClassMultiplyDerived) GetClassName(ctx context.Context) (string, error) {
 	res, err := class.CallMethod(ctx, class, "getClassName")
 	if err != nil {
@@ -1839,6 +2355,43 @@ func (class *ClassMultiplyDerived) GetClassName(ctx context.Context) (string, er
 	}
 
 	return res.(string), nil
+}
+
+func (class *ClassMultiplyDerived) GetClassNameFromBase(ctx context.Context) (string, error) {
+	res, err := class.CallMethod(ctx, class, "getClassNameFromBase")
+	if err != nil {
+		return "", err
+	}
+
+	return res.(string), nil
+}
+
+func (class *ClassMultiplyDerived) GetClassNameNotAvailableInDerivedClasses(ctx context.Context) (string, error) {
+	res, err := class.CallMethod(ctx, class, "getClassNameNotAvailableInDerivedClasses")
+	if err != nil {
+		return "", err
+	}
+
+	return res.(string), nil
+}
+
+func (class *ClassMultiplyDerived) GetMember(ctx context.Context) (int32, error) {
+	res, err := class.CallMethod(ctx, class, "getMember")
+	if err != nil {
+		return int32(0), err
+	}
+
+	return res.(int32), nil
+}
+
+func (class *ClassMultiplyDerived) SetBaseMember(ctx context.Context, arg0 int32) error {
+	_, err := class.CallMethod(ctx, class, "setBaseMember", arg0)
+	return err
+}
+
+func (class *ClassMultiplyDerived) SetMember(ctx context.Context, arg0 int32) error {
+	_, err := class.CallMethod(ctx, class, "setMember", arg0)
+	return err
 }
 
 func ClassMultiplyDerivedStaticClassFunction(e embind.Engine, ctx context.Context) (string, error) {
@@ -2125,6 +2678,15 @@ func (class *ClassPolyDerivedThrice) GetClassName(ctx context.Context) (string, 
 	return res.(string), nil
 }
 
+func (class *ClassPolyDerivedThrice) VirtualGetClassName(ctx context.Context) (string, error) {
+	res, err := class.CallMethod(ctx, class, "virtualGetClassName")
+	if err != nil {
+		return "", err
+	}
+
+	return res.(string), nil
+}
+
 func ClassPolyDerivedThriceStaticGetPtrClassName(e embind.Engine, ctx context.Context) (string, error) {
 	res, err := e.CallStaticClassMethod(ctx, "PolyDerivedThrice", "getPtrClassName")
 	if err != nil {
@@ -2254,6 +2816,15 @@ func (class *ClassPolyMultiplyDerived) GetClassName(ctx context.Context) (string
 	return res.(string), nil
 }
 
+func (class *ClassPolyMultiplyDerived) VirtualGetClassName(ctx context.Context) (string, error) {
+	res, err := class.CallMethod(ctx, class, "virtualGetClassName")
+	if err != nil {
+		return "", err
+	}
+
+	return res.(string), nil
+}
+
 func NewClassPolyMultiplyDerived(e embind.Engine, ctx context.Context) (*ClassPolyMultiplyDerived, error) {
 	res, err := e.CallPublicSymbol(ctx, "PolyMultiplyDerived")
 	if err != nil {
@@ -2291,6 +2862,15 @@ type ClassPolySiblingDerived struct {
 
 func (class *ClassPolySiblingDerived) GetClassName(ctx context.Context) (string, error) {
 	res, err := class.CallMethod(ctx, class, "getClassName")
+	if err != nil {
+		return "", err
+	}
+
+	return res.(string), nil
+}
+
+func (class *ClassPolySiblingDerived) VirtualGetClassName(ctx context.Context) (string, error) {
+	res, err := class.CallMethod(ctx, class, "virtualGetClassName")
 	if err != nil {
 		return "", err
 	}

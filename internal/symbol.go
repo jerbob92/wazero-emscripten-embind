@@ -11,6 +11,7 @@ type ISymbol interface {
 	ReturnType() IType
 	ArgumentTypes() []IType
 	IsOverload() bool
+	OverloadCount() int
 }
 
 type publicSymbol struct {
@@ -23,6 +24,7 @@ type publicSymbol struct {
 	resultType    registeredType
 	isStatic      bool
 	isOverload    bool
+	overloadCount int
 }
 
 func (ps *publicSymbol) Symbol() string {
@@ -38,6 +40,10 @@ func (ps *publicSymbol) ReturnType() IType {
 
 func (ps *publicSymbol) IsOverload() bool {
 	return ps.isOverload
+}
+
+func (ps *publicSymbol) OverloadCount() int {
+	return ps.overloadCount
 }
 
 func (ps *publicSymbol) ArgumentTypes() []IType {
@@ -73,6 +79,7 @@ func (e *engine) GetSymbols() []ISymbol {
 	for i := range e.publicSymbols {
 		if e.publicSymbols[i].overloadTable != nil {
 			for argCount := range e.publicSymbols[i].overloadTable {
+				e.publicSymbols[i].overloadTable[argCount].overloadCount = len(e.publicSymbols[i].overloadTable)
 				symbols = append(symbols, e.publicSymbols[i].overloadTable[argCount])
 			}
 		} else {

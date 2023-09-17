@@ -181,7 +181,7 @@ func Generate(dir string, fileName string, wasm []byte, initFunction string) err
 		}
 
 		goName := generateGoName(symbols[i].Symbol())
-		if symbols[i].IsOverload() {
+		if symbols[i].IsOverload() && symbols[i].OverloadCount() > 1 {
 			goName += strconv.Itoa(len(argumentTypes))
 		}
 
@@ -345,7 +345,7 @@ func Generate(dir string, fileName string, wasm []byte, initFunction string) err
 			}
 
 			goName := generateGoName(methods[mi].Symbol())
-			if methods[mi].IsOverload() {
+			if methods[mi].IsOverload() && methods[mi].OverloadCount() > 1 {
 				goName += strconv.Itoa(len(argumentTypes))
 			}
 
@@ -378,7 +378,7 @@ func Generate(dir string, fileName string, wasm []byte, initFunction string) err
 			}
 
 			goName := generateGoName(staticMethods[smi].Symbol())
-			if staticMethods[smi].IsOverload() {
+			if staticMethods[smi].IsOverload() && staticMethods[smi].OverloadCount() > 1 {
 				goName += strconv.Itoa(len(argumentTypes))
 			}
 
