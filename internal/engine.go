@@ -25,6 +25,7 @@ type engine struct {
 	registeredEnums      map[string]*enumType
 	registeredPointers   map[int32]*registeredPointer
 	registeredClasses    map[string]*classType
+	registeredClassTypes map[reflect.Type]*classType
 	registeredTuples     map[int32]*registeredTuple
 	registeredObjects    map[int32]*registeredObject
 	registeredInstances  map[uint32]IClassBase
@@ -107,7 +108,8 @@ func (e *engine) RegisterClass(name string, class any) error {
 		return fmt.Errorf("could not register class %s with type %T, it does not embed embind.ClassBase", name, class)
 	}
 
-	if reflect.TypeOf(class).Kind() != reflect.Ptr {
+	reflectClassType := reflect.TypeOf(class)
+	if reflectClassType.Kind() != reflect.Ptr {
 		return fmt.Errorf("could not register class %s with type %T, given value should be a pointer type", name, class)
 	}
 
@@ -132,6 +134,8 @@ func (e *engine) RegisterClass(name string, class any) error {
 		e.registeredClasses[name].goStruct = nil
 		e.registeredClasses[name].hasGoStruct = false
 	}
+
+	e.registeredClassTypes[reflectClassType] = e.registeredClasses[name]
 
 	return err
 }

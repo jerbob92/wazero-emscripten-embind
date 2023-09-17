@@ -11,9 +11,34 @@ import (
 type {{ $class.GoName }} struct {
     embind.ClassBase
 }
+
+func (class *{{ $class.GoName }}) Clone(ctx context.Context) (*{{ $class.GoName }}, error) {
+	res, err := class.CloneInstance(ctx, class)
+	if err != nil {
+		return nil, err
+	}
+	return res.(*{{ $class.GoName }}), nil
+}
+
+func (class *{{ $class.GoName }}) Delete(ctx context.Context) error {
+	return class.DeleteInstance(ctx, class)
+}
+
+func (class *{{ $class.GoName }}) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
+	return class.CallInstanceMethod(ctx, class, name, arguments...)
+}
+
+func (class *{{ $class.GoName }}) SetProperty(ctx context.Context, name string, value any) error {
+	return class.SetInstanceProperty(ctx, class, name, value)
+}
+
+func (class *{{ $class.GoName }}) GetProperty(ctx context.Context, name string) (any, error) {
+	return class.GetInstanceProperty(ctx, class, name)
+}
+
 {{ range $index, $property := $class.Properties }}
 func (class *{{ $class.GoName }}) GetProperty{{ $property.GoName }}(ctx context.Context) ({{ $property.GetterType }}, error)  {
-    res, err := class.GetProperty(ctx, class, "{{ $property.Name }}")
+    res, err := class.GetProperty(ctx, "{{ $property.Name }}")
     if err != nil {
         return {{ $property.ErrorValue }}, err
     }
@@ -22,14 +47,14 @@ func (class *{{ $class.GoName }}) GetProperty{{ $property.GoName }}(ctx context.
 }
 {{ if not ($property.ReadOnly) -}}
 func (class *{{ $class.GoName }}) SetProperty{{ $property.GoName }}(ctx context.Context, val {{ $property.SetterType }}) error  {
-    return class.SetProperty(ctx, class, "{{ $property.Name }}", val)
+    return class.SetProperty(ctx, "{{ $property.Name }}", val)
 }
 {{ end }}
 {{ end }}
 {{ range $index, $method := $class.Methods }}
 {{ if $method.ReturnType }}
 func (class *{{ $class.GoName }}) {{ $method.GoName }}(ctx context.Context{{ range $index, $argumentType := $method.ArgumentTypes -}}, arg{{ $index }} {{ $argumentType }}{{ end }}) ({{ $method.ReturnType }}, error)  {
-    res, err := class.CallMethod(ctx, class, "{{ $method.Name }}"{{ range $index, $argumentType := $method.ArgumentTypes -}}, arg{{ $index }}{{ end }})
+    res, err := class.CallMethod(ctx, "{{ $method.Name }}"{{ range $index, $argumentType := $method.ArgumentTypes -}}, arg{{ $index }}{{ end }})
     if err != nil {
         return {{ $method.ErrorValue }}, err
     }
@@ -38,13 +63,21 @@ func (class *{{ $class.GoName }}) {{ $method.GoName }}(ctx context.Context{{ ran
 }
 {{ else }}
 func (class *{{ $class.GoName }}) {{ $method.GoName }}(ctx context.Context{{ range $index, $argumentType := $method.ArgumentTypes -}}, arg{{ $index }} {{ $argumentType }}{{ end }}) error {
-    _, err := class.CallMethod(ctx, class, "{{ $method.Name }}"{{ range $index, $argumentType := $method.ArgumentTypes -}}, arg{{ $index }}{{ end }})
+    _, err := class.CallMethod(ctx, "{{ $method.Name }}"{{ range $index, $argumentType := $method.ArgumentTypes -}}, arg{{ $index }}{{ end }})
     return err
 }
 {{ end }}
 {{ end }}
 {{ range $index, $method := $class.StaticMethods }}
 {{ if $method.ReturnType }}
+func (class *{{ $class.GoName }}) Static{{ $method.GoName }}(ctx context.Context{{ range $index, $argumentType := $method.ArgumentTypes -}}, arg{{ $index }} {{ $argumentType }}{{ end }}) ({{ $method.ReturnType }}, error)  {
+    res, err := class.CallInstanceMethod(ctx, nil, "{{ $method.Name }}"{{ range $index, $argumentType := $method.ArgumentTypes -}}, arg{{ $index }}{{ end }})
+    if err != nil {
+        return {{ $method.ErrorValue }}, err
+    }
+
+    return res.({{ $method.ReturnType }}), nil
+}
 func {{ $class.GoName }}Static{{ $method.GoName }}(e embind.Engine, ctx context.Context{{ range $index, $argumentType := $method.ArgumentTypes -}}, arg{{ $index }} {{ $argumentType }}{{ end }}) ({{ $method.ReturnType }}, error)  {
     res, err := e.CallStaticClassMethod(ctx, "{{ $class.Name }}", "{{ $method.Name }}"{{ range $index, $argumentType := $method.ArgumentTypes -}}, arg{{ $index }}{{ end }})
     if err != nil {
@@ -54,6 +87,10 @@ func {{ $class.GoName }}Static{{ $method.GoName }}(e embind.Engine, ctx context.
     return res.({{ $method.ReturnType }}), nil
 }
 {{ else }}
+func (class *{{ $class.GoName }}) Static{{ $method.GoName }}(ctx context.Context{{ range $index, $argumentType := $method.ArgumentTypes -}}, arg{{ $index }} {{ $argumentType }}{{ end }}) error {
+    _, err := class.CallInstanceMethod(ctx, nil, "{{ $method.Name }}"{{ range $index, $argumentType := $method.ArgumentTypes -}}, arg{{ $index }}{{ end }})
+    return err
+}
 func {{ $class.GoName }}Static{{ $method.GoName }}(e embind.Engine, ctx context.Context{{ range $index, $argumentType := $method.ArgumentTypes -}}, arg{{ $index }} {{ $argumentType }}{{ end }}) error {
     _, err := e.CallStaticClassMethod(ctx, "{{ $class.Name }}", "{{ $method.Name }}"{{ range $index, $argumentType := $method.ArgumentTypes -}}, arg{{ $index }}{{ end }})
     return err
@@ -61,6 +98,14 @@ func {{ $class.GoName }}Static{{ $method.GoName }}(e embind.Engine, ctx context.
 {{ end }}
 {{ end }}
 {{ range $index, $property := $class.StaticProperties }}
+func (class *{{ $class.GoName }}) GetStaticProperty{{ $property.GoName }}(ctx context.Context) ({{ $property.GetterType }}, error)  {
+    res, err := class.GetInstanceProperty(ctx, nil, "{{ $property.Name }}")
+    if err != nil {
+        return {{ $property.ErrorValue }}, err
+    }
+
+    return res.({{ $property.GetterType }}), nil
+}
 func {{ $class.GoName }}GetStaticProperty{{ $property.GoName }}(e embind.Engine, ctx context.Context) ({{ $property.GetterType }}, error)  {
     res, err := e.GetStaticClassProperty(ctx, "{{ $class.Name }}", "{{ $property.Name }}")
     if err != nil {
@@ -70,6 +115,9 @@ func {{ $class.GoName }}GetStaticProperty{{ $property.GoName }}(e embind.Engine,
     return res.({{ $property.GetterType }}), nil
 }
 {{ if not ($property.ReadOnly) -}}
+func (class *{{ $class.GoName }}) SetStaticProperty{{ $property.GoName }}(ctx context.Context, val {{ $property.SetterType }}) error  {
+    return class.SetInstanceProperty(ctx, nil, "{{ $property.Name }}", val)
+}
 func {{ $class.GoName }}SetStaticProperty{{ $property.GoName }}(e embind.Engine, ctx context.Context, val {{ $property.SetterType }}) error  {
     return e.SetStaticClassProperty(ctx, "{{ $class.Name }}", "{{ $property.Name }}", val)
 }

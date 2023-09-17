@@ -495,25 +495,25 @@ var _ = Describe("Calling embind functions", Label("library"), func() {
 				Expect(res).To(Not(BeNil()))
 				Expect(res).To(BeAssignableToTypeOf(&embind.ClassBase{}))
 				if obj, ok := res.(*embind.ClassBase); ok {
-					size, err := obj.CallMethod(ctx, obj, "size")
+					size, err := obj.CallInstanceMethod(ctx, obj, "size")
 					Expect(err).To(BeNil())
 					Expect(size).To(Equal(uint32(10)))
 
-					_, err = obj.CallMethod(ctx, obj, "resize", uint32(12), int32(1))
+					_, err = obj.CallInstanceMethod(ctx, obj, "resize", uint32(12), int32(1))
 					Expect(err).To(BeNil())
 
-					size, err = obj.CallMethod(ctx, obj, "size")
+					size, err = obj.CallInstanceMethod(ctx, obj, "size")
 					Expect(err).To(BeNil())
 					Expect(size).To(Equal(uint32(12)))
 
-					val, err := obj.CallMethod(ctx, obj, "get", uint32(1))
+					val, err := obj.CallInstanceMethod(ctx, obj, "get", uint32(1))
 					Expect(err).To(BeNil())
 					Expect(val).To(Equal(int32(1)))
 
-					_, err = obj.CallMethod(ctx, obj, "set", uint32(1), int32(2))
+					_, err = obj.CallInstanceMethod(ctx, obj, "set", uint32(1), int32(2))
 					Expect(err).To(BeNil())
 
-					val, err = obj.CallMethod(ctx, obj, "get", uint32(1))
+					val, err = obj.CallInstanceMethod(ctx, obj, "get", uint32(1))
 					Expect(err).To(BeNil())
 					Expect(val).To(Equal(int32(2)))
 				}
@@ -527,15 +527,15 @@ var _ = Describe("Calling embind functions", Label("library"), func() {
 				Expect(res).To(Not(BeNil()))
 				Expect(res).To(BeAssignableToTypeOf(&embind.ClassBase{}))
 				if obj, ok := res.(*embind.ClassBase); ok {
-					size, err := obj.CallMethod(ctx, obj, "size")
+					size, err := obj.CallInstanceMethod(ctx, obj, "size")
 					Expect(err).To(BeNil())
 					Expect(size).To(Equal(uint32(1)))
 
-					val, err := obj.CallMethod(ctx, obj, "get", int32(10))
+					val, err := obj.CallInstanceMethod(ctx, obj, "get", int32(10))
 					Expect(err).To(BeNil())
 					Expect(val).To(Equal("This is a string."))
 
-					val, err = obj.CallMethod(ctx, obj, "get", int32(1))
+					val, err = obj.CallInstanceMethod(ctx, obj, "get", int32(1))
 					Expect(err).To(BeNil())
 					Expect(val).To(Equal(types.Undefined))
 				}
@@ -909,14 +909,14 @@ var _ = Describe("Using embind classes", Label("library"), func() {
 
 			AfterEach(func() {
 				if myClass != nil {
-					err := myClass.Delete(ctx, myClass)
+					err := myClass.DeleteInstance(ctx, myClass)
 					Expect(err).To(BeNil())
 				}
 			})
 
 			Context("when calling functions", func() {
 				It("gives an error on an unknown function", func() {
-					res, err := myClass.CallMethod(ctx, myClass, "unknown", 1, 2, 3)
+					res, err := myClass.CallInstanceMethod(ctx, myClass, "unknown", 1, 2, 3)
 					Expect(err).To(Not(BeNil()))
 					if err != nil {
 						Expect(err.Error()).To(ContainSubstring("method unknown is not found"))
@@ -925,7 +925,7 @@ var _ = Describe("Using embind classes", Label("library"), func() {
 				})
 
 				It("gives an error on a function with a wrong argument count", func() {
-					res, err := myClass.CallMethod(ctx, myClass, "combineY", 1, 2, 3)
+					res, err := myClass.CallInstanceMethod(ctx, myClass, "combineY", 1, 2, 3)
 					Expect(err).To(Not(BeNil()))
 					if err != nil {
 						Expect(err.Error()).To(ContainSubstring("called with 3 argument(s), expected 1 arg(s)"))
@@ -934,7 +934,7 @@ var _ = Describe("Using embind classes", Label("library"), func() {
 				})
 
 				It("gives an error on a function with a wrong argument", func() {
-					res, err := myClass.CallMethod(ctx, myClass, "combineY", 1)
+					res, err := myClass.CallInstanceMethod(ctx, myClass, "combineY", 1)
 					Expect(err).To(Not(BeNil()))
 					if err != nil {
 						Expect(err.Error()).To(ContainSubstring("could not get wire type of argument 0 (std::string): value must be of type string"))
@@ -943,14 +943,14 @@ var _ = Describe("Using embind classes", Label("library"), func() {
 				})
 
 				It("can call the method correctly", func() {
-					res, err := myClass.CallMethod(ctx, myClass, "combineY", "hello ")
+					res, err := myClass.CallInstanceMethod(ctx, myClass, "combineY", "hello ")
 					Expect(err).To(BeNil())
 					Expect(res).To(Equal("hello test"))
 				})
 
 				Context("that have overloads", func() {
 					It("fails when giving an invalid overload", func() {
-						res, err := myClass.CallMethod(ctx, myClass, "incrementX", 1, 2, 3)
+						res, err := myClass.CallInstanceMethod(ctx, myClass, "incrementX", 1, 2, 3)
 						Expect(err).To(Not(BeNil()))
 						if err != nil {
 							Expect(err.Error()).To(ContainSubstring("called with an invalid number of arguments (3) - expects one of (0, 1)"))
@@ -959,11 +959,11 @@ var _ = Describe("Using embind classes", Label("library"), func() {
 					})
 
 					It("works with each of the overloads", func() {
-						res, err := myClass.CallMethod(ctx, myClass, "incrementX", int32(1))
+						res, err := myClass.CallInstanceMethod(ctx, myClass, "incrementX", int32(1))
 						Expect(err).To(BeNil())
 						Expect(res).To(BeNil())
 
-						res, err = myClass.CallMethod(ctx, myClass, "incrementX")
+						res, err = myClass.CallInstanceMethod(ctx, myClass, "incrementX")
 						Expect(err).To(BeNil())
 						Expect(res).To(BeNil())
 					})
@@ -971,14 +971,14 @@ var _ = Describe("Using embind classes", Label("library"), func() {
 			})
 			Context("when calling setters/getters", func() {
 				It("gives an error on an unknown property", func() {
-					res, err := myClass.GetProperty(ctx, myClass, "test")
+					res, err := myClass.GetInstanceProperty(ctx, myClass, "test")
 					Expect(err).To(Not(BeNil()))
 					if err != nil {
 						Expect(err.Error()).To(ContainSubstring("property test is not found"))
 					}
 					Expect(res).To(BeNil())
 
-					err = myClass.SetProperty(ctx, myClass, "test", 123)
+					err = myClass.SetInstanceProperty(ctx, myClass, "test", 123)
 					Expect(err).To(Not(BeNil()))
 					if err != nil {
 						Expect(err.Error()).To(ContainSubstring("property test is not found"))
@@ -987,7 +987,7 @@ var _ = Describe("Using embind classes", Label("library"), func() {
 				})
 
 				It("gives an error when setting on a readonly property", func() {
-					err := myClass.SetProperty(ctx, myClass, "y", "")
+					err := myClass.SetInstanceProperty(ctx, myClass, "y", "")
 					Expect(err).To(Not(BeNil()))
 					if err != nil {
 						Expect(err.Error()).To(ContainSubstring("is read-only"))
@@ -995,7 +995,7 @@ var _ = Describe("Using embind classes", Label("library"), func() {
 				})
 
 				It("gives an error when setting with a wrong argument", func() {
-					err := myClass.SetProperty(ctx, myClass, "x", "")
+					err := myClass.SetInstanceProperty(ctx, myClass, "x", "")
 					Expect(err).To(Not(BeNil()))
 					if err != nil {
 						Expect(err.Error()).To(ContainSubstring("value must be of type int32, is string"))
@@ -1003,16 +1003,16 @@ var _ = Describe("Using embind classes", Label("library"), func() {
 				})
 
 				It("allows setting and getting a property", func() {
-					err := myClass.SetProperty(ctx, myClass, "x", int32(3))
+					err := myClass.SetInstanceProperty(ctx, myClass, "x", int32(3))
 					Expect(err).To(BeNil())
 
-					res, err := myClass.GetProperty(ctx, myClass, "x")
+					res, err := myClass.GetInstanceProperty(ctx, myClass, "x")
 					Expect(err).To(BeNil())
 					Expect(res).To(Equal(int32(3)))
 				})
 
 				It("allows getting a property", func() {
-					res, err := myClass.GetProperty(ctx, myClass, "x")
+					res, err := myClass.GetInstanceProperty(ctx, myClass, "x")
 					Expect(err).To(BeNil())
 					Expect(res).To(Equal(int32(123)))
 				})

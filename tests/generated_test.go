@@ -116,7 +116,7 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 			derived, err := generated.NewClassDerived(engine, ctx)
 			Expect(err).To(BeNil())
 			Expect(derived.GetClassName(ctx)).To(Equal("Derived"))
-			err = derived.Delete(ctx, derived)
+			err = derived.Delete(ctx)
 			Expect(err).To(BeNil())
 		})
 
@@ -124,7 +124,7 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 			derived, err := generated.NewClassDerived(engine, ctx)
 			Expect(err).To(BeNil())
 			Expect(derived.GetClassNameFromBase(ctx)).To(Equal("Base"))
-			err = derived.Delete(ctx, derived)
+			err = derived.Delete(ctx)
 			Expect(err).To(BeNil())
 		})
 
@@ -132,7 +132,7 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 			derivedTwice, err := generated.NewClassDerivedTwice(engine, ctx)
 			Expect(err).To(BeNil())
 			Expect(derivedTwice.GetClassNameFromBase(ctx)).To(Equal("Base"))
-			err = derivedTwice.Delete(ctx, derivedTwice)
+			err = derivedTwice.Delete(ctx)
 			Expect(err).To(BeNil())
 		})
 
@@ -140,7 +140,7 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 			derivedThrice, err := generated.NewClassDerivedThrice(engine, ctx)
 			Expect(err).To(BeNil())
 			Expect(derivedThrice.GetClassNameFromBase(ctx)).To(Equal("Base"))
-			err = derivedThrice.Delete(ctx, derivedThrice)
+			err = derivedThrice.Delete(ctx)
 			Expect(err).To(BeNil())
 		})
 
@@ -158,7 +158,7 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 			Expect(err).To(BeNil())
 			Expect(member).To(Equal(int32(17)))
 
-			err = derived.Delete(ctx, derived)
+			err = derived.Delete(ctx)
 			Expect(err).To(BeNil())
 		})
 		It("can reference base property from derived class for get", func() {
@@ -172,7 +172,7 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 			Expect(err).To(BeNil())
 			Expect(member).To(Equal(int32(5)))
 
-			err = derived.Delete(ctx, derived)
+			err = derived.Delete(ctx)
 			Expect(err).To(BeNil())
 		})
 
@@ -187,7 +187,7 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 			Expect(err).To(BeNil())
 			Expect(member).To(Equal(int32(11)))
 
-			err = derived.Delete(ctx, derived)
+			err = derived.Delete(ctx)
 			Expect(err).To(BeNil())
 		})
 
@@ -202,7 +202,7 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 			Expect(err).To(BeNil())
 			Expect(member).To(Equal(int32(32)))
 
-			err = derived.Delete(ctx, derived)
+			err = derived.Delete(ctx)
 			Expect(err).To(BeNil())
 		})
 
@@ -217,7 +217,7 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 			Expect(err).To(BeNil())
 			Expect(member).To(Equal(int32(32)))
 
-			err = derived.Delete(ctx, derived)
+			err = derived.Delete(ctx)
 			Expect(err).To(BeNil())
 		})
 
@@ -228,7 +228,7 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 			err = derived.SetMember(ctx, 12)
 			Expect(err).To(BeNil())
 
-			err = derived.Delete(ctx, derived)
+			err = derived.Delete(ctx)
 			Expect(err).To(BeNil())
 		})
 
@@ -236,10 +236,12 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 			derived, err := generated.HasTwoBases(engine, ctx)
 			Expect(err).To(BeNil())
 
-			getField, err := derived.GetField(ctx)
+			derivedClass := derived.(*generated.ClassHasTwoBases)
+
+			getField, err := derivedClass.GetField(ctx)
 			Expect(getField).To(Equal("Base2"))
 
-			err = derived.Delete(ctx, derived)
+			err = derivedClass.Delete(ctx)
 			Expect(err).To(BeNil())
 		})
 
@@ -247,16 +249,18 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 			derived, err := generated.HasTwoBases(engine, ctx)
 			Expect(err).To(BeNil())
 
-			err = derived.SetPropertyField(ctx, "Foo")
+			derivedClass := derived.(*generated.ClassHasTwoBases)
+
+			err = derivedClass.SetPropertyField(ctx, "Foo")
 			Expect(err).To(BeNil())
 
-			getField, err := derived.GetField(ctx)
+			getField, err := derivedClass.GetField(ctx)
 			Expect(getField).To(Equal("Foo"))
 
-			getFieldProperty, err := derived.GetPropertyField(ctx)
+			getFieldProperty, err := derivedClass.GetPropertyField(ctx)
 			Expect(getFieldProperty).To(Equal("Foo"))
 
-			err = derived.Delete(ctx, derived)
+			err = derivedClass.Delete(ctx)
 			Expect(err).To(BeNil())
 		})
 
@@ -345,224 +349,380 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 	})
 
 	When("automatic upcasting of parameters passed to C++", func() {
-		// @todo: implement me properly.
-		/*
-			It("raw pointer argument is upcast to parameter type", func() {
-				derived, err := generated.NewClassDerived(engine, ctx)
-				Expect(err).To(BeNil())
+		It("raw pointer argument is upcast to parameter type", func() {
+			derived, err := generated.NewClassDerived(engine, ctx)
+			Expect(err).To(BeNil())
 
-				name, err := generated.Embind_test_get_class_name_via_base_ptr(engine, ctx, derived)
-				Expect(err).To(BeNil())
-				Expect(name).To(Equal("Base"))
-				err = derived.Delete(ctx, derived)
-				Expect(err).To(BeNil())
-			})
+			name, err := generated.Embind_test_get_class_name_via_base_ptr(engine, ctx, derived)
+			Expect(err).To(BeNil())
+			Expect(name).To(Equal("Base"))
+			err = derived.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
 
-			It("automatic raw pointer upcasting works with multiple inheritance", func() {
-				derived, err := generated.NewClassMultiplyDerived(engine, ctx)
-				Expect(err).To(BeNil())
+		It("automatic raw pointer upcasting works with multiple inheritance", func() {
+			derived, err := generated.NewClassMultiplyDerived(engine, ctx)
+			Expect(err).To(BeNil())
 
-				name, err := generated.Embind_test_get_class_name_via_base_ptr(engine, ctx, derived)
-				Expect(err).To(BeNil())
-				Expect(name).To(Equal("Base"))
-				err = derived.Delete(ctx, derived)
-				Expect(err).To(BeNil())
-			})
+			name, err := generated.Embind_test_get_class_name_via_base_ptr(engine, ctx, derived)
+			Expect(err).To(BeNil())
+			Expect(name).To(Equal("Base"))
+			err = derived.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
 
-			It("automatic raw pointer upcasting does not change local pointer", func() {
-				derived, err := generated.NewClassMultiplyDerived(engine, ctx)
-				Expect(err).To(BeNil())
+		It("automatic raw pointer upcasting does not change local pointer", func() {
+			derived, err := generated.NewClassMultiplyDerived(engine, ctx)
+			Expect(err).To(BeNil())
 
-				_, err = generated.Embind_test_get_class_name_via_base_ptr(engine, ctx, derived)
-				Expect(err).To(BeNil())
+			_, err = generated.Embind_test_get_class_name_via_base_ptr(engine, ctx, derived)
+			Expect(err).To(BeNil())
 
-				name, err := derived.GetClassName(ctx)
-				Expect(err).To(BeNil())
-				Expect(name).To(Equal("MultiplyDerived"))
+			name, err := derived.GetClassName(ctx)
+			Expect(err).To(BeNil())
+			Expect(name).To(Equal("MultiplyDerived"))
 
-				err = derived.Delete(ctx, derived)
-				Expect(err).To(BeNil())
-			})*/
+			err = derived.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
 
-		/*
-		 test("passing incompatible raw pointer to method throws exception", function() {
-		            var base = new cm.Base();
-		            assert.throws(cm.BindingError, function() {
-		                cm.embind_test_get_class_name_via_second_base_ptr(base);
-		            });
-		            base.delete();
-		        });
+		It("passing incompatible raw pointer to method throws exception", func() {
+			base, err := generated.NewClassBase(engine, ctx)
+			Expect(err).To(BeNil())
 
-		        // raw polymorphic
-		        test("polymorphic raw pointer argument is upcast to parameter type", function() {
-		            var derived = new cm.PolyDerived();
-		            var name = cm.embind_test_get_class_name_via_polymorphic_base_ptr(derived);
-		            assert.equal("PolyBase", name);
-		            derived.delete();
-		        });
+			_, err = generated.Embind_test_get_class_name_via_second_base_ptr(engine, ctx, base)
+			Expect(err).To(Not(BeNil()))
+			if err != nil {
+				Expect(err.Error()).To(ContainSubstring("expected null or instance of SecondBase, got an instance of Base"))
+			}
 
-		        test("automatic polymorphic raw pointer upcasting works with multiple inheritance", function() {
-		            var derived = new cm.PolyMultiplyDerived();
-		            var name = cm.embind_test_get_class_name_via_polymorphic_base_ptr(derived);
-		            assert.equal("PolyBase", name);
-		            derived.delete();
-		        });
+			err = base.Delete(ctx)
+			Expect(err).To(BeNil())
 
-		        test("passing incompatible raw polymorphic pointer to method throws exception", function() {
-		            var base = new cm.PolyBase();
-		            assert.throws(cm.BindingError, function() {
-		                cm.embind_test_get_class_name_via_polymorphic_second_base_ptr(base);
-		            });
-		            base.delete();
+		})
 
-		        });
+		// raw polymorphic
+		It("polymorphic raw pointer argument is upcast to parameter type", func() {
+			// @todo: fix me.
+			/*derived, err := generated.NewClassPolyDerived(engine, ctx)
+			Expect(err).To(BeNil())
 
-		        // smart
-		        test("can pass smart pointer to raw pointer parameter", function() {
-		            var smartBase = cm.embind_test_return_smart_base_ptr();
-		            assert.equal("Base", cm.embind_test_get_class_name_via_base_ptr(smartBase));
-		            smartBase.delete();
-		        });
+			_, err = generated.Embind_test_get_class_name_via_polymorphic_base_ptr(engine, ctx, derived)
+			Expect(err).To(BeNil())
 
-		        test("can pass and upcast smart pointer to raw pointer parameter", function() {
-		            var smartDerived = cm.embind_test_return_smart_derived_ptr();
-		            assert.equal("Base", cm.embind_test_get_class_name_via_base_ptr(smartDerived));
-		            smartDerived.delete();
-		        });
+			name, err := derived.GetClassName(ctx)
+			Expect(err).To(BeNil())
+			Expect(name).To(Equal("PolyBase"))
 
-		        test("smart pointer argument is upcast to parameter type", function() {
-		            var derived = cm.embind_test_return_smart_derived_ptr();
-		            assert.instanceof(derived, cm.Derived);
-		            assert.instanceof(derived, cm.Base);
-		            var name = cm.embind_test_get_class_name_via_smart_base_ptr(derived);
-		            assert.equal("Base", name);
-		            derived.delete();
-		        });
+			err = derived.Delete(ctx)
+			Expect(err).To(BeNil())*/
+		})
 
-		        test("return smart derived ptr as base", function() {
-		            var derived = cm.embind_test_return_smart_derived_ptr_as_base();
-		            assert.equal("PolyDerived", cm.embind_test_get_virtual_class_name_via_smart_polymorphic_base_ptr(derived));
-		            assert.equal("PolyDerived", derived.getClassName());
-		            derived.delete();
-		        });
+		It("automatic polymorphic raw pointer upcasting works with multiple inheritance", func() {
+			derived, err := generated.NewClassPolyMultiplyDerived(engine, ctx)
+			Expect(err).To(BeNil())
 
-		        test("return smart derived ptr as val", function() {
-		            var derived = cm.embind_test_return_smart_derived_ptr_as_val();
-		            assert.equal("PolyDerived", cm.embind_test_get_virtual_class_name_via_smart_polymorphic_base_ptr(derived));
-		            derived.delete();
-		        });
+			name, err := generated.Embind_test_get_class_name_via_polymorphic_base_ptr(engine, ctx, derived)
+			Expect(err).To(BeNil())
+			Expect(name).To(Equal("PolyBase"))
 
-		        test("automatic smart pointer upcasting works with multiple inheritance", function() {
-		            var derived = cm.embind_test_return_smart_multiply_derived_ptr();
-		            var name = cm.embind_test_get_class_name_via_smart_base_ptr(derived);
-		            assert.equal("Base", name);
-		            derived.delete();
-		        });
+			err = derived.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
 
-		        test("automatically upcasted smart pointer parameter shares ownership with original argument", function() {
-		            var derived = cm.embind_test_return_smart_multiply_derived_ptr();
-		            assert.equal(1, cm.MultiplyDerived.getInstanceCount());
-		            cm.embind_save_smart_base_pointer(derived);
-		            assert.equal(1, cm.MultiplyDerived.getInstanceCount());
-		            derived.delete();
-		            assert.equal(1, cm.MultiplyDerived.getInstanceCount());
-		            cm.embind_save_smart_base_pointer(null);
-		            assert.equal(0, cm.MultiplyDerived.getInstanceCount());
-		        });
+		It("passing incompatible raw polymorphic pointer to method throws exception", func() {
+			base, err := generated.NewClassPolyBase(engine, ctx)
+			Expect(err).To(BeNil())
 
-		        // smart polymorphic
-		        test("smart polymorphic pointer argument is upcast to parameter type", function() {
-		            var derived = cm.embind_test_return_smart_polymorphic_derived_ptr();
-		            var name = cm.embind_test_get_class_name_via_smart_polymorphic_base_ptr(derived);
-		            assert.equal("PolyBase", name);
-		            derived.delete();
-		        });
+			_, err = generated.Embind_test_get_class_name_via_polymorphic_second_base_ptr(engine, ctx, base)
+			Expect(err).To(Not(BeNil()))
+			if err != nil {
+				Expect(err.Error()).To(ContainSubstring("expected null or instance of PolySecondBase, got an instance of PolyBase"))
+			}
 
-		        test("automatic smart polymorphic pointer upcasting works with multiple inheritance", function() {
-		            var derived = cm.embind_test_return_smart_polymorphic_multiply_derived_ptr();
-		            var name = cm.embind_test_get_class_name_via_smart_polymorphic_base_ptr(derived);
-		            assert.equal("PolyBase", name);
-		            derived.delete();
-		        });
-		*/
+			err = base.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
+
+		// smart
+		It("can pass smart pointer to raw pointer parameter", func() {
+			smartBase, err := generated.Embind_test_return_smart_base_ptr(engine, ctx)
+			Expect(err).To(BeNil())
+
+			name, err := generated.Embind_test_get_class_name_via_base_ptr(engine, ctx, smartBase)
+			Expect(err).To(BeNil())
+			Expect(name).To(Equal("Base"))
+
+			err = smartBase.(*generated.ClassBase).Delete(ctx)
+			Expect(err).To(BeNil())
+		})
+
+		It("can pass and upcast smart pointer to raw pointer parameter", func() {
+			smartDerived, err := generated.Embind_test_return_smart_derived_ptr(engine, ctx)
+			Expect(err).To(BeNil())
+
+			name, err := generated.Embind_test_get_class_name_via_base_ptr(engine, ctx, smartDerived)
+			Expect(err).To(BeNil())
+			Expect(name).To(Equal("Base"))
+
+			err = smartDerived.(*generated.ClassDerived).Delete(ctx)
+			Expect(err).To(BeNil())
+		})
+
+		It("smart pointer argument is upcast to parameter type", func() {
+			derived, err := generated.Embind_test_return_smart_derived_ptr(engine, ctx)
+			Expect(err).To(BeNil())
+
+			// Todo: can we implement these?
+			//assert.instanceof(derived, cm.Derived)
+			//assert.instanceof(derived, cm.Base)
+
+			name, err := generated.Embind_test_get_class_name_via_smart_base_ptr(engine, ctx, derived)
+			Expect(err).To(BeNil())
+			Expect(name).To(Equal("Base"))
+
+			err = derived.(*generated.ClassDerived).Delete(ctx)
+			Expect(err).To(BeNil())
+		})
+
+		It("return smart derived ptr as base", func() {
+			derived, err := generated.Embind_test_return_smart_derived_ptr_as_base(engine, ctx)
+			Expect(err).To(BeNil())
+
+			name, err := generated.Embind_test_get_virtual_class_name_via_smart_polymorphic_base_ptr(engine, ctx, derived)
+			Expect(err).To(BeNil())
+			Expect(name).To(Equal("PolyDerived"))
+
+			name, err = derived.(*generated.ClassPolyDerived).GetClassName(ctx)
+			Expect(err).To(BeNil())
+			Expect(name).To(Equal("PolyDerived"))
+
+			err = derived.(*generated.ClassPolyDerived).Delete(ctx)
+			Expect(err).To(BeNil())
+		})
+
+		It("return smart derived ptr as val", func() {
+			derived, err := generated.Embind_test_return_smart_derived_ptr_as_val(engine, ctx)
+			Expect(err).To(BeNil())
+
+			name, err := generated.Embind_test_get_virtual_class_name_via_smart_polymorphic_base_ptr(engine, ctx, derived.(*generated.ClassPolyDerived))
+			Expect(err).To(BeNil())
+			Expect(name).To(Equal("PolyDerived"))
+
+			err = derived.(*generated.ClassPolyDerived).Delete(ctx)
+			Expect(err).To(BeNil())
+		})
+
+		It("automatic smart pointer upcasting works with multiple inheritance", func() {
+			derived, err := generated.Embind_test_return_smart_multiply_derived_ptr(engine, ctx)
+			Expect(err).To(BeNil())
+
+			name, err := generated.Embind_test_get_class_name_via_smart_base_ptr(engine, ctx, derived)
+			Expect(err).To(BeNil())
+			Expect(name).To(Equal("Base"))
+
+			err = derived.(*generated.ClassMultiplyDerived).Delete(ctx)
+			Expect(err).To(BeNil())
+		})
+
+		It("automatically upcasted smart pointer parameter shares ownership with original argument", func() {
+			derived, err := generated.Embind_test_return_smart_multiply_derived_ptr(engine, ctx)
+			Expect(err).To(BeNil())
+
+			instanceCount, err := derived.(*generated.ClassMultiplyDerived).StaticGetInstanceCount(ctx)
+			Expect(err).To(BeNil())
+			Expect(instanceCount).To(Equal(int32(1)))
+
+			err = generated.Embind_save_smart_base_pointer(engine, ctx, derived)
+			Expect(err).To(BeNil())
+
+			instanceCount, err = derived.(*generated.ClassMultiplyDerived).StaticGetInstanceCount(ctx)
+			Expect(err).To(BeNil())
+			Expect(instanceCount).To(Equal(int32(1)))
+
+			err = derived.(*generated.ClassMultiplyDerived).Delete(ctx)
+			Expect(err).To(BeNil())
+
+			instanceCount, err = derived.(*generated.ClassMultiplyDerived).StaticGetInstanceCount(ctx)
+			Expect(err).To(BeNil())
+			Expect(instanceCount).To(Equal(int32(1)))
+
+			err = generated.Embind_save_smart_base_pointer(engine, ctx, nil)
+			Expect(err).To(BeNil())
+
+			instanceCount, err = derived.(*generated.ClassMultiplyDerived).StaticGetInstanceCount(ctx)
+			Expect(err).To(BeNil())
+			Expect(instanceCount).To(Equal(int32(0)))
+		})
+
+		// smart polymorphic
+		It("smart polymorphic pointer argument is upcast to parameter type", func() {
+			derived, err := generated.Embind_test_return_smart_polymorphic_derived_ptr(engine, ctx)
+			Expect(err).To(BeNil())
+
+			name, err := generated.Embind_test_get_class_name_via_smart_polymorphic_base_ptr(engine, ctx, derived)
+			Expect(err).To(BeNil())
+			Expect(name).To(Equal("PolyBase"))
+
+			err = derived.(*generated.ClassPolyDerived).Delete(ctx)
+			Expect(err).To(BeNil())
+		})
+
+		It("automatic smart polymorphic pointer upcasting works with multiple inheritance", func() {
+			derived, err := generated.Embind_test_return_smart_polymorphic_multiply_derived_ptr(engine, ctx)
+			Expect(err).To(BeNil())
+
+			name, err := generated.Embind_test_get_class_name_via_smart_polymorphic_base_ptr(engine, ctx, derived)
+			Expect(err).To(BeNil())
+			Expect(name).To(Equal("PolyBase"))
+
+			err = derived.(*generated.ClassPolyMultiplyDerived).Delete(ctx)
+			Expect(err).To(BeNil())
+		})
+
 	})
 	When("automatic downcasting of return values received from C++", func() {
-		/*
-		   // raw
-		   test("non-polymorphic raw pointers are not downcast and do not break automatic casting mechanism", function() {
-		       var base = cm.embind_test_return_raw_derived_ptr_as_base();
-		       assert.equal("Base", base.getClassName());
-		       assert.instanceof(base, cm.Base);
-		       base.delete();
-		   });
+		// raw
+		It("non-polymorphic raw pointers are not downcast and do not break automatic casting mechanism", func() {
+			base, err := generated.Embind_test_return_raw_derived_ptr_as_base(engine, ctx)
+			Expect(err).To(BeNil())
 
-		   // raw polymorphic
-		   test("polymorphic raw pointer return value is downcast to allocated type (if that is bound)", function() {
-		       var derived = cm.embind_test_return_raw_polymorphic_derived_ptr_as_base();
-		       assert.instanceof(derived, cm.PolyBase);
-		       assert.instanceof(derived, cm.PolyDerived);
-		       assert.equal("PolyDerived", derived.getClassName());
-		       var siblingDerived = cm.embind_test_return_raw_polymorphic_sibling_derived_ptr_as_base();
-		       assert.equal("PolySiblingDerived", siblingDerived.getClassName());
-		       siblingDerived.delete();
-		       derived.delete();
-		   });
+			name, err := base.(*generated.ClassBase).GetClassName(ctx)
+			Expect(err).To(BeNil())
+			Expect(name).To(Equal("Base"))
 
-		   test("polymorphic raw pointer return value is downcast to the most derived bound type", function() {
-		       var derivedThrice = cm.embind_test_return_raw_polymorphic_derived_four_times_not_bound_as_base();
-		       // if the actual returned type is not bound, then don't assume anything
-		       assert.equal("PolyBase", derivedThrice.getClassName());
-		       // if we ever fix this, then reverse the assertion
-		       //assert.equal("PolyDerivedThrice", derivedThrice.getClassName());
-		       derivedThrice.delete();
-		   });
+			err = base.(*generated.ClassBase).Delete(ctx)
+			Expect(err).To(BeNil())
+		})
 
-		   test("polymorphic smart pointer return value is downcast to the most derived type which has an associated smart pointer", function() {
-		       var derived = cm.embind_test_return_poly_derived_twice_without_smart_pointer_as_poly_base();
-		       // if the actual returned type is not bound, then don't assume anything
-		       assert.equal("PolyBase", derived.getClassName());
-		       // if we ever fix this, then remove the assertion
-		       //assert.equal("PolyDerived", derived.getClassName());
-		       derived.delete();
-		   });
+		// raw polymorphic
+		It("polymorphic raw pointer return value is downcast to allocated type (if that is bound)", func() {
+			derived, err := generated.Embind_test_return_raw_polymorphic_derived_ptr_as_base(engine, ctx)
+			Expect(err).To(BeNil())
 
-		   test("automatic downcasting works with multiple inheritance", function() {
-		       var base = cm.embind_test_return_raw_polymorphic_multiply_derived_ptr_as_base();
-		       var secondBase = cm.embind_test_return_raw_polymorphic_multiply_derived_ptr_as_second_base();
-		       assert.equal("PolyMultiplyDerived", base.getClassName());
-		       // embind does not support multiple inheritance
-		       //assert.equal("PolyMultiplyDerived", secondBase.getClassName());
-		       secondBase.delete();
-		       base.delete();
-		   });
+			name, err := derived.(*generated.ClassPolyDerived).GetClassName(ctx)
+			Expect(err).To(BeNil())
+			Expect(name).To(Equal("PolyDerived"))
 
-		   // smart
-		   test("non-polymorphic smart pointers do not break automatic casting mechanism", function() {
-		   });
+			//assert.instanceof(derived, cm.PolyBase)
+			//assert.instanceof(derived, cm.PolyDerived)
 
-		   // smart polymorphic
-		   test("automatically downcasting a smart pointer does not change the underlying pointer", function() {
-		       cm.PolyDerived.setPtrDerived();
-		       assert.equal("PolyBase", cm.PolyDerived.getPtrClassName());
-		       var derived = cm.PolyDerived.getPtr();
-		       assert.equal("PolyDerived", derived.getClassName());
-		       assert.equal("PolyBase", cm.PolyDerived.getPtrClassName());
-		       derived.delete();
-		       cm.PolyDerived.releasePtr();
-		   });
+			siblingDerived, err := generated.Embind_test_return_raw_polymorphic_sibling_derived_ptr_as_base(engine, ctx)
+			Expect(err).To(BeNil())
 
-		   test("polymorphic smart pointer return value is actual allocated type (when bound)", function() {
-		       var derived = cm.embind_test_return_smart_polymorphic_derived_ptr_as_base();
-		       assert.equal("PolyDerived", derived.getClassName());
+			name, err = siblingDerived.(*generated.ClassPolySiblingDerived).GetClassName(ctx)
+			Expect(err).To(BeNil())
+			Expect(name).To(Equal("PolySiblingDerived"))
 
-		       var siblingDerived = cm.embind_test_return_smart_polymorphic_sibling_derived_ptr_as_base();
-		       assert.equal("PolySiblingDerived", siblingDerived.getClassName());
+			err = siblingDerived.(*generated.ClassPolySiblingDerived).Delete(ctx)
+			Expect(err).To(BeNil())
 
-		       siblingDerived.delete();
-		       derived.delete();
-		   });
+			err = derived.(*generated.ClassPolyDerived).Delete(ctx)
+			Expect(err).To(BeNil())
+		})
 
-		*/
+		It("polymorphic raw pointer return value is downcast to the most derived bound type", func() {
+			derivedThrice, err := generated.Embind_test_return_raw_polymorphic_derived_four_times_not_bound_as_base(engine, ctx)
+			Expect(err).To(BeNil())
+
+			// if the actual returned type is not bound, then don't assume anything
+			name, err := derivedThrice.(*generated.ClassPolyBase).GetClassName(ctx)
+			Expect(err).To(BeNil())
+			Expect(name).To(Equal("PolyBase"))
+
+			// if we ever fix this, then reverse the assertion (comment from Emscripten)
+			//assert.equal("PolyDerivedThrice", derivedThrice.getClassName());
+
+			err = derivedThrice.(*generated.ClassPolyBase).Delete(ctx)
+			Expect(err).To(BeNil())
+		})
+
+		It("polymorphic smart pointer return value is downcast to the most derived type which has an associated smart pointer", func() {
+			derived, err := generated.Embind_test_return_poly_derived_twice_without_smart_pointer_as_poly_base(engine, ctx)
+			Expect(err).To(BeNil())
+
+			// if the actual returned type is not bound, then don't assume anything
+			name, err := derived.(*generated.ClassPolyBase).GetClassName(ctx)
+			Expect(err).To(BeNil())
+			Expect(name).To(Equal("PolyBase"))
+
+			// if we ever fix this, then reverse the assertion (comment from Emscripten)
+			//assert.equal("PolyDerived", derivedThrice.getClassName());
+
+			err = derived.(*generated.ClassPolyBase).Delete(ctx)
+			Expect(err).To(BeNil())
+		})
+
+		It("automatic downcasting works with multiple inheritance", func() {
+			base, err := generated.Embind_test_return_raw_polymorphic_multiply_derived_ptr_as_base(engine, ctx)
+			Expect(err).To(BeNil())
+
+			secondBase, err := generated.Embind_test_return_raw_polymorphic_multiply_derived_ptr_as_second_base(engine, ctx)
+			Expect(err).To(BeNil())
+
+			name, err := base.(*generated.ClassPolyMultiplyDerived).GetClassName(ctx)
+			Expect(err).To(BeNil())
+			Expect(name).To(Equal("PolyMultiplyDerived"))
+
+			// embind does not support multiple inheritance
+			//assert.equal("PolyMultiplyDerived", secondBase.getClassName());
+
+			err = secondBase.(*generated.ClassPolySecondBase).Delete(ctx)
+			Expect(err).To(BeNil())
+
+			err = base.(*generated.ClassPolyMultiplyDerived).Delete(ctx)
+			Expect(err).To(BeNil())
+		})
+
+		// smart polymorphic
+		It("automatically downcasting a smart pointer does not change the underlying pointer", func() {
+			err := generated.ClassPolyDerivedStaticSetPtrDerived(engine, ctx)
+			Expect(err).To(BeNil())
+
+			name, err := generated.ClassPolyDerivedStaticGetPtrClassName(engine, ctx)
+			Expect(err).To(BeNil())
+			Expect(name).To(Equal("PolyBase"))
+
+			derived, err := generated.ClassPolyDerivedStaticGetPtr(engine, ctx)
+			Expect(err).To(BeNil())
+
+			name, err = derived.(*generated.ClassPolyDerived).GetClassName(ctx)
+			Expect(err).To(BeNil())
+			Expect(name).To(Equal("PolyDerived"))
+
+			name, err = generated.ClassPolyDerivedStaticGetPtrClassName(engine, ctx)
+			Expect(err).To(BeNil())
+			Expect(name).To(Equal("PolyBase"))
+
+			err = derived.(*generated.ClassPolyDerived).Delete(ctx)
+			Expect(err).To(BeNil())
+
+			err = generated.ClassPolyDerivedStaticReleasePtr(engine, ctx)
+			Expect(err).To(BeNil())
+		})
+
+		It("polymorphic smart pointer return value is actual allocated type (when bound)", func() {
+			derived, err := generated.Embind_test_return_smart_polymorphic_derived_ptr_as_base(engine, ctx)
+			Expect(err).To(BeNil())
+
+			name, err := derived.(*generated.ClassPolyDerived).GetClassName(ctx)
+			Expect(err).To(BeNil())
+			Expect(name).To(Equal("PolyDerived"))
+
+			siblingDerived, err := generated.Embind_test_return_smart_polymorphic_sibling_derived_ptr_as_base(engine, ctx)
+			Expect(err).To(BeNil())
+
+			name, err = siblingDerived.(*generated.ClassPolySiblingDerived).GetClassName(ctx)
+			Expect(err).To(BeNil())
+			Expect(name).To(Equal("PolySiblingDerived"))
+
+			err = siblingDerived.(*generated.ClassPolySiblingDerived).Delete(ctx)
+			Expect(err).To(BeNil())
+
+			err = derived.(*generated.ClassPolyDerived).Delete(ctx)
+			Expect(err).To(BeNil())
+		})
+
 	})
 	When("string", func() {
 		/*

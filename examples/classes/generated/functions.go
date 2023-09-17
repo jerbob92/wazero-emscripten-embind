@@ -7,15 +7,15 @@ import (
 	"github.com/jerbob92/wazero-emscripten-embind"
 )
 
-func MyClass(e embind.Engine, ctx context.Context) (*ClassMyClass, error) {
+func MyClass(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "MyClass")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassMyClass), nil
+	return res.(embind.ClassBase), nil
 }
 
-func PrintMyClass(e embind.Engine, ctx context.Context, arg0 *ClassMyClass) error {
+func PrintMyClass(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) error {
 	_, err := e.CallPublicSymbol(ctx, "printMyClass", arg0)
 	return err
 }

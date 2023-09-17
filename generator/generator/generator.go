@@ -120,11 +120,14 @@ func Generate(dir string, fileName string, wasm []byte, initFunction string) err
 		return upperFirst
 	}
 
-	typeNameToGeneratedName := func(name string, isClass, isEnum bool) string {
+	typeNameToGeneratedName := func(name string, isClass, isEnum, isArgument bool) string {
 		if isClass {
 			name = strings.TrimPrefix(name, "*")
 			name = "Class" + generateGoName(name)
 			name = "*" + name
+			if isArgument {
+				name = "embind.ClassBase"
+			}
 		} else if isEnum {
 			name = "Enum" + generateGoName(name)
 		}
@@ -133,7 +136,7 @@ func Generate(dir string, fileName string, wasm []byte, initFunction string) err
 	}
 
 	typeNameToErrorValue := func(name string, isClass, isEnum bool) string {
-		convertedName := typeNameToGeneratedName(name, isClass, isEnum)
+		convertedName := typeNameToGeneratedName(name, isClass, isEnum, false)
 		if isClass || convertedName == "any" || strings.HasPrefix(convertedName, "[]") || strings.HasPrefix(convertedName, "map[") {
 			return "nil"
 		}
@@ -156,7 +159,7 @@ func Generate(dir string, fileName string, wasm []byte, initFunction string) err
 			Name:        constants[i].Name(),
 			GoName:      "Constant_" + constants[i].Name(),
 			Value:       fmt.Sprintf("%v", constants[i].Value()),
-			GoType:      typeNameToGeneratedName(constants[i].Type().Type(), constants[i].Type().IsClass(), constants[i].Type().IsEnum()),
+			GoType:      typeNameToGeneratedName(constants[i].Type().Type(), constants[i].Type().IsClass(), constants[i].Type().IsEnum(), false),
 			ValuePrefix: "(",
 			ValueSuffix: ")",
 		}
@@ -177,7 +180,7 @@ func Generate(dir string, fileName string, wasm []byte, initFunction string) err
 		exposedArgumentTypes := symbols[i].ArgumentTypes()
 		argumentTypes := make([]string, len(exposedArgumentTypes))
 		for i := range exposedArgumentTypes {
-			argumentTypes[i] = typeNameToGeneratedName(exposedArgumentTypes[i].Type(), exposedArgumentTypes[i].IsClass(), exposedArgumentTypes[i].IsEnum())
+			argumentTypes[i] = typeNameToGeneratedName(exposedArgumentTypes[i].Type(), exposedArgumentTypes[i].IsClass(), exposedArgumentTypes[i].IsEnum(), true)
 		}
 
 		goName := generateGoName(symbols[i].Symbol())
@@ -194,7 +197,7 @@ func Generate(dir string, fileName string, wasm []byte, initFunction string) err
 			Symbol:        symbols[i].Symbol(),
 			GoName:        goName,
 			ArgumentTypes: argumentTypes,
-			ReturnType:    typeNameToGeneratedName(returnType.Type(), returnType.IsClass(), returnType.IsEnum()),
+			ReturnType:    typeNameToGeneratedName(returnType.Type(), returnType.IsClass(), returnType.IsEnum(), true),
 			ErrorValue:    typeNameToErrorValue(returnType.Type(), returnType.IsClass(), returnType.IsEnum()),
 		}
 
@@ -224,7 +227,7 @@ func Generate(dir string, fileName string, wasm []byte, initFunction string) err
 		enum := TemplateEnum{
 			Name:   enums[i].Name(),
 			GoName: "Enum" + generateGoName(enums[i].Name()),
-			GoType: typeNameToGeneratedName(enums[i].Type().Type(), enums[i].Type().IsClass(), enums[i].Type().IsEnum()),
+			GoType: typeNameToGeneratedName(enums[i].Type().Type(), enums[i].Type().IsClass(), enums[i].Type().IsEnum(), false),
 			Values: []TemplateEnumValue{},
 		}
 
@@ -261,7 +264,7 @@ func Generate(dir string, fileName string, wasm []byte, initFunction string) err
 			exposedArgumentTypes := constructors[ci].ArgumentTypes()
 			argumentTypes := make([]string, len(exposedArgumentTypes))
 			for i := range exposedArgumentTypes {
-				argumentTypes[i] = typeNameToGeneratedName(exposedArgumentTypes[i].Type(), exposedArgumentTypes[i].IsClass(), exposedArgumentTypes[i].IsEnum())
+				argumentTypes[i] = typeNameToGeneratedName(exposedArgumentTypes[i].Type(), exposedArgumentTypes[i].IsClass(), exposedArgumentTypes[i].IsEnum(), true)
 			}
 
 			constructor := TemplateClassConstructor{
@@ -287,7 +290,7 @@ func Generate(dir string, fileName string, wasm []byte, initFunction string) err
 				Name:       properties[pi].Name(),
 				GoName:     generateGoName(properties[pi].Name()),
 				ReadOnly:   properties[pi].ReadOnly(),
-				GetterType: typeNameToGeneratedName(getterType.Type(), getterType.IsClass(), getterType.IsEnum()),
+				GetterType: typeNameToGeneratedName(getterType.Type(), getterType.IsClass(), getterType.IsEnum(), true),
 				ErrorValue: typeNameToErrorValue(getterType.Type(), getterType.IsClass(), getterType.IsEnum()),
 			}
 
@@ -296,7 +299,7 @@ func Generate(dir string, fileName string, wasm []byte, initFunction string) err
 				if setterType == nil {
 					continue
 				}
-				property.SetterType = typeNameToGeneratedName(setterType.Type(), setterType.IsClass(), setterType.IsEnum())
+				property.SetterType = typeNameToGeneratedName(setterType.Type(), setterType.IsClass(), setterType.IsEnum(), true)
 			}
 
 			class.Properties = append(class.Properties, property)
@@ -317,7 +320,7 @@ func Generate(dir string, fileName string, wasm []byte, initFunction string) err
 				Name:       staticProperties[pi].Name(),
 				GoName:     generateGoName(staticProperties[pi].Name()),
 				ReadOnly:   staticProperties[pi].ReadOnly(),
-				GetterType: typeNameToGeneratedName(getterType.Type(), getterType.IsClass(), getterType.IsEnum()),
+				GetterType: typeNameToGeneratedName(getterType.Type(), getterType.IsClass(), getterType.IsEnum(), true),
 				ErrorValue: typeNameToErrorValue(getterType.Type(), getterType.IsClass(), getterType.IsEnum()),
 			}
 
@@ -326,7 +329,7 @@ func Generate(dir string, fileName string, wasm []byte, initFunction string) err
 				if setterType == nil {
 					continue
 				}
-				property.SetterType = typeNameToGeneratedName(setterType.Type(), setterType.IsClass(), setterType.IsEnum())
+				property.SetterType = typeNameToGeneratedName(setterType.Type(), setterType.IsClass(), setterType.IsEnum(), true)
 			}
 
 			class.StaticProperties = append(class.StaticProperties, property)
@@ -341,7 +344,7 @@ func Generate(dir string, fileName string, wasm []byte, initFunction string) err
 			exposedArgumentTypes := methods[mi].ArgumentTypes()
 			argumentTypes := make([]string, len(exposedArgumentTypes))
 			for i := range exposedArgumentTypes {
-				argumentTypes[i] = typeNameToGeneratedName(exposedArgumentTypes[i].Type(), exposedArgumentTypes[i].IsClass(), exposedArgumentTypes[i].IsEnum())
+				argumentTypes[i] = typeNameToGeneratedName(exposedArgumentTypes[i].Type(), exposedArgumentTypes[i].IsClass(), exposedArgumentTypes[i].IsEnum(), true)
 			}
 
 			goName := generateGoName(methods[mi].Symbol())
@@ -358,7 +361,7 @@ func Generate(dir string, fileName string, wasm []byte, initFunction string) err
 				Name:          methods[mi].Symbol(),
 				GoName:        goName,
 				ArgumentTypes: argumentTypes,
-				ReturnType:    typeNameToGeneratedName(returnType.Type(), returnType.IsClass(), returnType.IsEnum()),
+				ReturnType:    typeNameToGeneratedName(returnType.Type(), returnType.IsClass(), returnType.IsEnum(), true),
 				ErrorValue:    typeNameToErrorValue(returnType.Type(), returnType.IsClass(), returnType.IsEnum()),
 			}
 
@@ -374,7 +377,7 @@ func Generate(dir string, fileName string, wasm []byte, initFunction string) err
 			exposedArgumentTypes := staticMethods[smi].ArgumentTypes()
 			argumentTypes := make([]string, len(exposedArgumentTypes))
 			for i := range exposedArgumentTypes {
-				argumentTypes[i] = typeNameToGeneratedName(exposedArgumentTypes[i].Type(), exposedArgumentTypes[i].IsClass(), exposedArgumentTypes[i].IsEnum())
+				argumentTypes[i] = typeNameToGeneratedName(exposedArgumentTypes[i].Type(), exposedArgumentTypes[i].IsClass(), exposedArgumentTypes[i].IsEnum(), true)
 			}
 
 			goName := generateGoName(staticMethods[smi].Symbol())
@@ -391,7 +394,7 @@ func Generate(dir string, fileName string, wasm []byte, initFunction string) err
 				Name:          staticMethods[smi].Symbol(),
 				GoName:        goName,
 				ArgumentTypes: argumentTypes,
-				ReturnType:    typeNameToGeneratedName(returnType.Type(), returnType.IsClass(), returnType.IsEnum()),
+				ReturnType:    typeNameToGeneratedName(returnType.Type(), returnType.IsClass(), returnType.IsEnum(), true),
 				ErrorValue:    typeNameToErrorValue(returnType.Type(), returnType.IsClass(), returnType.IsEnum()),
 			}
 

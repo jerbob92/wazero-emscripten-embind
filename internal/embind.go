@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"reflect"
 
 	"github.com/tetratelabs/wazero/api"
 )
@@ -87,6 +88,7 @@ func CreateEngine(config IEngineConfig) IEngine {
 		registeredConstants:  map[string]*registeredConstant{},
 		registeredEnums:      map[string]*enumType{},
 		registeredClasses:    map[string]*classType{},
+		registeredClassTypes: map[reflect.Type]*classType{},
 		registeredPointers:   map[int32]*registeredPointer{},
 		registeredTuples:     map[int32]*registeredTuple{},
 		registeredObjects:    map[int32]*registeredObject{},

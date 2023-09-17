@@ -445,15 +445,15 @@ func (ecb *ClassBase) isValid() bool {
 	return ecb != nil
 }
 
-func (ecb *ClassBase) Clone(ctx context.Context, this IClassBase) (IClassBase, error) {
+func (ecb *ClassBase) CloneInstance(ctx context.Context, this IClassBase) (IClassBase, error) {
 	return ecb.classType.clone(ctx, this)
 }
 
-func (ecb *ClassBase) Delete(ctx context.Context, this IClassBase) error {
+func (ecb *ClassBase) DeleteInstance(ctx context.Context, this IClassBase) error {
 	return ecb.classType.delete(ctx, this)
 }
 
-func (ecb *ClassBase) CallMethod(ctx context.Context, this any, name string, arguments ...any) (any, error) {
+func (ecb *ClassBase) CallInstanceMethod(ctx context.Context, this any, name string, arguments ...any) (any, error) {
 	method, ok := ecb.classType.methods[name]
 	if !ok {
 		return nil, fmt.Errorf("method %s is not found on %T", name, this)
@@ -463,14 +463,14 @@ func (ecb *ClassBase) CallMethod(ctx context.Context, this any, name string, arg
 	// without keeping track of the engine.
 	ctx = ecb.engine.Attach(ctx)
 
-	if method.isStatic {
+	if method.isStatic && this != nil {
 		return nil, fmt.Errorf("method %s on %T is static", name, this)
 	}
 
 	return method.fn(ctx, this, arguments...)
 }
 
-func (ecb *ClassBase) SetProperty(ctx context.Context, this any, name string, value any) error {
+func (ecb *ClassBase) SetInstanceProperty(ctx context.Context, this any, name string, value any) error {
 	property, ok := ecb.classType.properties[name]
 	if !ok {
 		return fmt.Errorf("property %s is not found on %T", name, this)
@@ -480,7 +480,7 @@ func (ecb *ClassBase) SetProperty(ctx context.Context, this any, name string, va
 	// class without keeping track of the engine.
 	ctx = ecb.engine.Attach(ctx)
 
-	if property.Static() {
+	if property.Static() && this != nil {
 		return fmt.Errorf("property %s on %T is static", name, this)
 	}
 
@@ -491,7 +491,7 @@ func (ecb *ClassBase) SetProperty(ctx context.Context, this any, name string, va
 	return property.set(ctx, this, value)
 }
 
-func (ecb *ClassBase) GetProperty(ctx context.Context, this any, name string) (any, error) {
+func (ecb *ClassBase) GetInstanceProperty(ctx context.Context, this any, name string) (any, error) {
 	property, ok := ecb.classType.properties[name]
 	if !ok {
 		return nil, fmt.Errorf("property %s is not found on %T", name, this)
@@ -501,7 +501,7 @@ func (ecb *ClassBase) GetProperty(ctx context.Context, this any, name string) (a
 	// class without keeping track of the engine.
 	ctx = ecb.engine.Attach(ctx)
 
-	if property.Static() {
+	if property.Static() && this != nil {
 		return nil, fmt.Errorf("property %s on %T is static", name, this)
 	}
 
@@ -514,11 +514,11 @@ type IClassBase interface {
 	getPtrType() *registeredPointerType
 	getRegisteredPtrTypeRecord() *registeredPointerTypeRecord
 	isValid() bool
-	Clone(ctx context.Context, this IClassBase) (IClassBase, error)
-	Delete(ctx context.Context, this IClassBase) error
-	CallMethod(ctx context.Context, this any, name string, arguments ...any) (any, error)
-	SetProperty(ctx context.Context, this any, name string, value any) error
-	GetProperty(ctx context.Context, this any, name string) (any, error)
+	CloneInstance(ctx context.Context, this IClassBase) (IClassBase, error)
+	DeleteInstance(ctx context.Context, this IClassBase) error
+	CallInstanceMethod(ctx context.Context, this any, name string, arguments ...any) (any, error)
+	SetInstanceProperty(ctx context.Context, this any, name string, value any) error
+	GetInstanceProperty(ctx context.Context, this any, name string) (any, error)
 }
 
 var RegisterClass = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
@@ -1278,8 +1278,8 @@ var RegisterSmartPtr = api.GoModuleFunc(func(ctx context.Context, mod api.Module
 	rawGetPointee := api.DecodeI32(stack[5])
 	constructorSignature := api.DecodeI32(stack[6])
 	rawConstructor := api.DecodeI32(stack[7])
-	//shareSignature := api.DecodeI32(stack[8])
-	//rawShare := api.DecodeI32(stack[9])
+	shareSignature := api.DecodeI32(stack[8])
+	rawShare := api.DecodeI32(stack[9])
 	destructorSignature := api.DecodeI32(stack[10])
 	rawDestructor := api.DecodeI32(stack[11])
 
@@ -1298,11 +1298,11 @@ var RegisterSmartPtr = api.GoModuleFunc(func(ctx context.Context, mod api.Module
 		panic(fmt.Errorf("could not read constructorSignature: %w", err))
 	}
 
-	// @todo: figure out why this fails for some types. Why would some have a different signature?
-	//rawShareFunc, err := engine.newInvokeFunc(shareSignature, rawShare, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32})
-	//if err != nil {
-	//	panic(fmt.Errorf("could not read rawShare: %w", err))
-	//}
+	rawShareFunc, err := engine.newInvokeFunc(shareSignature, rawShare, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32})
+	if err != nil {
+		// @todo: figure out why this fails for some types. Why would some have a different signature?
+		//panic(fmt.Errorf("could not read rawShare: %w", err))
+	}
 
 	rawDestructorFunc, err := engine.newInvokeFunc(destructorSignature, rawDestructor, []api.ValueType{api.ValueTypeI32}, []api.ValueType{})
 	if err != nil {
@@ -1325,8 +1325,8 @@ var RegisterSmartPtr = api.GoModuleFunc(func(ctx context.Context, mod api.Module
 			sharingPolicy:   sharingPolicy,
 			rawGetPointee:   rawGetPointeeFunc,
 			rawConstructor:  rawConstructorFunc,
-			//rawShare:        rawShareFunc,
-			rawDestructor: rawDestructorFunc,
+			rawShare:        rawShareFunc,
+			rawDestructor:   rawDestructorFunc,
 		}
 
 		return []registeredType{smartPointerType}, nil

@@ -791,14 +791,14 @@ var EmvalCall = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack
 		panic(fmt.Errorf("could not find handle: %w", err))
 	}
 
-	types, err := engine.lookupTypes(ctx, argCount, argTypes)
+	registeredArgTypes, err := engine.lookupTypes(ctx, argCount, argTypes)
 	if err != nil {
 		panic(fmt.Errorf("could not load required types: %w", err))
 	}
 
 	args := make([]any, argCount)
 	for i := 0; i < int(argCount); i++ {
-		requiredType := types[i]
+		requiredType := registeredArgTypes[i]
 		args[i], err = requiredType.ReadValueFromPointer(ctx, mod, uint32(argv))
 		if err != nil {
 			panic(fmt.Errorf("could not load argument value: %w", err))
@@ -807,12 +807,21 @@ var EmvalCall = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack
 		argv += requiredType.ArgPackAdvance()
 	}
 
-	// @todo: implement me.
-	//rv := handle.apply(undefined, args)
-	rv := struct{}{}
-	newHandle := engine.emvalEngine.toHandle(rv)
+	reflectValues := make([]reflect.Value, argCount)
+	for i := range args {
+		reflectValues[i] = reflect.ValueOf(args[i])
+	}
+
+	value := reflect.ValueOf(handle)
+	result := value.Call(reflectValues)
+
+	var resultVal any = types.Undefined
+	if len(result) > 0 {
+		resultVal = result[0].Interface()
+	}
+
+	newHandle := engine.emvalEngine.toHandle(resultVal)
 	stack[0] = api.EncodeI32(newHandle)
-	panic(fmt.Errorf("Emval call unimplemented %v", handle))
 })
 
 var EmvalCallMethod = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {

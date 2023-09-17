@@ -7,84 +7,84 @@ import (
 	"github.com/jerbob92/wazero-emscripten-embind"
 )
 
-func AbstractClass(e embind.Engine, ctx context.Context) (*ClassAbstractClass, error) {
+func AbstractClass(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "AbstractClass")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassAbstractClass), nil
+	return res.(embind.ClassBase), nil
 }
 
-func AbstractClassWithConstructor(e embind.Engine, ctx context.Context) (*ClassAbstractClassWithConstructor, error) {
+func AbstractClassWithConstructor(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "AbstractClassWithConstructor")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassAbstractClassWithConstructor), nil
+	return res.(embind.ClassBase), nil
 }
 
-func AbstractClassWithConstructorWrapper(e embind.Engine, ctx context.Context) (*ClassAbstractClassWithConstructorWrapper, error) {
+func AbstractClassWithConstructorWrapper(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "AbstractClassWithConstructorWrapper")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassAbstractClassWithConstructorWrapper), nil
+	return res.(embind.ClassBase), nil
 }
 
-func AbstractClassWrapper(e embind.Engine, ctx context.Context) (*ClassAbstractClassWrapper, error) {
+func AbstractClassWrapper(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "AbstractClassWrapper")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassAbstractClassWrapper), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Base(e embind.Engine, ctx context.Context) (*ClassBase, error) {
+func Base(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "Base")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassBase), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Base1(e embind.Engine, ctx context.Context) (*ClassBase1, error) {
+func Base1(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "Base1")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassBase1), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Base2(e embind.Engine, ctx context.Context) (*ClassBase2, error) {
+func Base2(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "Base2")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassBase2), nil
+	return res.(embind.ClassBase), nil
 }
 
-func BaseClass(e embind.Engine, ctx context.Context) (*ClassBaseClass, error) {
+func BaseClass(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "BaseClass")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassBaseClass), nil
+	return res.(embind.ClassBase), nil
 }
 
-func BaseClassWrapper(e embind.Engine, ctx context.Context) (*ClassBaseClassWrapper, error) {
+func BaseClassWrapper(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "BaseClassWrapper")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassBaseClassWrapper), nil
+	return res.(embind.ClassBase), nil
 }
 
-func BigClass(e embind.Engine, ctx context.Context) (*ClassBigClass, error) {
+func BigClass(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "BigClass")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassBigClass), nil
+	return res.(embind.ClassBase), nil
 }
 
 func Bool_return_bool(e embind.Engine, ctx context.Context, arg0 bool) (bool, error) {
@@ -111,23 +111,23 @@ func Bool_return_true(e embind.Engine, ctx context.Context) (bool, error) {
 	return res.(bool), nil
 }
 
-func BoundClass(e embind.Engine, ctx context.Context) (*ClassBoundClass, error) {
+func BoundClass(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "BoundClass")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassBoundClass), nil
+	return res.(embind.ClassBase), nil
 }
 
-func C(e embind.Engine, ctx context.Context) (*ClassC, error) {
+func C(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "C")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassC), nil
+	return res.(embind.ClassBase), nil
 }
 
-func CallAbstractMethod(e embind.Engine, ctx context.Context, arg0 *ClassAbstractClass) (string, error) {
+func CallAbstractMethod(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) (string, error) {
 	res, err := e.CallPublicSymbol(ctx, "callAbstractMethod", arg0)
 	if err != nil {
 		return "", err
@@ -135,7 +135,7 @@ func CallAbstractMethod(e embind.Engine, ctx context.Context, arg0 *ClassAbstrac
 	return res.(string), nil
 }
 
-func CallAbstractMethod2(e embind.Engine, ctx context.Context, arg0 *ClassAbstractClassWithConstructor) (string, error) {
+func CallAbstractMethod2(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) (string, error) {
 	res, err := e.CallPublicSymbol(ctx, "callAbstractMethod2", arg0)
 	if err != nil {
 		return "", err
@@ -143,12 +143,12 @@ func CallAbstractMethod2(e embind.Engine, ctx context.Context, arg0 *ClassAbstra
 	return res.(string), nil
 }
 
-func CallDifferentArguments(e embind.Engine, ctx context.Context, arg0 *ClassAbstractClass, arg1 int32, arg2 float64, arg3 uint8, arg4 float64, arg5 string) error {
+func CallDifferentArguments(e embind.Engine, ctx context.Context, arg0 embind.ClassBase, arg1 int32, arg2 float64, arg3 uint8, arg4 float64, arg5 string) error {
 	_, err := e.CallPublicSymbol(ctx, "callDifferentArguments", arg0, arg1, arg2, arg3, arg4, arg5)
 	return err
 }
 
-func CallOptionalMethod(e embind.Engine, ctx context.Context, arg0 *ClassAbstractClass, arg1 string) (string, error) {
+func CallOptionalMethod(e embind.Engine, ctx context.Context, arg0 embind.ClassBase, arg1 string) (string, error) {
 	res, err := e.CallPublicSymbol(ctx, "callOptionalMethod", arg0, arg1)
 	if err != nil {
 		return "", err
@@ -156,7 +156,7 @@ func CallOptionalMethod(e embind.Engine, ctx context.Context, arg0 *ClassAbstrac
 	return res.(string), nil
 }
 
-func CallReturnsSharedPtrMethod(e embind.Engine, ctx context.Context, arg0 *ClassAbstractClass) error {
+func CallReturnsSharedPtrMethod(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) error {
 	_, err := e.CallPublicSymbol(ctx, "callReturnsSharedPtrMethod", arg0)
 	return err
 }
@@ -166,20 +166,20 @@ func CallWithMemoryView(e embind.Engine, ctx context.Context, arg0 any) error {
 	return err
 }
 
-func Call_StringHolder_func(e embind.Engine, ctx context.Context, arg0 any) (*ClassStringHolder, error) {
+func Call_StringHolder_func(e embind.Engine, ctx context.Context, arg0 any) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "call_StringHolder_func", arg0)
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassStringHolder), nil
+	return res.(embind.ClassBase), nil
 }
 
-func CharVector(e embind.Engine, ctx context.Context) (*ClassCharVector, error) {
+func CharVector(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "CharVector")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassCharVector), nil
+	return res.(embind.ClassBase), nil
 }
 
 func Char_return_char(e embind.Engine, ctx context.Context, arg0 int8) (int8, error) {
@@ -198,17 +198,17 @@ func Char_to_string(e embind.Engine, ctx context.Context, arg0 int8) (string, er
 	return res.(string), nil
 }
 
-func Clear_StringHolder(e embind.Engine, ctx context.Context, arg0 *ClassStringHolder) error {
+func Clear_StringHolder(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) error {
 	_, err := e.CallPublicSymbol(ctx, "clear_StringHolder", arg0)
 	return err
 }
 
-func ConstAndNonConst(e embind.Engine, ctx context.Context) (*ClassConstAndNonConst, error) {
+func ConstAndNonConst(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "ConstAndNonConst")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassConstAndNonConst), nil
+	return res.(embind.ClassBase), nil
 }
 
 func Const_ref_adder(e embind.Engine, ctx context.Context, arg0 int32, arg1 float32) (float32, error) {
@@ -219,20 +219,20 @@ func Const_ref_adder(e embind.Engine, ctx context.Context, arg0 int32, arg1 floa
 	return res.(float32), nil
 }
 
-func ConstructFromFunctionObject(e embind.Engine, ctx context.Context) (*ClassConstructFromFunctionObject, error) {
+func ConstructFromFunctionObject(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "ConstructFromFunctionObject")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassConstructFromFunctionObject), nil
+	return res.(embind.ClassBase), nil
 }
 
-func ConstructFromStdFunction(e embind.Engine, ctx context.Context) (*ClassConstructFromStdFunction, error) {
+func ConstructFromStdFunction(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "ConstructFromStdFunction")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassConstructFromStdFunction), nil
+	return res.(embind.ClassBase), nil
 }
 
 func Construct_with_6_arguments(e embind.Engine, ctx context.Context, arg0 any) (any, error) {
@@ -267,76 +267,76 @@ func Construct_with_memory_view(e embind.Engine, ctx context.Context, arg0 any) 
 	return res.(any), nil
 }
 
-func ContainsTemplatedMemberClass(e embind.Engine, ctx context.Context) (*ClassContainsTemplatedMemberClass, error) {
+func ContainsTemplatedMemberClass(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "ContainsTemplatedMemberClass")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassContainsTemplatedMemberClass), nil
+	return res.(embind.ClassBase), nil
 }
 
-func CustomStruct(e embind.Engine, ctx context.Context) (*ClassCustomStruct, error) {
+func CustomStruct(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "CustomStruct")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassCustomStruct), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Derived(e embind.Engine, ctx context.Context) (*ClassDerived, error) {
+func Derived(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "Derived")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassDerived), nil
+	return res.(embind.ClassBase), nil
 }
 
-func DerivedClass(e embind.Engine, ctx context.Context) (*ClassDerivedClass, error) {
+func DerivedClass(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "DerivedClass")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassDerivedClass), nil
+	return res.(embind.ClassBase), nil
 }
 
-func DerivedHolder(e embind.Engine, ctx context.Context) (*ClassDerivedHolder, error) {
+func DerivedHolder(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "DerivedHolder")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassDerivedHolder), nil
+	return res.(embind.ClassBase), nil
 }
 
-func DerivedThrice(e embind.Engine, ctx context.Context) (*ClassDerivedThrice, error) {
+func DerivedThrice(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "DerivedThrice")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassDerivedThrice), nil
+	return res.(embind.ClassBase), nil
 }
 
-func DerivedTwice(e embind.Engine, ctx context.Context) (*ClassDerivedTwice, error) {
+func DerivedTwice(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "DerivedTwice")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassDerivedTwice), nil
+	return res.(embind.ClassBase), nil
 }
 
-func DerivedWithMixin(e embind.Engine, ctx context.Context) (*ClassDerivedWithMixin, error) {
+func DerivedWithMixin(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "DerivedWithMixin")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassDerivedWithMixin), nil
+	return res.(embind.ClassBase), nil
 }
 
-func DerivedWithOffset(e embind.Engine, ctx context.Context) (*ClassDerivedWithOffset, error) {
+func DerivedWithOffset(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "DerivedWithOffset")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassDerivedWithOffset), nil
+	return res.(embind.ClassBase), nil
 }
 
 func DoCustomMarshalTest(e embind.Engine, ctx context.Context) error {
@@ -360,46 +360,46 @@ func Double_return_double(e embind.Engine, ctx context.Context, arg0 float64) (f
 	return res.(float64), nil
 }
 
-func DummyForOverloads(e embind.Engine, ctx context.Context) (*ClassDummyForOverloads, error) {
+func DummyForOverloads(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "DummyForOverloads")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassDummyForOverloads), nil
+	return res.(embind.ClassBase), nil
 }
 
-func DummyForPointer(e embind.Engine, ctx context.Context) (*ClassDummyForPointer, error) {
+func DummyForPointer(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "DummyForPointer")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassDummyForPointer), nil
+	return res.(embind.ClassBase), nil
 }
 
-func EmValVector(e embind.Engine, ctx context.Context) (*ClassEmValVector, error) {
+func EmValVector(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "EmValVector")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassEmValVector), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Embind_attempt_to_modify_smart_pointer_when_passed_by_value(e embind.Engine, ctx context.Context, arg0 *ClassBase) error {
+func Embind_attempt_to_modify_smart_pointer_when_passed_by_value(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) error {
 	_, err := e.CallPublicSymbol(ctx, "embind_attempt_to_modify_smart_pointer_when_passed_by_value", arg0)
 	return err
 }
 
-func Embind_modify_smart_pointer_passed_by_reference(e embind.Engine, ctx context.Context, arg0 *ClassBase) error {
+func Embind_modify_smart_pointer_passed_by_reference(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) error {
 	_, err := e.CallPublicSymbol(ctx, "embind_modify_smart_pointer_passed_by_reference", arg0)
 	return err
 }
 
-func Embind_save_smart_base_pointer(e embind.Engine, ctx context.Context, arg0 *ClassBase) error {
+func Embind_save_smart_base_pointer(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) error {
 	_, err := e.CallPublicSymbol(ctx, "embind_save_smart_base_pointer", arg0)
 	return err
 }
 
-func Embind_test_accept_big_class_instance(e embind.Engine, ctx context.Context, arg0 *ClassBigClass) (int32, error) {
+func Embind_test_accept_big_class_instance(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) (int32, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_accept_big_class_instance", arg0)
 	if err != nil {
 		return int32(0), err
@@ -407,7 +407,7 @@ func Embind_test_accept_big_class_instance(e embind.Engine, ctx context.Context,
 	return res.(int32), nil
 }
 
-func Embind_test_accept_small_class_instance(e embind.Engine, ctx context.Context, arg0 *ClassSmallClass) (int32, error) {
+func Embind_test_accept_small_class_instance(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) (int32, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_accept_small_class_instance", arg0)
 	if err != nil {
 		return int32(0), err
@@ -423,15 +423,15 @@ func Embind_test_accept_unique_ptr(e embind.Engine, ctx context.Context, arg0 in
 	return res.(int32), nil
 }
 
-func Embind_test_construct_class_with_unique_ptr(e embind.Engine, ctx context.Context, arg0 int32) (*ClassUniquePtrToConstructor, error) {
+func Embind_test_construct_class_with_unique_ptr(e embind.Engine, ctx context.Context, arg0 int32) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_construct_class_with_unique_ptr", arg0)
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassUniquePtrToConstructor), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Embind_test_get_class_name_via_base_ptr(e embind.Engine, ctx context.Context, arg0 *ClassBase) (string, error) {
+func Embind_test_get_class_name_via_base_ptr(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) (string, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_get_class_name_via_base_ptr", arg0)
 	if err != nil {
 		return "", err
@@ -439,7 +439,7 @@ func Embind_test_get_class_name_via_base_ptr(e embind.Engine, ctx context.Contex
 	return res.(string), nil
 }
 
-func Embind_test_get_class_name_via_polymorphic_base_ptr(e embind.Engine, ctx context.Context, arg0 *ClassPolyBase) (string, error) {
+func Embind_test_get_class_name_via_polymorphic_base_ptr(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) (string, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_get_class_name_via_polymorphic_base_ptr", arg0)
 	if err != nil {
 		return "", err
@@ -447,7 +447,7 @@ func Embind_test_get_class_name_via_polymorphic_base_ptr(e embind.Engine, ctx co
 	return res.(string), nil
 }
 
-func Embind_test_get_class_name_via_polymorphic_second_base_ptr(e embind.Engine, ctx context.Context, arg0 *ClassPolySecondBase) (string, error) {
+func Embind_test_get_class_name_via_polymorphic_second_base_ptr(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) (string, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_get_class_name_via_polymorphic_second_base_ptr", arg0)
 	if err != nil {
 		return "", err
@@ -455,7 +455,7 @@ func Embind_test_get_class_name_via_polymorphic_second_base_ptr(e embind.Engine,
 	return res.(string), nil
 }
 
-func Embind_test_get_class_name_via_reference_to_smart_base_ptr(e embind.Engine, ctx context.Context, arg0 *ClassBase) (string, error) {
+func Embind_test_get_class_name_via_reference_to_smart_base_ptr(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) (string, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_get_class_name_via_reference_to_smart_base_ptr", arg0)
 	if err != nil {
 		return "", err
@@ -463,7 +463,7 @@ func Embind_test_get_class_name_via_reference_to_smart_base_ptr(e embind.Engine,
 	return res.(string), nil
 }
 
-func Embind_test_get_class_name_via_second_base_ptr(e embind.Engine, ctx context.Context, arg0 *ClassSecondBase) (string, error) {
+func Embind_test_get_class_name_via_second_base_ptr(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) (string, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_get_class_name_via_second_base_ptr", arg0)
 	if err != nil {
 		return "", err
@@ -471,7 +471,7 @@ func Embind_test_get_class_name_via_second_base_ptr(e embind.Engine, ctx context
 	return res.(string), nil
 }
 
-func Embind_test_get_class_name_via_smart_base_ptr(e embind.Engine, ctx context.Context, arg0 *ClassBase) (string, error) {
+func Embind_test_get_class_name_via_smart_base_ptr(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) (string, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_get_class_name_via_smart_base_ptr", arg0)
 	if err != nil {
 		return "", err
@@ -479,7 +479,7 @@ func Embind_test_get_class_name_via_smart_base_ptr(e embind.Engine, ctx context.
 	return res.(string), nil
 }
 
-func Embind_test_get_class_name_via_smart_polymorphic_base_ptr(e embind.Engine, ctx context.Context, arg0 *ClassPolyBase) (string, error) {
+func Embind_test_get_class_name_via_smart_polymorphic_base_ptr(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) (string, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_get_class_name_via_smart_polymorphic_base_ptr", arg0)
 	if err != nil {
 		return "", err
@@ -487,7 +487,7 @@ func Embind_test_get_class_name_via_smart_polymorphic_base_ptr(e embind.Engine, 
 	return res.(string), nil
 }
 
-func Embind_test_get_class_name_via_smart_polymorphic_second_base_ptr(e embind.Engine, ctx context.Context, arg0 *ClassPolySecondBase) (string, error) {
+func Embind_test_get_class_name_via_smart_polymorphic_second_base_ptr(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) (string, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_get_class_name_via_smart_polymorphic_second_base_ptr", arg0)
 	if err != nil {
 		return "", err
@@ -495,7 +495,7 @@ func Embind_test_get_class_name_via_smart_polymorphic_second_base_ptr(e embind.E
 	return res.(string), nil
 }
 
-func Embind_test_get_class_name_via_smart_second_base_ptr(e embind.Engine, ctx context.Context, arg0 *ClassSecondBase) (string, error) {
+func Embind_test_get_class_name_via_smart_second_base_ptr(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) (string, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_get_class_name_via_smart_second_base_ptr", arg0)
 	if err != nil {
 		return "", err
@@ -503,15 +503,15 @@ func Embind_test_get_class_name_via_smart_second_base_ptr(e embind.Engine, ctx c
 	return res.(string), nil
 }
 
-func Embind_test_get_string_int_map(e embind.Engine, ctx context.Context) (*ClassStringIntMap, error) {
+func Embind_test_get_string_int_map(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_get_string_int_map")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassStringIntMap), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Embind_test_get_virtual_class_name_via_smart_polymorphic_base_ptr(e embind.Engine, ctx context.Context, arg0 *ClassPolyBase) (string, error) {
+func Embind_test_get_virtual_class_name_via_smart_polymorphic_base_ptr(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) (string, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_get_virtual_class_name_via_smart_polymorphic_base_ptr", arg0)
 	if err != nil {
 		return "", err
@@ -543,116 +543,116 @@ func Embind_test_new_factory(e embind.Engine, ctx context.Context, arg0 any, arg
 	return res.(any), nil
 }
 
-func Embind_test_return_big_class_instance(e embind.Engine, ctx context.Context) (*ClassBigClass, error) {
+func Embind_test_return_big_class_instance(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_return_big_class_instance")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassBigClass), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Embind_test_return_poly_derived_twice_without_smart_pointer_as_poly_base(e embind.Engine, ctx context.Context) (*ClassPolyBase, error) {
+func Embind_test_return_poly_derived_twice_without_smart_pointer_as_poly_base(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_return_poly_derived_twice_without_smart_pointer_as_poly_base")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassPolyBase), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Embind_test_return_raw_base_ptr(e embind.Engine, ctx context.Context) (*ClassBase, error) {
+func Embind_test_return_raw_base_ptr(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_return_raw_base_ptr")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassBase), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Embind_test_return_raw_derived_ptr_as_base(e embind.Engine, ctx context.Context) (*ClassBase, error) {
+func Embind_test_return_raw_derived_ptr_as_base(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_return_raw_derived_ptr_as_base")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassBase), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Embind_test_return_raw_polymorphic_derived_four_times_not_bound_as_base(e embind.Engine, ctx context.Context) (*ClassPolyBase, error) {
+func Embind_test_return_raw_polymorphic_derived_four_times_not_bound_as_base(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_return_raw_polymorphic_derived_four_times_not_bound_as_base")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassPolyBase), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Embind_test_return_raw_polymorphic_derived_ptr_as_base(e embind.Engine, ctx context.Context) (*ClassPolyBase, error) {
+func Embind_test_return_raw_polymorphic_derived_ptr_as_base(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_return_raw_polymorphic_derived_ptr_as_base")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassPolyBase), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Embind_test_return_raw_polymorphic_multiply_derived_ptr_as_base(e embind.Engine, ctx context.Context) (*ClassPolyBase, error) {
+func Embind_test_return_raw_polymorphic_multiply_derived_ptr_as_base(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_return_raw_polymorphic_multiply_derived_ptr_as_base")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassPolyBase), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Embind_test_return_raw_polymorphic_multiply_derived_ptr_as_second_base(e embind.Engine, ctx context.Context) (*ClassPolySecondBase, error) {
+func Embind_test_return_raw_polymorphic_multiply_derived_ptr_as_second_base(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_return_raw_polymorphic_multiply_derived_ptr_as_second_base")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassPolySecondBase), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Embind_test_return_raw_polymorphic_sibling_derived_ptr_as_base(e embind.Engine, ctx context.Context) (*ClassPolyBase, error) {
+func Embind_test_return_raw_polymorphic_sibling_derived_ptr_as_base(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_return_raw_polymorphic_sibling_derived_ptr_as_base")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassPolyBase), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Embind_test_return_raw_sibling_derived_ptr_as_base(e embind.Engine, ctx context.Context) (*ClassBase, error) {
+func Embind_test_return_raw_sibling_derived_ptr_as_base(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_return_raw_sibling_derived_ptr_as_base")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassBase), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Embind_test_return_small_class_instance(e embind.Engine, ctx context.Context) (*ClassSmallClass, error) {
+func Embind_test_return_small_class_instance(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_return_small_class_instance")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassSmallClass), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Embind_test_return_smart_base_ptr(e embind.Engine, ctx context.Context) (*ClassBase, error) {
+func Embind_test_return_smart_base_ptr(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_return_smart_base_ptr")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassBase), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Embind_test_return_smart_derived_ptr(e embind.Engine, ctx context.Context) (*ClassDerived, error) {
+func Embind_test_return_smart_derived_ptr(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_return_smart_derived_ptr")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassDerived), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Embind_test_return_smart_derived_ptr_as_base(e embind.Engine, ctx context.Context) (*ClassPolyBase, error) {
+func Embind_test_return_smart_derived_ptr_as_base(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_return_smart_derived_ptr_as_base")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassPolyBase), nil
+	return res.(embind.ClassBase), nil
 }
 
 func Embind_test_return_smart_derived_ptr_as_val(e embind.Engine, ctx context.Context) (any, error) {
@@ -663,84 +663,84 @@ func Embind_test_return_smart_derived_ptr_as_val(e embind.Engine, ctx context.Co
 	return res.(any), nil
 }
 
-func Embind_test_return_smart_derived_thrice_ptr(e embind.Engine, ctx context.Context) (*ClassDerivedThrice, error) {
+func Embind_test_return_smart_derived_thrice_ptr(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_return_smart_derived_thrice_ptr")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassDerivedThrice), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Embind_test_return_smart_multiply_derived_ptr(e embind.Engine, ctx context.Context) (*ClassMultiplyDerived, error) {
+func Embind_test_return_smart_multiply_derived_ptr(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_return_smart_multiply_derived_ptr")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassMultiplyDerived), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Embind_test_return_smart_poly_derived_thrice_ptr(e embind.Engine, ctx context.Context) (*ClassPolyDerivedThrice, error) {
+func Embind_test_return_smart_poly_derived_thrice_ptr(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_return_smart_poly_derived_thrice_ptr")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassPolyDerivedThrice), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Embind_test_return_smart_polymorphic_base_ptr(e embind.Engine, ctx context.Context) (*ClassPolyBase, error) {
+func Embind_test_return_smart_polymorphic_base_ptr(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_return_smart_polymorphic_base_ptr")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassPolyBase), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Embind_test_return_smart_polymorphic_derived_ptr(e embind.Engine, ctx context.Context) (*ClassPolyDerived, error) {
+func Embind_test_return_smart_polymorphic_derived_ptr(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_return_smart_polymorphic_derived_ptr")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassPolyDerived), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Embind_test_return_smart_polymorphic_derived_ptr_as_base(e embind.Engine, ctx context.Context) (*ClassPolyBase, error) {
+func Embind_test_return_smart_polymorphic_derived_ptr_as_base(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_return_smart_polymorphic_derived_ptr_as_base")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassPolyBase), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Embind_test_return_smart_polymorphic_multiply_derived_ptr(e embind.Engine, ctx context.Context) (*ClassPolyMultiplyDerived, error) {
+func Embind_test_return_smart_polymorphic_multiply_derived_ptr(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_return_smart_polymorphic_multiply_derived_ptr")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassPolyMultiplyDerived), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Embind_test_return_smart_polymorphic_sibling_derived_ptr(e embind.Engine, ctx context.Context) (*ClassPolySiblingDerived, error) {
+func Embind_test_return_smart_polymorphic_sibling_derived_ptr(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_return_smart_polymorphic_sibling_derived_ptr")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassPolySiblingDerived), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Embind_test_return_smart_polymorphic_sibling_derived_ptr_as_base(e embind.Engine, ctx context.Context) (*ClassPolyBase, error) {
+func Embind_test_return_smart_polymorphic_sibling_derived_ptr_as_base(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_return_smart_polymorphic_sibling_derived_ptr_as_base")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassPolyBase), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Embind_test_return_smart_sibling_derived_ptr(e embind.Engine, ctx context.Context) (*ClassSiblingDerived, error) {
+func Embind_test_return_smart_sibling_derived_ptr(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "embind_test_return_smart_sibling_derived_ptr")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassSiblingDerived), nil
+	return res.(embind.ClassBase), nil
 }
 
 func Embind_test_return_unique_ptr(e embind.Engine, ctx context.Context, arg0 int32) (int32, error) {
@@ -751,7 +751,7 @@ func Embind_test_return_unique_ptr(e embind.Engine, ctx context.Context, arg0 in
 	return res.(int32), nil
 }
 
-func Emval_array(e embind.Engine, ctx context.Context, arg0 *ClassIntegerVector) (any, error) {
+func Emval_array(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) (any, error) {
 	res, err := e.CallPublicSymbol(ctx, "emval_array", arg0)
 	if err != nil {
 		return nil, err
@@ -841,12 +841,12 @@ func Emval_test_equals(e embind.Engine, ctx context.Context, arg0 any, arg1 any)
 	return res.(bool), nil
 }
 
-func Emval_test_get_function_ptr(e embind.Engine, ctx context.Context) (*ClassStringFunctorString, error) {
+func Emval_test_get_function_ptr(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "emval_test_get_function_ptr")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassStringFunctorString), nil
+	return res.(embind.ClassBase), nil
 }
 
 func Emval_test_get_length(e embind.Engine, ctx context.Context, arg0 any) (uint32, error) {
@@ -889,7 +889,7 @@ func Emval_test_is_null(e embind.Engine, ctx context.Context, arg0 any) (bool, e
 	return res.(bool), nil
 }
 
-func Emval_test_is_shared_ptr_null(e embind.Engine, ctx context.Context, arg0 *ClassValHolder) (bool, error) {
+func Emval_test_is_shared_ptr_null(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) (bool, error) {
 	res, err := e.CallPublicSymbol(ctx, "emval_test_is_shared_ptr_null", arg0)
 	if err != nil {
 		return bool(false), err
@@ -985,68 +985,68 @@ func Emval_test_return_TupleVectorTuple(e embind.Engine, ctx context.Context) ([
 	return res.([]any), nil
 }
 
-func Emval_test_return_ValHolder(e embind.Engine, ctx context.Context) (*ClassValHolder, error) {
+func Emval_test_return_ValHolder(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "emval_test_return_ValHolder")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassValHolder), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Emval_test_return_empty_shared_ptr(e embind.Engine, ctx context.Context) (*ClassValHolder, error) {
+func Emval_test_return_empty_shared_ptr(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "emval_test_return_empty_shared_ptr")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassValHolder), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Emval_test_return_shared_ptr(e embind.Engine, ctx context.Context) (*ClassValHolder, error) {
+func Emval_test_return_shared_ptr(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "emval_test_return_shared_ptr")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassValHolder), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Emval_test_return_shared_ptr_vector(e embind.Engine, ctx context.Context) (*ClassSharedPtrVector, error) {
+func Emval_test_return_shared_ptr_vector(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "emval_test_return_shared_ptr_vector")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassSharedPtrVector), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Emval_test_return_unique_ptr(e embind.Engine, ctx context.Context) (*ClassValHolder, error) {
+func Emval_test_return_unique_ptr(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "emval_test_return_unique_ptr")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassValHolder), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Emval_test_return_unique_ptr_lifetime(e embind.Engine, ctx context.Context, arg0 any) (*ClassUniquePtrLifetimeMock, error) {
+func Emval_test_return_unique_ptr_lifetime(e embind.Engine, ctx context.Context, arg0 any) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "emval_test_return_unique_ptr_lifetime", arg0)
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassUniquePtrLifetimeMock), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Emval_test_return_vector(e embind.Engine, ctx context.Context) (*ClassIntegerVector, error) {
+func Emval_test_return_vector(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "emval_test_return_vector")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassIntegerVector), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Emval_test_return_vector_of_vectors(e embind.Engine, ctx context.Context) (*ClassIntegerVectorVector, error) {
+func Emval_test_return_vector_of_vectors(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "emval_test_return_vector_of_vectors")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassIntegerVectorVector), nil
+	return res.(embind.ClassBase), nil
 }
 
 func Emval_test_return_void(e embind.Engine, ctx context.Context) error {
@@ -1054,7 +1054,7 @@ func Emval_test_return_void(e embind.Engine, ctx context.Context) error {
 	return err
 }
 
-func Emval_test_set_ValHolder_to_empty_object(e embind.Engine, ctx context.Context, arg0 *ClassValHolder) error {
+func Emval_test_set_ValHolder_to_empty_object(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) error {
 	_, err := e.CallPublicSymbol(ctx, "emval_test_set_ValHolder_to_empty_object", arg0)
 	return err
 }
@@ -1075,7 +1075,7 @@ func Emval_test_sum(e embind.Engine, ctx context.Context, arg0 any) (uint32, err
 	return res.(uint32), nil
 }
 
-func Emval_test_take_and_call_functor(e embind.Engine, ctx context.Context, arg0 *ClassStringFunctorString) (string, error) {
+func Emval_test_take_and_call_functor(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) (string, error) {
 	res, err := e.CallPublicSymbol(ctx, "emval_test_take_and_call_functor", arg0)
 	if err != nil {
 		return "", err
@@ -1192,20 +1192,20 @@ func FindPersonAtLocation(e embind.Engine, ctx context.Context, arg0 []any) (map
 	return res.(map[string]any), nil
 }
 
-func FirstElement(e embind.Engine, ctx context.Context) (*ClassFirstElement, error) {
+func FirstElement(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "FirstElement")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassFirstElement), nil
+	return res.(embind.ClassBase), nil
 }
 
-func FloatVector(e embind.Engine, ctx context.Context) (*ClassFloatVector, error) {
+func FloatVector(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "FloatVector")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassFloatVector), nil
+	return res.(embind.ClassBase), nil
 }
 
 func Float_return_float(e embind.Engine, ctx context.Context, arg0 float32) (float32, error) {
@@ -1221,20 +1221,20 @@ func Float_return_void(e embind.Engine, ctx context.Context, arg0 float32) error
 	return err
 }
 
-func Foo(e embind.Engine, ctx context.Context) (*ClassFoo, error) {
+func Foo(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "Foo")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassFoo), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Foo_(e embind.Engine, ctx context.Context) (*ClassFoo, error) {
+func Foo_(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "foo")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassFoo), nil
+	return res.(embind.ClassBase), nil
 }
 
 func Force_memory_growth(e embind.Engine, ctx context.Context) error {
@@ -1258,44 +1258,44 @@ func Function_overload1(e embind.Engine, ctx context.Context, arg0 int32) (int32
 	return res.(int32), nil
 }
 
-func GetAbstractClass(e embind.Engine, ctx context.Context) (*ClassAbstractClass, error) {
+func GetAbstractClass(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "getAbstractClass")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassAbstractClass), nil
+	return res.(embind.ClassBase), nil
 }
 
-func GetDerivedClassInstance(e embind.Engine, ctx context.Context) (*ClassBaseClass, error) {
+func GetDerivedClassInstance(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "getDerivedClassInstance")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassBaseClass), nil
+	return res.(embind.ClassBase), nil
 }
 
-func GetDummy0(e embind.Engine, ctx context.Context) (*ClassDummyForOverloads, error) {
+func GetDummy0(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "getDummy")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassDummyForOverloads), nil
+	return res.(embind.ClassBase), nil
 }
 
-func GetDummy1(e embind.Engine, ctx context.Context, arg0 *ClassDummyForOverloads) (*ClassDummyForOverloads, error) {
+func GetDummy1(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "getDummy", arg0)
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassDummyForOverloads), nil
+	return res.(embind.ClassBase), nil
 }
 
-func GetNoncopyable(e embind.Engine, ctx context.Context) (*ClassNoncopyable, error) {
+func GetNoncopyable(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "getNoncopyable")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassNoncopyable), nil
+	return res.(embind.ClassBase), nil
 }
 
 func GetOrderedStruct(e embind.Engine, ctx context.Context) (map[string]any, error) {
@@ -1482,84 +1482,84 @@ func Get_non_ascii_wstring(e embind.Engine, ctx context.Context) (string, error)
 	return res.(string), nil
 }
 
-func HasConstructorUsingUnboundArgument(e embind.Engine, ctx context.Context) (*ClassHasConstructorUsingUnboundArgument, error) {
+func HasConstructorUsingUnboundArgument(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "HasConstructorUsingUnboundArgument")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassHasConstructorUsingUnboundArgument), nil
+	return res.(embind.ClassBase), nil
 }
 
-func HasExternalConstructor(e embind.Engine, ctx context.Context) (*ClassHasExternalConstructor, error) {
+func HasExternalConstructor(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "HasExternalConstructor")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassHasExternalConstructor), nil
+	return res.(embind.ClassBase), nil
 }
 
-func HasReadOnlyProperty(e embind.Engine, ctx context.Context) (*ClassHasReadOnlyProperty, error) {
+func HasReadOnlyProperty(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "HasReadOnlyProperty")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassHasReadOnlyProperty), nil
+	return res.(embind.ClassBase), nil
 }
 
-func HasStaticMember(e embind.Engine, ctx context.Context) (*ClassHasStaticMember, error) {
+func HasStaticMember(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "HasStaticMember")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassHasStaticMember), nil
+	return res.(embind.ClassBase), nil
 }
 
-func HasTwoBases(e embind.Engine, ctx context.Context) (*ClassHasTwoBases, error) {
+func HasTwoBases(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "HasTwoBases")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassHasTwoBases), nil
+	return res.(embind.ClassBase), nil
 }
 
-func HeldAbstractClass(e embind.Engine, ctx context.Context) (*ClassHeldAbstractClass, error) {
+func HeldAbstractClass(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "HeldAbstractClass")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassHeldAbstractClass), nil
+	return res.(embind.ClassBase), nil
 }
 
-func HeldAbstractClassWrapper(e embind.Engine, ctx context.Context) (*ClassHeldAbstractClassWrapper, error) {
+func HeldAbstractClassWrapper(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "HeldAbstractClassWrapper")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassHeldAbstractClassWrapper), nil
+	return res.(embind.ClassBase), nil
 }
 
-func HeldByCustomSmartPtr(e embind.Engine, ctx context.Context) (*ClassHeldByCustomSmartPtr, error) {
+func HeldByCustomSmartPtr(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "HeldByCustomSmartPtr")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassHeldByCustomSmartPtr), nil
+	return res.(embind.ClassBase), nil
 }
 
-func HeldBySmartPtr(e embind.Engine, ctx context.Context) (*ClassHeldBySmartPtr, error) {
+func HeldBySmartPtr(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "HeldBySmartPtr")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassHeldBySmartPtr), nil
+	return res.(embind.ClassBase), nil
 }
 
-func IntTemplateClass(e embind.Engine, ctx context.Context) (*ClassIntTemplateClass, error) {
+func IntTemplateClass(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "IntTemplateClass")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassIntTemplateClass), nil
+	return res.(embind.ClassBase), nil
 }
 
 func Int_return_int(e embind.Engine, ctx context.Context, arg0 int32) (int32, error) {
@@ -1578,60 +1578,60 @@ func Int_to_string(e embind.Engine, ctx context.Context, arg0 int32) (string, er
 	return res.(string), nil
 }
 
-func IntegerVector(e embind.Engine, ctx context.Context) (*ClassIntegerVector, error) {
+func IntegerVector(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "IntegerVector")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassIntegerVector), nil
+	return res.(embind.ClassBase), nil
 }
 
-func IntegerVectorVector(e embind.Engine, ctx context.Context) (*ClassIntegerVectorVector, error) {
+func IntegerVectorVector(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "IntegerVectorVector")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassIntegerVectorVector), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Interface(e embind.Engine, ctx context.Context) (*ClassInterface, error) {
+func Interface(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "Interface")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassInterface), nil
+	return res.(embind.ClassBase), nil
 }
 
-func InterfaceWrapper(e embind.Engine, ctx context.Context) (*ClassInterfaceWrapper, error) {
+func InterfaceWrapper(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "InterfaceWrapper")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassInterfaceWrapper), nil
+	return res.(embind.ClassBase), nil
 }
 
-func IntrusiveClass(e embind.Engine, ctx context.Context) (*ClassIntrusiveClass, error) {
+func IntrusiveClass(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "IntrusiveClass")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassIntrusiveClass), nil
+	return res.(embind.ClassBase), nil
 }
 
-func IntrusiveClassHolder(e embind.Engine, ctx context.Context) (*ClassIntrusiveClassHolder, error) {
+func IntrusiveClassHolder(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "IntrusiveClassHolder")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassIntrusiveClassHolder), nil
+	return res.(embind.ClassBase), nil
 }
 
-func IntrusiveClassWrapper(e embind.Engine, ctx context.Context) (*ClassIntrusiveClassWrapper, error) {
+func IntrusiveClassWrapper(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "IntrusiveClassWrapper")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassIntrusiveClassWrapper), nil
+	return res.(embind.ClassBase), nil
 }
 
 func Load_unsigned_char(e embind.Engine, ctx context.Context) (uint8, error) {
@@ -1698,92 +1698,92 @@ func Mallinfo(e embind.Engine, ctx context.Context) (any, error) {
 	return res.(any), nil
 }
 
-func Map_int__string_(e embind.Engine, ctx context.Context) (*ClassMap_int__string_, error) {
+func Map_int__string_(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "map_int__string_")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassMap_int__string_), nil
+	return res.(embind.ClassBase), nil
 }
 
-func MultipleAccessors(e embind.Engine, ctx context.Context) (*ClassMultipleAccessors, error) {
+func MultipleAccessors(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "MultipleAccessors")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassMultipleAccessors), nil
+	return res.(embind.ClassBase), nil
 }
 
-func MultipleCtors(e embind.Engine, ctx context.Context) (*ClassMultipleCtors, error) {
+func MultipleCtors(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "MultipleCtors")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassMultipleCtors), nil
+	return res.(embind.ClassBase), nil
 }
 
-func MultipleOverloads(e embind.Engine, ctx context.Context) (*ClassMultipleOverloads, error) {
+func MultipleOverloads(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "MultipleOverloads")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassMultipleOverloads), nil
+	return res.(embind.ClassBase), nil
 }
 
-func MultipleOverloadsDependingOnDummy(e embind.Engine, ctx context.Context) (*ClassMultipleOverloadsDependingOnDummy, error) {
+func MultipleOverloadsDependingOnDummy(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "MultipleOverloadsDependingOnDummy")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassMultipleOverloadsDependingOnDummy), nil
+	return res.(embind.ClassBase), nil
 }
 
-func MultipleOverloadsDerived(e embind.Engine, ctx context.Context) (*ClassMultipleOverloadsDerived, error) {
+func MultipleOverloadsDerived(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "MultipleOverloadsDerived")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassMultipleOverloadsDerived), nil
+	return res.(embind.ClassBase), nil
 }
 
-func MultipleSmartCtors(e embind.Engine, ctx context.Context) (*ClassMultipleSmartCtors, error) {
+func MultipleSmartCtors(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "MultipleSmartCtors")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassMultipleSmartCtors), nil
+	return res.(embind.ClassBase), nil
 }
 
-func MultiplyDerived(e embind.Engine, ctx context.Context) (*ClassMultiplyDerived, error) {
+func MultiplyDerived(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "MultiplyDerived")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassMultiplyDerived), nil
+	return res.(embind.ClassBase), nil
 }
 
-func MyClass(e embind.Engine, ctx context.Context) (*ClassMyClass, error) {
+func MyClass(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "MyClass")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassMyClass), nil
+	return res.(embind.ClassBase), nil
 }
 
-func NoExceptClass(e embind.Engine, ctx context.Context) (*ClassNoExceptClass, error) {
+func NoExceptClass(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "NoExceptClass")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassNoExceptClass), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Noncopyable(e embind.Engine, ctx context.Context) (*ClassNoncopyable, error) {
+func Noncopyable(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "Noncopyable")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassNoncopyable), nil
+	return res.(embind.ClassBase), nil
 }
 
 func Overloaded_function1(e embind.Engine, ctx context.Context, arg0 int32) (int32, error) {
@@ -1802,198 +1802,198 @@ func Overloaded_function2(e embind.Engine, ctx context.Context, arg0 int32, arg1
 	return res.(int32), nil
 }
 
-func PFoo(e embind.Engine, ctx context.Context) (*ClassFoo, error) {
+func PFoo(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "pFoo")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassFoo), nil
+	return res.(embind.ClassBase), nil
 }
 
-func ParentClass(e embind.Engine, ctx context.Context) (*ClassParentClass, error) {
+func ParentClass(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "ParentClass")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassParentClass), nil
+	return res.(embind.ClassBase), nil
 }
 
-func PassHeldAbstractClass(e embind.Engine, ctx context.Context, arg0 *ClassHeldAbstractClass) (*ClassPolySecondBase, error) {
+func PassHeldAbstractClass(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "passHeldAbstractClass", arg0)
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassPolySecondBase), nil
+	return res.(embind.ClassBase), nil
 }
 
-func PassShared(e embind.Engine, ctx context.Context, arg0 *ClassAbstractClass) error {
+func PassShared(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) error {
 	_, err := e.CallPublicSymbol(ctx, "passShared", arg0)
 	return err
 }
 
-func PassThrough(e embind.Engine, ctx context.Context, arg0 *ClassMyClass) (*ClassMyClass, error) {
+func PassThrough(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "passThrough", arg0)
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassMyClass), nil
+	return res.(embind.ClassBase), nil
 }
 
-func PassThroughCustomSmartPtr(e embind.Engine, ctx context.Context, arg0 *ClassHeldByCustomSmartPtr) (*ClassHeldByCustomSmartPtr, error) {
+func PassThroughCustomSmartPtr(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "passThroughCustomSmartPtr", arg0)
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassHeldByCustomSmartPtr), nil
+	return res.(embind.ClassBase), nil
 }
 
-func PassThroughIntrusiveClass(e embind.Engine, ctx context.Context, arg0 *ClassIntrusiveClass) (*ClassIntrusiveClass, error) {
+func PassThroughIntrusiveClass(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "passThroughIntrusiveClass", arg0)
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassIntrusiveClass), nil
+	return res.(embind.ClassBase), nil
 }
 
-func PassThroughRawPtr(e embind.Engine, ctx context.Context, arg0 *ClassHeldByCustomSmartPtr) (*ClassHeldByCustomSmartPtr, error) {
+func PassThroughRawPtr(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "passThroughRawPtr", arg0)
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassHeldByCustomSmartPtr), nil
+	return res.(embind.ClassBase), nil
 }
 
-func PassVal(e embind.Engine, ctx context.Context, arg0 *ClassAbstractClass, arg1 any) error {
+func PassVal(e embind.Engine, ctx context.Context, arg0 embind.ClassBase, arg1 any) error {
 	_, err := e.CallPublicSymbol(ctx, "passVal", arg0, arg1)
 	return err
 }
 
-func PolyBase(e embind.Engine, ctx context.Context) (*ClassPolyBase, error) {
+func PolyBase(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "PolyBase")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassPolyBase), nil
+	return res.(embind.ClassBase), nil
 }
 
-func PolyDerived(e embind.Engine, ctx context.Context) (*ClassPolyDerived, error) {
+func PolyDerived(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "PolyDerived")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassPolyDerived), nil
+	return res.(embind.ClassBase), nil
 }
 
-func PolyDerivedThrice(e embind.Engine, ctx context.Context) (*ClassPolyDerivedThrice, error) {
+func PolyDerivedThrice(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "PolyDerivedThrice")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassPolyDerivedThrice), nil
+	return res.(embind.ClassBase), nil
 }
 
-func PolyDiamondBase(e embind.Engine, ctx context.Context) (*ClassPolyDiamondBase, error) {
+func PolyDiamondBase(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "PolyDiamondBase")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassPolyDiamondBase), nil
+	return res.(embind.ClassBase), nil
 }
 
-func PolyDiamondDerived(e embind.Engine, ctx context.Context) (*ClassPolyDiamondDerived, error) {
+func PolyDiamondDerived(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "PolyDiamondDerived")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassPolyDiamondDerived), nil
+	return res.(embind.ClassBase), nil
 }
 
-func PolyDiamondMultiplyDerived(e embind.Engine, ctx context.Context) (*ClassPolyDiamondMultiplyDerived, error) {
+func PolyDiamondMultiplyDerived(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "PolyDiamondMultiplyDerived")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassPolyDiamondMultiplyDerived), nil
+	return res.(embind.ClassBase), nil
 }
 
-func PolyDiamondSiblingDerived(e embind.Engine, ctx context.Context) (*ClassPolyDiamondSiblingDerived, error) {
+func PolyDiamondSiblingDerived(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "PolyDiamondSiblingDerived")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassPolyDiamondSiblingDerived), nil
+	return res.(embind.ClassBase), nil
 }
 
-func PolyMultiplyDerived(e embind.Engine, ctx context.Context) (*ClassPolyMultiplyDerived, error) {
+func PolyMultiplyDerived(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "PolyMultiplyDerived")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassPolyMultiplyDerived), nil
+	return res.(embind.ClassBase), nil
 }
 
-func PolySecondBase(e embind.Engine, ctx context.Context) (*ClassPolySecondBase, error) {
+func PolySecondBase(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "PolySecondBase")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassPolySecondBase), nil
+	return res.(embind.ClassBase), nil
 }
 
-func PolySiblingDerived(e embind.Engine, ctx context.Context) (*ClassPolySiblingDerived, error) {
+func PolySiblingDerived(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "PolySiblingDerived")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassPolySiblingDerived), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Return_Base_from_DerivedWithOffset(e embind.Engine, ctx context.Context, arg0 *ClassDerivedWithOffset) (*ClassBase, error) {
+func Return_Base_from_DerivedWithOffset(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "return_Base_from_DerivedWithOffset", arg0)
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassBase), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Return_StringHolder_copy(e embind.Engine, ctx context.Context, arg0 any) (*ClassStringHolder, error) {
+func Return_StringHolder_copy(e embind.Engine, ctx context.Context, arg0 any) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "return_StringHolder_copy", arg0)
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassStringHolder), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Return_map(e embind.Engine, ctx context.Context) (*ClassMap_int__string_, error) {
+func Return_map(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "return_map")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassMap_int__string_), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Return_vector(e embind.Engine, ctx context.Context) (*ClassIntegerVector, error) {
+func Return_vector(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "return_vector")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassIntegerVector), nil
+	return res.(embind.ClassBase), nil
 }
 
-func SecondBase(e embind.Engine, ctx context.Context) (*ClassSecondBase, error) {
+func SecondBase(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "SecondBase")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassSecondBase), nil
+	return res.(embind.ClassBase), nil
 }
 
-func SecondElement(e embind.Engine, ctx context.Context) (*ClassSecondElement, error) {
+func SecondElement(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "SecondElement")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassSecondElement), nil
+	return res.(embind.ClassBase), nil
 }
 
 func SetPersonAtLocation(e embind.Engine, ctx context.Context, arg0 []any, arg1 map[string]any) error {
@@ -2016,20 +2016,20 @@ func Set_bind_u64(e embind.Engine, ctx context.Context, arg0 any) error {
 	return err
 }
 
-func SharedPtrHolder(e embind.Engine, ctx context.Context) (*ClassSharedPtrHolder, error) {
+func SharedPtrHolder(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "SharedPtrHolder")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassSharedPtrHolder), nil
+	return res.(embind.ClassBase), nil
 }
 
-func SharedPtrVector(e embind.Engine, ctx context.Context) (*ClassSharedPtrVector, error) {
+func SharedPtrVector(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "SharedPtrVector")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassSharedPtrVector), nil
+	return res.(embind.ClassBase), nil
 }
 
 func Short_return_short(e embind.Engine, ctx context.Context, arg0 int16) (int16, error) {
@@ -2048,12 +2048,12 @@ func Short_to_string(e embind.Engine, ctx context.Context, arg0 int16) (string, 
 	return res.(string), nil
 }
 
-func SiblingDerived(e embind.Engine, ctx context.Context) (*ClassSiblingDerived, error) {
+func SiblingDerived(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "SiblingDerived")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassSiblingDerived), nil
+	return res.(embind.ClassBase), nil
 }
 
 func Signed_char_to_string(e embind.Engine, ctx context.Context, arg0 int8) (string, error) {
@@ -2064,12 +2064,12 @@ func Signed_char_to_string(e embind.Engine, ctx context.Context, arg0 int8) (str
 	return res.(string), nil
 }
 
-func SmallClass(e embind.Engine, ctx context.Context) (*ClassSmallClass, error) {
+func SmallClass(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "SmallClass")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassSmallClass), nil
+	return res.(embind.ClassBase), nil
 }
 
 func Std_string_return_std_string(e embind.Engine, ctx context.Context, arg0 string) (string, error) {
@@ -2116,44 +2116,44 @@ func Store_unsigned_short(e embind.Engine, ctx context.Context, arg0 uint16) err
 	return err
 }
 
-func StringFunctorString(e embind.Engine, ctx context.Context) (*ClassStringFunctorString, error) {
+func StringFunctorString(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "StringFunctorString")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassStringFunctorString), nil
+	return res.(embind.ClassBase), nil
 }
 
-func StringHolder(e embind.Engine, ctx context.Context) (*ClassStringHolder, error) {
+func StringHolder(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "StringHolder")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassStringHolder), nil
+	return res.(embind.ClassBase), nil
 }
 
-func StringHolderVector(e embind.Engine, ctx context.Context) (*ClassStringHolderVector, error) {
+func StringHolderVector(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "StringHolderVector")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassStringHolderVector), nil
+	return res.(embind.ClassBase), nil
 }
 
-func StringIntMap(e embind.Engine, ctx context.Context) (*ClassStringIntMap, error) {
+func StringIntMap(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "StringIntMap")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassStringIntMap), nil
+	return res.(embind.ClassBase), nil
 }
 
-func StringVector(e embind.Engine, ctx context.Context) (*ClassStringVector, error) {
+func StringVector(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "StringVector")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassStringVector), nil
+	return res.(embind.ClassBase), nil
 }
 
 func Take_and_return_std_u16string(e embind.Engine, ctx context.Context, arg0 string) (string, error) {
@@ -2180,23 +2180,23 @@ func Take_and_return_std_wstring(e embind.Engine, ctx context.Context, arg0 stri
 	return res.(string), nil
 }
 
-func TakesHeldBySmartPtr(e embind.Engine, ctx context.Context, arg0 *ClassHeldBySmartPtr) (*ClassHeldBySmartPtr, error) {
+func TakesHeldBySmartPtr(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "takesHeldBySmartPtr", arg0)
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassHeldBySmartPtr), nil
+	return res.(embind.ClassBase), nil
 }
 
-func TakesHeldBySmartPtrSharedPtr(e embind.Engine, ctx context.Context, arg0 *ClassHeldBySmartPtr) (*ClassHeldBySmartPtr, error) {
+func TakesHeldBySmartPtrSharedPtr(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "takesHeldBySmartPtrSharedPtr", arg0)
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassHeldBySmartPtr), nil
+	return res.(embind.ClassBase), nil
 }
 
-func Test_string_with_vec(e embind.Engine, ctx context.Context, arg0 string, arg1 *ClassStringVector) error {
+func Test_string_with_vec(e embind.Engine, ctx context.Context, arg0 string, arg1 embind.ClassBase) error {
 	_, err := e.CallPublicSymbol(ctx, "test_string_with_vec", arg0, arg1)
 	return err
 }
@@ -2233,20 +2233,20 @@ func Ulonglong_return_ulonglong(e embind.Engine, ctx context.Context, arg0 uint6
 	return res.(uint64), nil
 }
 
-func UniquePtrLifetimeMock(e embind.Engine, ctx context.Context) (*ClassUniquePtrLifetimeMock, error) {
+func UniquePtrLifetimeMock(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "UniquePtrLifetimeMock")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassUniquePtrLifetimeMock), nil
+	return res.(embind.ClassBase), nil
 }
 
-func UniquePtrToConstructor(e embind.Engine, ctx context.Context) (*ClassUniquePtrToConstructor, error) {
+func UniquePtrToConstructor(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "UniquePtrToConstructor")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassUniquePtrToConstructor), nil
+	return res.(embind.ClassBase), nil
 }
 
 func Unsigned_char_to_string(e embind.Engine, ctx context.Context, arg0 uint8) (string, error) {
@@ -2289,12 +2289,12 @@ func Ushort_return_ushort(e embind.Engine, ctx context.Context, arg0 uint16) (ui
 	return res.(uint16), nil
 }
 
-func ValHolder(e embind.Engine, ctx context.Context) (*ClassValHolder, error) {
+func ValHolder(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "ValHolder")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassValHolder), nil
+	return res.(embind.ClassBase), nil
 }
 
 func Val_as_bool(e embind.Engine, ctx context.Context, arg0 any) (bool, error) {
@@ -2417,26 +2417,26 @@ func Val_as_wstring(e embind.Engine, ctx context.Context, arg0 any) (string, err
 	return res.(string), nil
 }
 
-func VectorHolder(e embind.Engine, ctx context.Context) (*ClassVectorHolder, error) {
+func VectorHolder(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "VectorHolder")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassVectorHolder), nil
+	return res.(embind.ClassBase), nil
 }
 
-func VectorUnsigned(e embind.Engine, ctx context.Context) (*ClassVectorUnsigned, error) {
+func VectorUnsigned(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "VectorUnsigned")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassVectorUnsigned), nil
+	return res.(embind.ClassBase), nil
 }
 
-func VectorUnsignedChar(e embind.Engine, ctx context.Context) (*ClassVectorUnsignedChar, error) {
+func VectorUnsignedChar(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "VectorUnsignedChar")
 	if err != nil {
 		return nil, err
 	}
-	return res.(*ClassVectorUnsignedChar), nil
+	return res.(embind.ClassBase), nil
 }
