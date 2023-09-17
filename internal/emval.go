@@ -555,10 +555,12 @@ var EmvalNew = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack 
 			panic(fmt.Errorf("could not require registered type: %w", err))
 		}
 
-		args[i], err = registeredArgType.ReadValueFromPointer(ctx, mod, argsBase+(8*uint32(i)))
+		args[i], err = registeredArgType.ReadValueFromPointer(ctx, mod, argsBase)
 		if err != nil {
 			panic(fmt.Errorf("could not read arg value from pointer for arg %d, %w", i, err))
 		}
+
+		argsBase += uint32(registeredArgType.ArgPackAdvance())
 
 		argTypeNames[i] = registeredArgType.Name()
 	}
@@ -588,6 +590,7 @@ var EmvalNew = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack 
 			}
 
 			for i := 0; i < argCount; i++ {
+				argSet := false
 				for fieldI := 0; fieldI < typeElem.NumField(); fieldI++ {
 					var err error
 					func() {
@@ -606,12 +609,16 @@ var EmvalNew = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack 
 							f := newElem.Elem().FieldByName(val.Name)
 							if f.IsValid() && f.CanSet() {
 								f.Set(reflect.ValueOf(args[i]))
+								argSet = true
 							}
 						}
 					}()
 					if err != nil {
 						panic(fmt.Errorf("could not instaniate new value of %T: %w", handle, err))
 					}
+				}
+				if !argSet {
+					panic(fmt.Errorf("could not instaniate new value of %T: could not bind arg %d", handle, i))
 				}
 			}
 		}

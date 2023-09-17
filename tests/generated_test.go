@@ -403,19 +403,15 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 
 		// raw polymorphic
 		It("polymorphic raw pointer argument is upcast to parameter type", func() {
-			// @todo: fix me.
-			/*derived, err := generated.NewClassPolyDerived(engine, ctx)
+			derived, err := generated.NewClassPolyDerived(engine, ctx)
 			Expect(err).To(BeNil())
 
-			_, err = generated.Embind_test_get_class_name_via_polymorphic_base_ptr(engine, ctx, derived)
-			Expect(err).To(BeNil())
-
-			name, err := derived.GetClassName(ctx)
+			name, err := generated.Embind_test_get_class_name_via_polymorphic_base_ptr(engine, ctx, derived)
 			Expect(err).To(BeNil())
 			Expect(name).To(Equal("PolyBase"))
 
 			err = derived.Delete(ctx)
-			Expect(err).To(BeNil())*/
+			Expect(err).To(BeNil())
 		})
 
 		It("automatic polymorphic raw pointer upcasting works with multiple inheritance", func() {
@@ -725,151 +721,166 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 
 	})
 	When("string", func() {
+		// var stdStringIsUTF8 = (cm.getCompilerSetting('EMBIND_STD_STRING_IS_UTF8') === true);
+		// We only support that this is true.
+		stdStringIsUTF8 := true
+
+		It("non-ascii strings", func() {
+
+			//if(stdStringIsUTF8) {
+
+			//ASCII
+			expected := "aei"
+			//Latin-1 Supplement
+			expected += "\u00E1\u00E9\u00ED"
+			//Greek
+			expected += "\u03B1\u03B5\u03B9"
+			//Cyrillic
+			expected += "\u0416\u041B\u0424"
+			//CJK
+			expected += "\u5F9E\u7345\u5B50"
+			//Euro sign
+			expected += "\u20AC"
+
+			//} else {
+			//	for (var i = 0; i < 128; ++i) {
+			//			expected += String.fromCharCode(128 + i);
+			//		}
+			//	}
+
+			non_ascii_string, err := generated.Get_non_ascii_string(engine, ctx, stdStringIsUTF8)
+			Expect(err).To(BeNil())
+			Expect(non_ascii_string).To(Equal(expected))
+		})
+
 		/*
-		   var stdStringIsUTF8 = (cm.getCompilerSetting('EMBIND_STD_STRING_IS_UTF8') === true);
-
-		   test("non-ascii strings", function() {
-
-		       var expected = '';
-		       if(stdStringIsUTF8) {
-		           //ASCII
-		           expected = 'aei';
-		           //Latin-1 Supplement
-		           expected += '\u00E1\u00E9\u00ED';
-		           //Greek
-		           expected += '\u03B1\u03B5\u03B9';
-		           //Cyrillic
-		           expected += '\u0416\u041B\u0424';
-		           //CJK
-		           expected += '\u5F9E\u7345\u5B50';
-		           //Euro sign
-		           expected += '\u20AC';
-		       } else {
-		           for (var i = 0; i < 128; ++i) {
-		               expected += String.fromCharCode(128 + i);
-		           }
-		       }
-		       assert.equal(expected, cm.get_non_ascii_string(stdStringIsUTF8));
-		   });
 		   if(!stdStringIsUTF8) {
-		       test("passing non-8-bit strings from JS to std::string throws", function() {
+		       It("passing non-8-bit strings from JS to std::string throws", func() {
 		           assert.throws(cm.BindingError, function() {
 		               cm.emval_test_take_and_return_std_string("\u1234");
 		           });
 		       });
 		   }
-		   test("can't pass integers as strings", function() {
-		       var e = assert.throws(cm.BindingError, function() {
-		           cm.emval_test_take_and_return_std_string(10);
-		       });
-		   });
+		*/
 
-		   test("can pass Uint8Array to std::string", function() {
-		       var e = cm.emval_test_take_and_return_std_string(new Uint8Array([65, 66, 67, 68]));
-		       assert.equal('ABCD', e);
-		   });
+		It("can't pass integers as strings", func() {
+			_, err := engine.CallPublicSymbol(ctx, "emval_test_take_and_return_std_string", 10)
+			Expect(err).To(Not(BeNil()))
+			if err != nil {
+				Expect(err.Error()).To(ContainSubstring("value must be of type string"))
+			}
+		})
 
-		   test("can pass Uint8ClampedArray to std::string", function() {
-		       var e = cm.emval_test_take_and_return_std_string(new Uint8ClampedArray([65, 66, 67, 68]));
-		       assert.equal('ABCD', e);
-		   });
+		/*
+					   It("can pass Uint8Array to std::string", func() {
+					       var e = cm.emval_test_take_and_return_std_string(new Uint8Array([65, 66, 67, 68]));
+					       assert.equal('ABCD', e);
+					   });
 
-		   test("can pass Int8Array to std::string", function() {
-		       var e = cm.emval_test_take_and_return_std_string(new Int8Array([65, 66, 67, 68]));
-		       assert.equal('ABCD', e);
-		   });
+					It("can pass Uint8ClampedArray to std::string", func() {
+					       var e = cm.emval_test_take_and_return_std_string(new Uint8ClampedArray([65, 66, 67, 68]));
+					       assert.equal('ABCD', e);
+					   });
 
-		   test("can pass ArrayBuffer to std::string", function() {
-		       var e = cm.emval_test_take_and_return_std_string((new Int8Array([65, 66, 67, 68])).buffer);
-		       assert.equal('ABCD', e);
-		   });
+					It("can pass Int8Array to std::string", func() {
+					       var e = cm.emval_test_take_and_return_std_string(new Int8Array([65, 66, 67, 68]));
+					       assert.equal('ABCD', e);
+					   });
 
-		   test("can pass Uint8Array to std::basic_string<unsigned char>", function() {
-		       var e = cm.emval_test_take_and_return_std_basic_string_unsigned_char(new Uint8Array([65, 66, 67, 68]));
-		       assert.equal('ABCD', e);
-		   });
+					It("can pass ArrayBuffer to std::string", func() {
+					       var e = cm.emval_test_take_and_return_std_string((new Int8Array([65, 66, 67, 68])).buffer);
+					       assert.equal('ABCD', e);
+					   });
 
-		   test("can pass long string to std::basic_string<unsigned char>", function() {
-		       var s = 'this string is long enough to exceed the short string optimization';
-		       var e = cm.emval_test_take_and_return_std_basic_string_unsigned_char(s);
-		       assert.equal(s, e);
-		   });
+					It("can pass Uint8Array to std::basic_string<unsigned char>", func() {
+					       var e = cm.emval_test_take_and_return_std_basic_string_unsigned_char(new Uint8Array([65, 66, 67, 68]));
+					       assert.equal('ABCD', e);
+					   });
 
-		   test("can pass Uint8ClampedArray to std::basic_string<unsigned char>", function() {
-		       var e = cm.emval_test_take_and_return_std_basic_string_unsigned_char(new Uint8ClampedArray([65, 66, 67, 68]));
-		       assert.equal('ABCD', e);
-		   });
+					It("can pass long string to std::basic_string<unsigned char>", func() {
+					       var s = 'this string is long enough to exceed the short string optimization';
+					       var e = cm.emval_test_take_and_return_std_basic_string_unsigned_char(s);
+					       assert.equal(s, e);
+					   });
+
+					It("can pass Uint8ClampedArray to std::basic_string<unsigned char>", func() {
+					       var e = cm.emval_test_take_and_return_std_basic_string_unsigned_char(new Uint8ClampedArray([65, 66, 67, 68]));
+					       assert.equal('ABCD', e);
+					   });
 
 
-		   test("can pass Int8Array to std::basic_string<unsigned char>", function() {
-		       var e = cm.emval_test_take_and_return_std_basic_string_unsigned_char(new Int8Array([65, 66, 67, 68]));
-		       assert.equal('ABCD', e);
-		   });
+					It("can pass Int8Array to std::basic_string<unsigned char>", func() {
+					       var e = cm.emval_test_take_and_return_std_basic_string_unsigned_char(new Int8Array([65, 66, 67, 68]));
+					       assert.equal('ABCD', e);
+					   });
 
-		   test("can pass ArrayBuffer to std::basic_string<unsigned char>", function() {
-		       var e = cm.emval_test_take_and_return_std_basic_string_unsigned_char((new Int8Array([65, 66, 67, 68])).buffer);
-		       assert.equal('ABCD', e);
-		   });
+					It("can pass ArrayBuffer to std::basic_string<unsigned char>", func() {
+					       var e = cm.emval_test_take_and_return_std_basic_string_unsigned_char((new Int8Array([65, 66, 67, 68])).buffer);
+					       assert.equal('ABCD', e);
+					   });
 
-		   test("can pass string to std::string", function() {
-		       var string = stdStringIsUTF8?"aeiáéíαειЖЛФ從獅子€":"ABCD";
+					It("can pass string to std::string", func() {
+					       //var string = stdStringIsUTF8?"aeiáéíαειЖЛФ從獅子€":"ABCD";
 
-		       var e = cm.emval_test_take_and_return_std_string(string);
-		       assert.equal(string, e);
-		   });
+							string := "aeiáéíαειЖЛФ從獅子€"
 
-		   var utf16TestString = String.fromCharCode(10) +
-		       String.fromCharCode(1234) +
-		       String.fromCharCode(2345) +
-		       String.fromCharCode(65535);
-		   var utf32TestString = String.fromCharCode(10) +
-		       String.fromCharCode(1234) +
-		       String.fromCharCode(2345) +
-		       String.fromCharCode(55357) +
-		       String.fromCharCode(56833) +
-		       String.fromCharCode(55357) +
-		       String.fromCharCode(56960);
+					       var e = cm.emval_test_take_and_return_std_string(string);
+					       assert.equal(string, e);
+					   });
 
-		   test("non-ascii wstrings", function() {
-		       assert.equal(utf16TestString, cm.get_non_ascii_wstring());
-		   });
+					   var utf16TestString = String.fromCharCode(10) +
+					       String.fromCharCode(1234) +
+					       String.fromCharCode(2345) +
+					       String.fromCharCode(65535);
 
-		   test("non-ascii u16strings", function() {
-		       assert.equal(utf16TestString, cm.get_non_ascii_u16string());
-		   });
+					   var utf32TestString = String.fromCharCode(10) +
+					       String.fromCharCode(1234) +
+					       String.fromCharCode(2345) +
+					       String.fromCharCode(55357) +
+					       String.fromCharCode(56833) +
+					       String.fromCharCode(55357) +
+					       String.fromCharCode(56960);
 
-		   test("non-ascii u32strings", function() {
-		       assert.equal(utf32TestString, cm.get_non_ascii_u32string());
-		   });
+			It("non-ascii wstrings", func() {
+					       assert.equal(utf16TestString, cm.get_non_ascii_wstring());
+					   });
 
-		   test("passing unicode (wide) string into C++", function() {
-		       assert.equal(utf16TestString, cm.take_and_return_std_wstring(utf16TestString));
-		   });
+			It("non-ascii u16strings", func() {
+					       assert.equal(utf16TestString, cm.get_non_ascii_u16string());
+					   });
 
-		   test("passing unicode (utf-16) string into C++", function() {
-		       assert.equal(utf16TestString, cm.take_and_return_std_u16string(utf16TestString));
-		   });
+			It("non-ascii u32strings", func() {
+					       assert.equal(utf32TestString, cm.get_non_ascii_u32string());
+					   });
 
-		   test("passing unicode (utf-32) string into C++", function() {
-		       assert.equal(utf32TestString, cm.take_and_return_std_u32string(utf32TestString));
-		   });
+			It("passing unicode (wide) string into C++", func() {
+					       assert.equal(utf16TestString, cm.take_and_return_std_wstring(utf16TestString));
+					   });
 
-		   if (cm.isMemoryGrowthEnabled) {
-		       test("can access a literal wstring after a memory growth", function() {
-		           cm.force_memory_growth();
-		           assert.equal("get_literal_wstring", cm.get_literal_wstring());
-		       });
+			It("passing unicode (utf-16) string into C++", func() {
+					       assert.equal(utf16TestString, cm.take_and_return_std_u16string(utf16TestString));
+					   });
 
-		       test("can access a literal u16string after a memory growth", function() {
-		           cm.force_memory_growth();
-		           assert.equal("get_literal_u16string", cm.get_literal_u16string());
-		       });
+			It("passing unicode (utf-32) string into C++", func() {
+					       assert.equal(utf32TestString, cm.take_and_return_std_u32string(utf32TestString));
+					   });
 
-		       test("can access a literal u32string after a memory growth", function() {
-		           cm.force_memory_growth();
-		           assert.equal("get_literal_u32string", cm.get_literal_u32string());
-		       });
-		   }
+					   //if (cm.isMemoryGrowthEnabled) {
+			It("can access a literal wstring after a memory growth", func() {
+					           cm.force_memory_growth();
+					           assert.equal("get_literal_wstring", cm.get_literal_wstring());
+					       });
+
+			It("can access a literal u16string after a memory growth", func() {
+					           cm.force_memory_growth();
+					           assert.equal("get_literal_u16string", cm.get_literal_u16string());
+					       });
+
+			It("can access a literal u32string after a memory growth", func() {
+					           cm.force_memory_growth();
+					           assert.equal("get_literal_u32string", cm.get_literal_u32string());
+					       });
+					   //}
 		*/
 	})
 	When("embind", func() {
@@ -3251,109 +3262,186 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 	})
 
 	When("val::new_", func() {
-		/*
-		   test("variety of types", function() {
-		       function factory() {
-		           this.arguments = Array.prototype.slice.call(arguments, 0);
-		       }
-		       var instance = cm.construct_with_6_arguments(factory);
-		       assert.deepEqual(
-		           [6, -12.5, "a3", {x: 1, y: 2, z: 3, w: 4}, cm.EnumClass.TWO, [-1, -2, -3, -4]],
-		           instance.arguments);
-		   });
+		It("variety of types", func() {
+			// @todo: figure out why arg2 becomes uint64 while it is double in
+			// emscripten.
+			type factoryStruct struct {
+				Arg1 uint8                   `embind_arg:"0"`
+				Arg2 float64                 `embind_arg:"1"`
+				Arg3 string                  `embind_arg:"2"`
+				Arg4 map[string]any          `embind_arg:"3"`
+				Arg5 generated.EnumEnumClass `embind_arg:"4"`
+				Arg6 []any                   `embind_arg:"5"`
+			}
+			instance, err := generated.Construct_with_6_arguments(engine, ctx, factoryStruct{})
+			Expect(err).To(BeNil())
+			Expect(instance).To(Equal(factoryStruct{
+				Arg1: 6,
+				Arg2: -12.5,
+				Arg3: "a3",
+				Arg4: map[string]any{
+					"x": float32(1),
+					"y": float32(2),
+					"z": float32(3),
+					"w": float32(4),
+				},
+				Arg5: generated.EnumEnumClass_TWO,
+				Arg6: []any{
+					float32(-1),
+					float32(-2),
+					float32(-3),
+					float32(-4),
+				},
+			}))
+		})
 
-		   test("memory view", function() {
-		       function factory(before, view, after) {
-		           this.before = before;
-		           this.view = view;
-		           this.after = after;
-		       }
+		It("memory view", func() {
+			type factoryStruct struct {
+				Before string `embind_arg:"0"`
+				View   []int8 `embind_arg:"1"`
+				After  string `embind_arg:"2"`
+			}
 
-		       var instance = cm.construct_with_memory_view(factory);
-		       assert.equal("before", instance.before);
-		       assert.equal(10, instance.view.byteLength);
-		       assert.equal("after", instance.after);
-		   });
+			instance, err := generated.Construct_with_memory_view(engine, ctx, factoryStruct{})
+			Expect(err).To(BeNil())
+			Expect(instance).To(Equal(factoryStruct{
+				Before: "before",
+				View:   []int8{48, 49, 50, 51, 52, 53, 54, 55, 56, 57},
+				After:  "after",
+			}))
+		})
 
-		   test("ints_and_float", function() {
-		       function factory(a, b, c) {
-		           this.a = a;
-		           this.b = b;
-		           this.c = c;
-		       }
+		It("ints_and_float", func() {
+			type factoryStruct struct {
+				A int32   `embind_arg:"0"`
+				B float32 `embind_arg:"1"`
+				C int32   `embind_arg:"2"`
+			}
 
-		       var instance = cm.construct_with_ints_and_float(factory);
-		       assert.equal(65537, instance.a);
-		       assert.equal(4.0, instance.b);
-		       assert.equal(65538, instance.c);
-		   });
+			instance, err := generated.Construct_with_ints_and_float(engine, ctx, factoryStruct{})
+			Expect(err).To(BeNil())
+			Expect(instance).To(Equal(factoryStruct{
+				A: 65537,
+				B: 4.0,
+				C: 65538,
+			}))
+		})
 
-		   if (cm.isMemoryGrowthEnabled) {
-		       test("before and after memory growth", function() {
-		           var array = cm.construct_with_arguments_before_and_after_memory_growth();
-		           assert.equal(array[0].byteLength, 5);
-		           assert.equal(array[0].byteLength, array[1].byteLength);
-		       });
-		   }
-		*/
+		It("before and after memory growth", func() {
+			// @todo: implement EmvalNewArray.
+			//array, err := generated.Construct_with_arguments_before_and_after_memory_growth(engine, ctx)
+			//Expect(err).To(BeNil())
+			//Expect(array.([]uint8)[0]).To(HaveLen(5))
+			//Expect(array.([]uint8)[0]).To(HaveLen(len(array.([]uint8)[1])))
+		})
 	})
 
 	When("intrusive pointers", func() {
-		/*
-		   test("can pass intrusive pointers", function() {
-		       var ic = new cm.IntrusiveClass;
-		       var d = cm.passThroughIntrusiveClass(ic);
-		       assert.true(ic.isAliasOf(d));
-		       ic.delete();
-		       d.delete();
-		   });
+		It("can pass intrusive pointers", func() {
+			ic, err := generated.NewClassIntrusiveClass(engine, ctx)
+			Expect(err).To(BeNil())
 
-		   test("can hold intrusive pointers", function() {
-		       var ic = new cm.IntrusiveClass;
-		       var holder = new cm.IntrusiveClassHolder;
-		       holder.set(ic);
-		       ic.delete();
-		       var d = holder.get();
-		       d.delete();
-		       holder.delete();
-		   });
+			d, err := generated.PassThroughIntrusiveClass(engine, ctx, ic)
+			Expect(err).To(BeNil())
 
-		   test("can extend from intrusive pointer class and still preserve reference in JavaScript", function() {
-		       var C = cm.IntrusiveClass.extend("C", {
-		       });
-		       var instance = new C;
-		       var holder = new cm.IntrusiveClassHolder;
-		       holder.set(instance);
-		       instance.delete();
+			isAlias, err := ic.IsAliasOf(ctx, d)
+			Expect(err).To(BeNil())
+			Expect(isAlias).To(Equal(true))
 
-		       var back = holder.get();
-		       assert.equal(back, instance);
-		       holder.delete();
-		       back.delete();
-		   });
-		*/
+			err = ic.Delete(ctx)
+			Expect(err).To(BeNil())
+
+			err = d.(*generated.ClassIntrusiveClass).Delete(ctx)
+			Expect(err).To(BeNil())
+		})
+
+		It("can hold intrusive pointers", func() {
+			ic, err := generated.NewClassIntrusiveClass(engine, ctx)
+			Expect(err).To(BeNil())
+
+			holder, err := generated.NewClassIntrusiveClassHolder(engine, ctx)
+			Expect(err).To(BeNil())
+
+			err = holder.Set(ctx, ic)
+			Expect(err).To(BeNil())
+
+			err = ic.Delete(ctx)
+			Expect(err).To(BeNil())
+
+			d, err := holder.Get(ctx)
+			Expect(err).To(BeNil())
+
+			err = d.(*generated.ClassIntrusiveClass).Delete(ctx)
+			Expect(err).To(BeNil())
+
+			err = holder.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
+
+		// We don't support this in Go. Needs CreateInheritingConstructor.
+		// @todo: implement CreateInheritingConstructor.
+		/*It("can extend from intrusive pointer class and still preserve reference in JavaScript", func() {
+			C, err := generated.ClassIntrusiveClassStaticExtend(engine, ctx, "C", struct {
+			}{})
+			Expect(err).To(BeNil())
+			log.Println(C)
+
+			//var instance = new C;
+			//var holder = new cm.IntrusiveClassHolder;
+			//holder.set(instance);
+			//instance.delete();
+
+			//var back = holder.get();
+			//assert.equal(back, instance);
+			//holder.delete();
+			//back.delete();
+		})*/
 	})
 
 	When("typeof", func() {
-		/*
-		   test("typeof", function() {
-		       assert.equal("object", cm.getTypeOfVal(null));
-		       assert.equal("object", cm.getTypeOfVal({}));
-		       assert.equal("function", cm.getTypeOfVal(function(){}));
-		       assert.equal("number", cm.getTypeOfVal(1));
-		       assert.equal("string", cm.getTypeOfVal("hi"));
-		   });
-		*/
+		It("typeof", func() {
+			// @todo: implement EmvalTypeof
+
+			/*
+				typeName, err := generated.GetTypeOfVal(engine, ctx, nil)
+				Expect(err).To(BeNil())
+				Expect(typeName).To(Equal("object"))
+
+				typeName, err = generated.GetTypeOfVal(engine, ctx, struct{}{})
+				Expect(err).To(BeNil())
+				Expect(typeName).To(Equal("object"))
+
+				typeName, err = generated.GetTypeOfVal(engine, ctx, func() {})
+				Expect(err).To(BeNil())
+				Expect(typeName).To(Equal("function"))
+
+				typeName, err = generated.GetTypeOfVal(engine, ctx, 1)
+				Expect(err).To(BeNil())
+				Expect(typeName).To(Equal("number"))
+
+				typeName, err = generated.GetTypeOfVal(engine, ctx, "hi")
+				Expect(err).To(BeNil())
+				Expect(typeName).To(Equal("string"))
+			*/
+		})
 	})
 
 	When("static members", func() {
-		/*
-		   test("static members", function() {
-		       assert.equal(10, cm.HasStaticMember.c);
-		       assert.equal(20, cm.HasStaticMember.v);
-		       cm.HasStaticMember.v = 30;
-		       assert.equal(30, cm.HasStaticMember.v);
-		   });
-		*/
+		It("static members", func() {
+			c, err := generated.ClassHasStaticMemberGetStaticPropertyC(engine, ctx)
+			Expect(err).To(BeNil())
+			Expect(c).To(Equal(int32(10)))
+
+			v, err := generated.ClassHasStaticMemberGetStaticPropertyV(engine, ctx)
+			Expect(err).To(BeNil())
+			Expect(v).To(Equal(int32(20)))
+
+			err = generated.ClassHasStaticMemberSetStaticPropertyV(engine, ctx, 30)
+			Expect(err).To(BeNil())
+
+			v, err = generated.ClassHasStaticMemberGetStaticPropertyV(engine, ctx)
+			Expect(err).To(BeNil())
+			Expect(v).To(Equal(int32(30)))
+		})
 	})
 })

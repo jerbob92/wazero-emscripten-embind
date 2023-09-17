@@ -23,6 +23,10 @@ func (class *ClassAbstractClass) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassAbstractClass) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassAbstractClass) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -122,6 +126,10 @@ func (class *ClassAbstractClassWithConstructor) Delete(ctx context.Context) erro
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassAbstractClassWithConstructor) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassAbstractClassWithConstructor) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -200,6 +208,10 @@ func (class *ClassAbstractClassWithConstructorWrapper) Clone(ctx context.Context
 
 func (class *ClassAbstractClassWithConstructorWrapper) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassAbstractClassWithConstructorWrapper) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassAbstractClassWithConstructorWrapper) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -285,6 +297,10 @@ func (class *ClassAbstractClassWrapper) Clone(ctx context.Context) (*ClassAbstra
 
 func (class *ClassAbstractClassWrapper) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassAbstractClassWrapper) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassAbstractClassWrapper) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -389,6 +405,10 @@ func (class *ClassBase) Clone(ctx context.Context) (*ClassBase, error) {
 
 func (class *ClassBase) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassBase) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassBase) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -524,6 +544,10 @@ func (class *ClassBase1) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassBase1) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassBase1) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -568,6 +592,10 @@ func (class *ClassBase2) Clone(ctx context.Context) (*ClassBase2, error) {
 
 func (class *ClassBase2) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassBase2) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassBase2) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -617,6 +645,10 @@ func (class *ClassBaseClass) Clone(ctx context.Context) (*ClassBaseClass, error)
 
 func (class *ClassBaseClass) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassBaseClass) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassBaseClass) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -684,6 +716,10 @@ func (class *ClassBaseClassWrapper) Clone(ctx context.Context) (*ClassBaseClassW
 
 func (class *ClassBaseClassWrapper) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassBaseClassWrapper) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassBaseClassWrapper) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -756,6 +792,10 @@ func (class *ClassBigClass) Clone(ctx context.Context) (*ClassBigClass, error) {
 
 func (class *ClassBigClass) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassBigClass) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassBigClass) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -840,6 +880,10 @@ func (class *ClassBoundClass) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassBoundClass) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassBoundClass) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -877,6 +921,10 @@ func (class *ClassC) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassC) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassC) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -912,6 +960,10 @@ func (class *ClassCharVector) Clone(ctx context.Context) (*ClassCharVector, erro
 
 func (class *ClassCharVector) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassCharVector) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassCharVector) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -988,6 +1040,10 @@ func (class *ClassConstAndNonConst) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassConstAndNonConst) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassConstAndNonConst) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -1023,6 +1079,10 @@ func (class *ClassConstructFromFunctionObject) Clone(ctx context.Context) (*Clas
 
 func (class *ClassConstructFromFunctionObject) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassConstructFromFunctionObject) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassConstructFromFunctionObject) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -1080,6 +1140,10 @@ func (class *ClassConstructFromStdFunction) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassConstructFromStdFunction) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassConstructFromStdFunction) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -1135,6 +1199,10 @@ func (class *ClassContainsTemplatedMemberClass) Delete(ctx context.Context) erro
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassContainsTemplatedMemberClass) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassContainsTemplatedMemberClass) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -1179,6 +1247,10 @@ func (class *ClassCustomStruct) Clone(ctx context.Context) (*ClassCustomStruct, 
 
 func (class *ClassCustomStruct) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassCustomStruct) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassCustomStruct) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -1237,6 +1309,10 @@ func (class *ClassDerived) Clone(ctx context.Context) (*ClassDerived, error) {
 
 func (class *ClassDerived) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassDerived) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassDerived) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -1372,6 +1448,10 @@ func (class *ClassDerivedClass) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassDerivedClass) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassDerivedClass) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -1439,6 +1519,10 @@ func (class *ClassDerivedHolder) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassDerivedHolder) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassDerivedHolder) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -1502,6 +1586,10 @@ func (class *ClassDerivedThrice) Clone(ctx context.Context) (*ClassDerivedThrice
 
 func (class *ClassDerivedThrice) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassDerivedThrice) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassDerivedThrice) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -1637,6 +1725,10 @@ func (class *ClassDerivedTwice) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassDerivedTwice) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassDerivedTwice) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -1768,6 +1860,10 @@ func (class *ClassDerivedWithMixin) Clone(ctx context.Context) (*ClassDerivedWit
 
 func (class *ClassDerivedWithMixin) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassDerivedWithMixin) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassDerivedWithMixin) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -1912,6 +2008,10 @@ func (class *ClassDerivedWithOffset) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassDerivedWithOffset) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassDerivedWithOffset) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -2045,6 +2145,10 @@ func (class *ClassDummyForOverloads) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassDummyForOverloads) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassDummyForOverloads) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -2082,6 +2186,10 @@ func (class *ClassDummyForPointer) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassDummyForPointer) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassDummyForPointer) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -2108,6 +2216,10 @@ func (class *ClassEmValVector) Clone(ctx context.Context) (*ClassEmValVector, er
 
 func (class *ClassEmValVector) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassEmValVector) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassEmValVector) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -2184,6 +2296,10 @@ func (class *ClassFirstElement) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassFirstElement) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassFirstElement) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -2210,6 +2326,10 @@ func (class *ClassFloatVector) Clone(ctx context.Context) (*ClassFloatVector, er
 
 func (class *ClassFloatVector) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassFloatVector) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassFloatVector) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -2286,6 +2406,10 @@ func (class *ClassFoo) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassFoo) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassFoo) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -2323,6 +2447,10 @@ func (class *ClassHasConstructorUsingUnboundArgument) Delete(ctx context.Context
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassHasConstructorUsingUnboundArgument) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassHasConstructorUsingUnboundArgument) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -2358,6 +2486,10 @@ func (class *ClassHasExternalConstructor) Clone(ctx context.Context) (*ClassHasE
 
 func (class *ClassHasExternalConstructor) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassHasExternalConstructor) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassHasExternalConstructor) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -2406,6 +2538,10 @@ func (class *ClassHasReadOnlyProperty) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassHasReadOnlyProperty) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassHasReadOnlyProperty) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -2450,6 +2586,10 @@ func (class *ClassHasStaticMember) Clone(ctx context.Context) (*ClassHasStaticMe
 
 func (class *ClassHasStaticMember) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassHasStaticMember) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassHasStaticMember) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -2520,6 +2660,10 @@ func (class *ClassHasTwoBases) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassHasTwoBases) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassHasTwoBases) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -2576,6 +2720,10 @@ func (class *ClassHeldAbstractClass) Clone(ctx context.Context) (*ClassHeldAbstr
 
 func (class *ClassHeldAbstractClass) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassHeldAbstractClass) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassHeldAbstractClass) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -2652,6 +2800,10 @@ func (class *ClassHeldAbstractClassWrapper) Clone(ctx context.Context) (*ClassHe
 
 func (class *ClassHeldAbstractClassWrapper) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassHeldAbstractClassWrapper) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassHeldAbstractClassWrapper) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -2735,6 +2887,10 @@ func (class *ClassHeldByCustomSmartPtr) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassHeldByCustomSmartPtr) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassHeldByCustomSmartPtr) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -2811,6 +2967,10 @@ func (class *ClassHeldBySmartPtr) Clone(ctx context.Context) (*ClassHeldBySmartP
 
 func (class *ClassHeldBySmartPtr) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassHeldBySmartPtr) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassHeldBySmartPtr) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -2900,6 +3060,10 @@ func (class *ClassIntTemplateClass) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassIntTemplateClass) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassIntTemplateClass) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -2944,6 +3108,10 @@ func (class *ClassIntegerVector) Clone(ctx context.Context) (*ClassIntegerVector
 
 func (class *ClassIntegerVector) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassIntegerVector) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassIntegerVector) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -3020,6 +3188,10 @@ func (class *ClassIntegerVectorVector) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassIntegerVectorVector) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassIntegerVectorVector) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -3094,6 +3266,10 @@ func (class *ClassInterface) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassInterface) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassInterface) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -3159,6 +3335,10 @@ func (class *ClassInterfaceWrapper) Clone(ctx context.Context) (*ClassInterfaceW
 
 func (class *ClassInterfaceWrapper) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassInterfaceWrapper) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassInterfaceWrapper) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -3233,6 +3413,10 @@ func (class *ClassIntrusiveClass) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassIntrusiveClass) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassIntrusiveClass) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -3304,6 +3488,10 @@ func (class *ClassIntrusiveClassHolder) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassIntrusiveClassHolder) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassIntrusiveClassHolder) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -3353,6 +3541,10 @@ func (class *ClassIntrusiveClassWrapper) Clone(ctx context.Context) (*ClassIntru
 
 func (class *ClassIntrusiveClassWrapper) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassIntrusiveClassWrapper) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassIntrusiveClassWrapper) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -3420,6 +3612,10 @@ func (class *ClassMap_int__string_) Clone(ctx context.Context) (*ClassMap_int__s
 
 func (class *ClassMap_int__string_) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassMap_int__string_) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassMap_int__string_) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -3491,6 +3687,10 @@ func (class *ClassMultipleAccessors) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassMultipleAccessors) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassMultipleAccessors) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -3526,6 +3726,10 @@ func (class *ClassMultipleCtors) Clone(ctx context.Context) (*ClassMultipleCtors
 
 func (class *ClassMultipleCtors) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassMultipleCtors) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassMultipleCtors) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -3590,6 +3794,10 @@ func (class *ClassMultipleOverloads) Clone(ctx context.Context) (*ClassMultipleO
 
 func (class *ClassMultipleOverloads) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassMultipleOverloads) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassMultipleOverloads) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -3707,6 +3915,10 @@ func (class *ClassMultipleOverloadsDependingOnDummy) Delete(ctx context.Context)
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassMultipleOverloadsDependingOnDummy) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassMultipleOverloadsDependingOnDummy) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -3794,6 +4006,10 @@ func (class *ClassMultipleOverloadsDerived) Clone(ctx context.Context) (*ClassMu
 
 func (class *ClassMultipleOverloadsDerived) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassMultipleOverloadsDerived) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassMultipleOverloadsDerived) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -3963,6 +4179,10 @@ func (class *ClassMultipleSmartCtors) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassMultipleSmartCtors) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassMultipleSmartCtors) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -4016,6 +4236,10 @@ func (class *ClassMultiplyDerived) Clone(ctx context.Context) (*ClassMultiplyDer
 
 func (class *ClassMultiplyDerived) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassMultiplyDerived) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassMultiplyDerived) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -4168,6 +4392,10 @@ func (class *ClassMyClass) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassMyClass) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassMyClass) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -4271,6 +4499,10 @@ func (class *ClassNoExceptClass) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassNoExceptClass) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassNoExceptClass) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -4334,6 +4566,10 @@ func (class *ClassNoncopyable) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassNoncopyable) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassNoncopyable) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -4380,6 +4616,10 @@ func (class *ClassParentClass) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassParentClass) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassParentClass) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -4424,6 +4664,10 @@ func (class *ClassPolyBase) Clone(ctx context.Context) (*ClassPolyBase, error) {
 
 func (class *ClassPolyBase) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassPolyBase) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassPolyBase) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -4479,6 +4723,10 @@ func (class *ClassPolyDerived) Clone(ctx context.Context) (*ClassPolyDerived, er
 
 func (class *ClassPolyDerived) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassPolyDerived) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassPolyDerived) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -4588,6 +4836,10 @@ func (class *ClassPolyDerivedThrice) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassPolyDerivedThrice) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassPolyDerivedThrice) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -4678,6 +4930,10 @@ func (class *ClassPolyDiamondBase) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassPolyDiamondBase) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassPolyDiamondBase) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -4722,6 +4978,10 @@ func (class *ClassPolyDiamondDerived) Clone(ctx context.Context) (*ClassPolyDiam
 
 func (class *ClassPolyDiamondDerived) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassPolyDiamondDerived) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassPolyDiamondDerived) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -4770,6 +5030,10 @@ func (class *ClassPolyDiamondMultiplyDerived) Delete(ctx context.Context) error 
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassPolyDiamondMultiplyDerived) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassPolyDiamondMultiplyDerived) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -4816,6 +5080,10 @@ func (class *ClassPolyDiamondSiblingDerived) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassPolyDiamondSiblingDerived) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassPolyDiamondSiblingDerived) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -4860,6 +5128,10 @@ func (class *ClassPolyMultiplyDerived) Clone(ctx context.Context) (*ClassPolyMul
 
 func (class *ClassPolyMultiplyDerived) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassPolyMultiplyDerived) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassPolyMultiplyDerived) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -4917,6 +5189,10 @@ func (class *ClassPolySecondBase) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassPolySecondBase) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassPolySecondBase) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -4961,6 +5237,10 @@ func (class *ClassPolySiblingDerived) Clone(ctx context.Context) (*ClassPolySibl
 
 func (class *ClassPolySiblingDerived) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassPolySiblingDerived) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassPolySiblingDerived) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -5016,6 +5296,10 @@ func (class *ClassSecondBase) Clone(ctx context.Context) (*ClassSecondBase, erro
 
 func (class *ClassSecondBase) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassSecondBase) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassSecondBase) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -5134,6 +5418,10 @@ func (class *ClassSecondElement) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassSecondElement) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassSecondElement) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -5160,6 +5448,10 @@ func (class *ClassSharedPtrHolder) Clone(ctx context.Context) (*ClassSharedPtrHo
 
 func (class *ClassSharedPtrHolder) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassSharedPtrHolder) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassSharedPtrHolder) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -5211,6 +5503,10 @@ func (class *ClassSharedPtrVector) Clone(ctx context.Context) (*ClassSharedPtrVe
 
 func (class *ClassSharedPtrVector) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassSharedPtrVector) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassSharedPtrVector) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -5287,6 +5583,10 @@ func (class *ClassSiblingDerived) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassSiblingDerived) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassSiblingDerived) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -5331,6 +5631,10 @@ func (class *ClassSmallClass) Clone(ctx context.Context) (*ClassSmallClass, erro
 
 func (class *ClassSmallClass) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassSmallClass) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassSmallClass) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -5382,6 +5686,10 @@ func (class *ClassStringFunctorString) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassStringFunctorString) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassStringFunctorString) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -5426,6 +5734,10 @@ func (class *ClassStringHolder) Clone(ctx context.Context) (*ClassStringHolder, 
 
 func (class *ClassStringHolder) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassStringHolder) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassStringHolder) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -5486,6 +5798,10 @@ func (class *ClassStringHolderVector) Clone(ctx context.Context) (*ClassStringHo
 
 func (class *ClassStringHolderVector) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassStringHolderVector) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassStringHolderVector) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -5562,6 +5878,10 @@ func (class *ClassStringIntMap) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassStringIntMap) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassStringIntMap) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -5629,6 +5949,10 @@ func (class *ClassStringVector) Clone(ctx context.Context) (*ClassStringVector, 
 
 func (class *ClassStringVector) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassStringVector) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassStringVector) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -5705,6 +6029,10 @@ func (class *ClassUniquePtrLifetimeMock) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassUniquePtrLifetimeMock) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassUniquePtrLifetimeMock) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -5731,6 +6059,10 @@ func (class *ClassUniquePtrToConstructor) Clone(ctx context.Context) (*ClassUniq
 
 func (class *ClassUniquePtrToConstructor) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassUniquePtrToConstructor) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassUniquePtrToConstructor) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -5768,6 +6100,10 @@ func (class *ClassValHolder) Clone(ctx context.Context) (*ClassValHolder, error)
 
 func (class *ClassValHolder) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassValHolder) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassValHolder) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -6039,6 +6375,10 @@ func (class *ClassVectorHolder) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassVectorHolder) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassVectorHolder) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }
@@ -6088,6 +6428,10 @@ func (class *ClassVectorUnsigned) Clone(ctx context.Context) (*ClassVectorUnsign
 
 func (class *ClassVectorUnsigned) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassVectorUnsigned) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassVectorUnsigned) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
@@ -6162,6 +6506,10 @@ func (class *ClassVectorUnsignedChar) Clone(ctx context.Context) (*ClassVectorUn
 
 func (class *ClassVectorUnsignedChar) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassVectorUnsignedChar) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
 }
 
 func (class *ClassVectorUnsignedChar) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {

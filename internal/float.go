@@ -49,7 +49,7 @@ func (ft *floatType) ReadValueFromPointer(ctx context.Context, mod api.Module, p
 		val, _ := mod.Memory().ReadFloat32Le(pointer)
 		return val, nil
 	} else if ft.size == 8 {
-		val, _ := mod.Memory().ReadUint64Le(pointer)
+		val, _ := mod.Memory().ReadFloat64Le(pointer)
 		return val, nil
 	}
 

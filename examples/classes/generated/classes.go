@@ -23,6 +23,10 @@ func (class *ClassMyClass) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassMyClass) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
 func (class *ClassMyClass) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
 	return class.CallInstanceMethod(ctx, class, name, arguments...)
 }

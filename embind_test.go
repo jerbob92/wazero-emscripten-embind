@@ -792,7 +792,7 @@ var _ = Describe("Using embind structs", Label("library"), func() {
 })
 
 type webkitAudioContextOscillatorFrequency struct {
-	Value uint64 `embind_property:"value"`
+	Value float64 `embind_property:"value"`
 }
 
 type webkitAudioContextOscillator struct {

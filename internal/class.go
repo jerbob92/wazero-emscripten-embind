@@ -453,6 +453,10 @@ func (ecb *ClassBase) DeleteInstance(ctx context.Context, this IClassBase) error
 	return ecb.classType.delete(ctx, this)
 }
 
+func (ecb *ClassBase) IsAliasOfInstance(ctx context.Context, this IClassBase, second IClassBase) (bool, error) {
+	return ecb.classType.isAliasOf(ctx, this, second)
+}
+
 func (ecb *ClassBase) CallInstanceMethod(ctx context.Context, this any, name string, arguments ...any) (any, error) {
 	method, ok := ecb.classType.methods[name]
 	if !ok {
@@ -516,6 +520,7 @@ type IClassBase interface {
 	isValid() bool
 	CloneInstance(ctx context.Context, this IClassBase) (IClassBase, error)
 	DeleteInstance(ctx context.Context, this IClassBase) error
+	IsAliasOfInstance(ctx context.Context, this IClassBase, second IClassBase) (bool, error)
 	CallInstanceMethod(ctx context.Context, this any, name string, arguments ...any) (any, error)
 	SetInstanceProperty(ctx context.Context, this any, name string, value any) error
 	GetInstanceProperty(ctx context.Context, this any, name string) (any, error)
@@ -1351,7 +1356,7 @@ var CreateInheritingConstructor = api.GoModuleFunc(func(ctx context.Context, mod
 	log.Println(constructorName)
 
 	// @todo: implement me.
-	// @todo: i can't get embind to call this.
+	// @todo: this basically creates a new class with the same constructor.
 	panic("CreateInheritingConstructor call unimplemented")
 })
 
@@ -1385,7 +1390,7 @@ func (e *engine) GetStaticClassProperty(ctx context.Context, className, name str
 		return nil, fmt.Errorf("could not find class %s", className)
 	}
 
-	_, ok = e.registeredClasses[className].methods[name]
+	_, ok = e.registeredClasses[className].properties[name]
 	if !ok {
 		return nil, fmt.Errorf("could not find property %s on class %s", name, className)
 	}
@@ -1409,7 +1414,7 @@ func (e *engine) SetStaticClassProperty(ctx context.Context, className, name str
 		return fmt.Errorf("could not find class %s", className)
 	}
 
-	_, ok = e.registeredClasses[className].methods[name]
+	_, ok = e.registeredClasses[className].properties[name]
 	if !ok {
 		return fmt.Errorf("could not find property %s on class %s", name, className)
 	}
