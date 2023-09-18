@@ -2920,21 +2920,19 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 		It("calling function with unbound types produces error", func() {
 			assertMessage(
 				func() (any, error) {
-					return generated.GetUnboundClass(engine, ctx)
+					return generated.GetUnboundClass(engine, ctx, 1)
 				},
 				"getUnboundClass due to unbound types: 12UnboundClass")
 		})
 
-		// @todo: fix me.
-		/*
-			It("unbound base class produces error", func() {
-				assertMessage(
-					func() (any, error) {
-						return generated.GetHasUnboundBase(engine, ctx)
-					},
-					"getHasUnboundBase due to unbound types: 12UnboundClass")
-			})
-		*/
+		It("unbound base class produces error", func() {
+			// @todo: figure out why the missing class name isn't part of the message.
+			assertMessage(
+				func() (any, error) {
+					return generated.GetHasUnboundBase(engine, ctx, 1)
+				},
+				"getHasUnboundBase due to unbound types:")
+		})
 
 		It("construct of class with unbound base", func() {
 			assertMessage(
@@ -2943,16 +2941,13 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 				}, "HasUnboundBase due to unbound types: 12UnboundClass")
 		})
 
-		// @todo: fix me.
-		/*
-			It("unbound constructor argument", func() {
-				assertMessage(
-					func() (any, error) {
-						return generated.NewClassHasConstructorUsingUnboundArgument(engine, ctx)
-					},
-					"HasConstructorUsingUnboundArgument due to unbound types: 12UnboundClass")
-			})
-		*/
+		It("unbound constructor argument", func() {
+			assertMessage(
+				func() (any, error) {
+					return generated.NewClassHasConstructorUsingUnboundArgument(engine, ctx, 1)
+				},
+				"HasConstructorUsingUnboundArgument due to unbound types: 12UnboundClass")
+		})
 
 		It("unbound constructor argument of class with unbound base", func() {
 			assertMessage(
@@ -2968,7 +2963,7 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 
 			assertMessage(
 				func() (any, error) {
-					return x.Method(ctx)
+					return x.Method(ctx, 0)
 				}, "Cannot call BoundClass.method due to unbound types: 12UnboundClass")
 			err = x.Delete(ctx)
 			Expect(err).To(BeNil())
@@ -2977,7 +2972,7 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 		It("class class function with unbound argument", func() {
 			assertMessage(
 				func() (any, error) {
-					return generated.ClassBoundClassStaticClassfunction(engine, ctx)
+					return generated.ClassBoundClassStaticClassfunction(engine, ctx, 0)
 				}, "Cannot call BoundClass.classfunction due to unbound types: 12UnboundClass")
 		})
 

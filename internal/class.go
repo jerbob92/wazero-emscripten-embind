@@ -725,6 +725,8 @@ var RegisterClassConstructor = api.GoModuleFunc(func(ctx context.Context, mod ap
 			fn: func(ctx context.Context, this any, arguments ...any) (any, error) {
 				return nil, engine.createUnboundTypeError(ctx, fmt.Sprintf("Cannot call %s due to unbound types", classType.name), rawArgTypes)
 			},
+			argumentTypes: createAnyTypeArray(argCount - 1),
+			resultType:    &anyType{},
 		}
 
 		err := engine.whenDependentTypesAreResolved([]int32{}, rawArgTypes, func(argTypes []registeredType) ([]registeredType, error) {
@@ -798,6 +800,8 @@ var RegisterClassFunction = api.GoModuleFunc(func(ctx context.Context, mod api.M
 			fn: func(ctx context.Context, this any, arguments ...any) (any, error) {
 				return nil, engine.createUnboundTypeError(ctx, fmt.Sprintf("Cannot call %s due to unbound types", humanName), rawArgTypes)
 			},
+			argumentTypes: createAnyTypeArray(argCount - 2),
+			resultType:    &anyType{},
 		}
 
 		newMethodArgCount := argCount - 2
@@ -925,6 +929,8 @@ var RegisterClassClassFunction = api.GoModuleFunc(func(ctx context.Context, mod 
 			fn: func(ctx context.Context, this any, arguments ...any) (any, error) {
 				return nil, engine.createUnboundTypeError(ctx, fmt.Sprintf("Cannot call %s due to unbound types", humanName), rawArgTypes)
 			},
+			argumentTypes: createAnyTypeArray(argCount - 1),
+			resultType:    &anyType{},
 		}
 
 		newArgCount := argCount - 1
@@ -1049,11 +1055,13 @@ var RegisterClassClassProperty = api.GoModuleFunc(func(ctx context.Context, mod 
 			get: func(ctx context.Context, this any) (any, error) {
 				return nil, engine.createUnboundTypeError(ctx, fmt.Sprintf("Cannot access %s due to unbound types", humanName), []int32{rawFieldType})
 			},
+			getterType:   &anyType{},
 			enumerable:   true,
 			configurable: true,
 		}
 
 		if setter > 0 {
+			desc.setterType = &anyType{}
 			desc.set = func(ctx context.Context, this any, v any) error {
 				return engine.createUnboundTypeError(ctx, fmt.Sprintf("Cannot access %s due to unbound types", humanName), []int32{rawFieldType})
 			}
@@ -1164,11 +1172,13 @@ var RegisterClassProperty = api.GoModuleFunc(func(ctx context.Context, mod api.M
 			get: func(ctx context.Context, this any) (any, error) {
 				return nil, engine.createUnboundTypeError(ctx, fmt.Sprintf("Cannot access %s due to unbound types", humanName), []int32{getterReturnType, setterArgumentType})
 			},
+			getterType:   &anyType{},
 			enumerable:   true,
 			configurable: true,
 		}
 
 		if setter > 0 {
+			desc.setterType = &anyType{}
 			desc.set = func(ctx context.Context, this any, v any) error {
 				return engine.createUnboundTypeError(ctx, fmt.Sprintf("Cannot access %s due to unbound types", humanName), []int32{getterReturnType, setterArgumentType})
 			}

@@ -772,8 +772,8 @@ func Emval_delete(e embind.Engine, ctx context.Context, arg0 any) error {
 	return err
 }
 
-func Emval_has_own_property(e embind.Engine, ctx context.Context) (any, error) {
-	res, err := e.CallPublicSymbol(ctx, "emval_has_own_property")
+func Emval_has_own_property(e embind.Engine, ctx context.Context, arg0 any, arg1 any) (any, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_has_own_property", arg0, arg1)
 	if err != nil {
 		return nil, err
 	}
@@ -1184,16 +1184,16 @@ func Emval_type_of(e embind.Engine, ctx context.Context, arg0 any) (any, error) 
 	return res.(any), nil
 }
 
-func Emval_u16_string(e embind.Engine, ctx context.Context) (any, error) {
-	res, err := e.CallPublicSymbol(ctx, "emval_u16_string")
+func Emval_u16_string(e embind.Engine, ctx context.Context, arg0 any) (any, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_u16_string", arg0)
 	if err != nil {
 		return nil, err
 	}
 	return res.(any), nil
 }
 
-func Emval_u8_string(e embind.Engine, ctx context.Context) (any, error) {
-	res, err := e.CallPublicSymbol(ctx, "emval_u8_string")
+func Emval_u8_string(e embind.Engine, ctx context.Context, arg0 any) (any, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_u8_string", arg0)
 	if err != nil {
 		return nil, err
 	}
@@ -1314,8 +1314,8 @@ func GetDummy1(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) (emb
 	return res.(embind.ClassBase), nil
 }
 
-func GetHasUnboundBase(e embind.Engine, ctx context.Context) (any, error) {
-	res, err := e.CallPublicSymbol(ctx, "getHasUnboundBase")
+func GetHasUnboundBase(e embind.Engine, ctx context.Context, arg0 any) (any, error) {
+	res, err := e.CallPublicSymbol(ctx, "getHasUnboundBase", arg0)
 	if err != nil {
 		return nil, err
 	}
@@ -1354,8 +1354,8 @@ func GetTypeOfVal(e embind.Engine, ctx context.Context, arg0 any) (string, error
 	return res.(string), nil
 }
 
-func GetUnboundClass(e embind.Engine, ctx context.Context) (any, error) {
-	res, err := e.CallPublicSymbol(ctx, "getUnboundClass")
+func GetUnboundClass(e embind.Engine, ctx context.Context, arg0 any) (any, error) {
+	res, err := e.CallPublicSymbol(ctx, "getUnboundClass", arg0)
 	if err != nil {
 		return nil, err
 	}

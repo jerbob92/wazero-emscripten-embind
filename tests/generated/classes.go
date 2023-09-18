@@ -908,8 +908,8 @@ func (class *ClassBoundClass) SetPropertyProperty(ctx context.Context, val any) 
 	return class.SetProperty(ctx, "property", val)
 }
 
-func (class *ClassBoundClass) Method(ctx context.Context) (any, error) {
-	res, err := class.CallMethod(ctx, "method")
+func (class *ClassBoundClass) Method(ctx context.Context, arg0 any) (any, error) {
+	res, err := class.CallMethod(ctx, "method", arg0)
 	if err != nil {
 		return nil, err
 	}
@@ -917,16 +917,16 @@ func (class *ClassBoundClass) Method(ctx context.Context) (any, error) {
 	return res.(any), nil
 }
 
-func (class *ClassBoundClass) StaticClassfunction(ctx context.Context) (any, error) {
-	res, err := class.CallInstanceMethod(ctx, nil, "classfunction")
+func (class *ClassBoundClass) StaticClassfunction(ctx context.Context, arg0 any) (any, error) {
+	res, err := class.CallInstanceMethod(ctx, nil, "classfunction", arg0)
 	if err != nil {
 		return nil, err
 	}
 
 	return res.(any), nil
 }
-func ClassBoundClassStaticClassfunction(e embind.Engine, ctx context.Context) (any, error) {
-	res, err := e.CallStaticClassMethod(ctx, "BoundClass", "classfunction")
+func ClassBoundClassStaticClassfunction(e embind.Engine, ctx context.Context, arg0 any) (any, error) {
+	res, err := e.CallStaticClassMethod(ctx, "BoundClass", "classfunction", arg0)
 	if err != nil {
 		return nil, err
 	}
@@ -2501,8 +2501,8 @@ func (class *ClassHasConstructorUsingUnboundArgument) GetProperty(ctx context.Co
 	return class.GetInstanceProperty(ctx, class, name)
 }
 
-func NewClassHasConstructorUsingUnboundArgument(e embind.Engine, ctx context.Context) (*ClassHasConstructorUsingUnboundArgument, error) {
-	res, err := e.CallPublicSymbol(ctx, "HasConstructorUsingUnboundArgument")
+func NewClassHasConstructorUsingUnboundArgument(e embind.Engine, ctx context.Context, arg0 any) (*ClassHasConstructorUsingUnboundArgument, error) {
+	res, err := e.CallPublicSymbol(ctx, "HasConstructorUsingUnboundArgument", arg0)
 	if err != nil {
 		return nil, err
 	}

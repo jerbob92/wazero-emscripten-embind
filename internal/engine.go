@@ -284,19 +284,23 @@ func (e *engine) exposePublicSymbol(name string, value publicSymbolFn, numArgume
 
 		// Add the new function into the overload table.
 		e.publicSymbols[name].overloadTable[*numArguments] = &publicSymbol{
-			name:       name,
-			argCount:   numArguments,
-			fn:         value,
-			isOverload: true,
+			name:          name,
+			argCount:      numArguments,
+			fn:            value,
+			isOverload:    true,
+			argumentTypes: createAnyTypeArray(*numArguments),
+			resultType:    &anyType{},
 		}
 	} else {
 		e.publicSymbols[name] = &publicSymbol{
-			name: name,
-			fn:   value,
+			name:       name,
+			fn:         value,
+			resultType: &anyType{},
 		}
 
 		if numArguments != nil {
 			e.publicSymbols[name].argCount = numArguments
+			e.publicSymbols[name].argumentTypes = createAnyTypeArray(*numArguments)
 		}
 	}
 
