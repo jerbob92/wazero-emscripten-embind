@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log"
 	"reflect"
 	"strconv"
 	"strings"
@@ -895,18 +896,60 @@ var EmvalInstanceof = api.GoModuleFunc(func(ctx context.Context, mod api.Module,
 })
 
 var EmvalTypeof = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
-	// @todo: implement me.
-	panic("EmvalTypeof call unimplemented")
+	engine := MustGetEngineFromContext(ctx, mod).(*engine)
+	id := api.DecodeI32(stack[0])
+	handle, err := engine.emvalEngine.toValue(id)
+	if err != nil {
+		panic(fmt.Errorf("could not find handle: %w", err))
+	}
+
+	log.Println(handle)
+
+	// @todo: implement me properly.
+
+	stack[0] = api.EncodeI32(engine.emvalEngine.toHandle("object"))
 })
 
 var EmvalAsInt64 = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
-	// @todo: implement me.
-	panic("EmvalAsInt64 call unimplemented")
+	engine := MustGetEngineFromContext(ctx, mod).(*engine)
+	id := api.DecodeI32(stack[0])
+	handle, err := engine.emvalEngine.toValue(id)
+	if err != nil {
+		panic(fmt.Errorf("could not find handle: %w", err))
+	}
+
+	returnType, err := engine.requireRegisteredType(ctx, api.DecodeI32(stack[1]), "emval::as")
+	if err != nil {
+		panic(fmt.Errorf("could not require registered type: %w", err))
+	}
+
+	returnVal, err := returnType.ToWireType(ctx, mod, nil, handle)
+	if err != nil {
+		panic(fmt.Errorf("could not call toWireType on _emval_as: %w", err))
+	}
+
+	stack[0] = returnVal
 })
 
 var EmvalAsUint64 = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
-	// @todo: implement me.
-	panic("EmvalAsUint64 call unimplemented")
+	engine := MustGetEngineFromContext(ctx, mod).(*engine)
+	id := api.DecodeI32(stack[0])
+	handle, err := engine.emvalEngine.toValue(id)
+	if err != nil {
+		panic(fmt.Errorf("could not find handle: %w", err))
+	}
+
+	returnType, err := engine.requireRegisteredType(ctx, api.DecodeI32(stack[1]), "emval::as")
+	if err != nil {
+		panic(fmt.Errorf("could not require registered type: %w", err))
+	}
+
+	returnVal, err := returnType.ToWireType(ctx, mod, nil, handle)
+	if err != nil {
+		panic(fmt.Errorf("could not call toWireType on _emval_as: %w", err))
+	}
+
+	stack[0] = returnVal
 })
 
 var EmvalAwait = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
@@ -950,8 +993,8 @@ var EmvalLessThan = api.GoModuleFunc(func(ctx context.Context, mod api.Module, s
 })
 
 var EmvalNewArray = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
-	// @todo: implement me.
-	panic("EmvalNewArray call unimplemented")
+	e := MustGetEngineFromContext(ctx, mod).(*engine)
+	stack[0] = api.EncodeI32(e.emvalEngine.toHandle([]any{}))
 })
 
 var EmvalNewArrayFromMemoryView = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {

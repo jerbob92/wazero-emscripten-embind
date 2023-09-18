@@ -18,7 +18,7 @@ const std::wstring SOME_CONSTANT_13 = L"TestWideString";
 const bool SOME_CONSTANT_14 = true;
 const unsigned long long SOME_CONSTANT_15 = 15;
 
-EMSCRIPTEN_BINDINGS(constants) {
+EMSCRIPTEN_BINDINGS(constants_tests) {
     constant("SOME_CONSTANT_1", SOME_CONSTANT_1);
     constant("SOME_CONSTANT_2", SOME_CONSTANT_2);
     constant("SOME_CONSTANT_3", SOME_CONSTANT_3);

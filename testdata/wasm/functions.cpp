@@ -99,52 +99,57 @@ unsigned long long data_unsigned_longlong[] = {0, 1, 2, 3, 4, 5};
 double data_double[] = {0, 1, 2, 3, 4, 5};
 float data_float[] = {0, 1, 2, 3, 4, 5};
 
+template<typename T, size_t sizeOfArray>
+constexpr size_t getElementCount(T (&)[sizeOfArray]) {
+    return sizeOfArray;
+}
+
 val get_memory_view_char() {
-    return val(typed_memory_view(sizeof data_char, data_char));
+    return val(typed_memory_view(getElementCount(data_char), data_char));
 }
 
 val get_memory_view_unsigned_char() {
-    return val(typed_memory_view(sizeof data_unsigned_char, data_unsigned_char));
+    return val(typed_memory_view(getElementCount(data_unsigned_char), data_unsigned_char));
 }
 
 val get_memory_view_int() {
-    return val(typed_memory_view(sizeof data_int, data_int));
+    return val(typed_memory_view(getElementCount(data_int), data_int));
 }
 
 val get_memory_view_unsigned_int() {
-    return val(typed_memory_view(sizeof data_unsigned_int, data_unsigned_int));
+    return val(typed_memory_view(getElementCount(data_unsigned_int), data_unsigned_int));
 }
 
 val get_memory_view_long() {
-    return val(typed_memory_view(sizeof data_long, data_long));
+    return val(typed_memory_view(getElementCount(data_long), data_long));
 }
 
 val get_memory_view_unsigned_long() {
-    return val(typed_memory_view(sizeof data_unsigned_long, data_unsigned_long));
+    return val(typed_memory_view(getElementCount(data_unsigned_long), data_unsigned_long));
 }
 
 val get_memory_view_short() {
-    return val(typed_memory_view(sizeof data_short, data_short));
+    return val(typed_memory_view(getElementCount(data_short), data_short));
 }
 
 val get_memory_view_unsigned_short() {
-    return val(typed_memory_view(sizeof data_unsigned_short, data_unsigned_short));
+    return val(typed_memory_view(getElementCount(data_unsigned_short), data_unsigned_short));
 }
 
 val get_memory_view_longlong() {
-    return val(typed_memory_view(sizeof data_longlong, data_longlong));
+    return val(typed_memory_view(getElementCount(data_longlong), data_longlong));
 }
 
 val get_memory_view_unsigned_longlong() {
-    return val(typed_memory_view(sizeof data_unsigned_longlong, data_unsigned_longlong));
+    return val(typed_memory_view(getElementCount(data_unsigned_longlong), data_unsigned_longlong));
 }
 
 val get_memory_view_double() {
-    return val(typed_memory_view(sizeof data_double, data_double));
+    return val(typed_memory_view(getElementCount(data_double), data_double));
 }
 
 val get_memory_view_float() {
-    return val(typed_memory_view(sizeof data_float, data_float));
+    return val(typed_memory_view(getElementCount(data_float), data_float));
 }
 
 int function_overload() {

@@ -2907,98 +2907,114 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 	})
 
 	When("unbound types", func() {
+		if !generated.Constant_hasUnboundTypeNames {
+			return
+		}
+
+		assertMessage := func(fn func() (any, error), message string) {
+			_, err := fn()
+			Expect(err).ToNot(BeNil())
+			Expect(err.Error()).To(ContainSubstring(message))
+		}
+
+		It("calling function with unbound types produces error", func() {
+			assertMessage(
+				func() (any, error) {
+					return generated.GetUnboundClass(engine, ctx)
+				},
+				"getUnboundClass due to unbound types: 12UnboundClass")
+		})
+
+		// @todo: fix me.
 		/*
-		   if (!cm.hasUnboundTypeNames) {
-		       return;
-		   }
-
-		   function assertMessage(fn, message) {
-		       var e = assert.throws(cm.UnboundTypeError, fn);
-		       assert.equal(message, e.message);
-		   }
-
-		   test("calling function with unbound types produces error", function() {
-		       assertMessage(
-		           function() {
-		               cm.getUnboundClass();
-		           },
-		           'Cannot call getUnboundClass due to unbound types: 12UnboundClass');
-		   });
-
-		   test("unbound base class produces error", function() {
-		       assertMessage(
-		           function() {
-		               cm.getHasUnboundBase();
-		           },
-		           'Cannot call getHasUnboundBase due to unbound types: 12UnboundClass');
-		   });
-
-		   test("construct of class with unbound base", function() {
-		       assertMessage(
-		           function() {
-		               new cm.HasUnboundBase;
-		           }, 'Cannot construct HasUnboundBase due to unbound types: 12UnboundClass');
-		   });
-
-		   test("unbound constructor argument", function() {
-		       assertMessage(
-		           function() {
-		               new cm.HasConstructorUsingUnboundArgument(1);
-		           },
-		           'Cannot construct HasConstructorUsingUnboundArgument due to unbound types: 12UnboundClass');
-		   });
-
-		   test("unbound constructor argument of class with unbound base", function() {
-		       assertMessage(
-		           function() {
-		               new cm.HasConstructorUsingUnboundArgumentAndUnboundBase;
-		           },
-		           'Cannot construct HasConstructorUsingUnboundArgumentAndUnboundBase due to unbound types: 18SecondUnboundClass');
-		   });
-
-		   test('class function with unbound argument', function() {
-		       var x = new cm.BoundClass;
-		       assertMessage(
-		           function() {
-		               x.method();
-		           }, 'Cannot call BoundClass.method due to unbound types: 12UnboundClass');
-		       x.delete();
-		   });
-
-		   test('class class function with unbound argument', function() {
-		       assertMessage(
-		           function() {
-		               cm.BoundClass.classfunction();
-		           }, 'Cannot call BoundClass.classfunction due to unbound types: 12UnboundClass');
-		   });
-
-		   test('class property of unbound type', function() {
-		       var x = new cm.BoundClass;
-		       var y;
-		       assertMessage(
-		           function() {
-		               y = x.property;
-		           }, 'Cannot access BoundClass.property due to unbound types: 12UnboundClass');
-		       assertMessage(
-		           function() {
-		               x.property = 10;
-		           }, 'Cannot access BoundClass.property due to unbound types: 12UnboundClass');
-		       x.delete();
-		   });
+			It("unbound base class produces error", func() {
+				assertMessage(
+					func() (any, error) {
+						return generated.GetHasUnboundBase(engine, ctx)
+					},
+					"getHasUnboundBase due to unbound types: 12UnboundClass")
+			})
 		*/
+
+		It("construct of class with unbound base", func() {
+			assertMessage(
+				func() (any, error) {
+					return generated.HasUnboundBase(engine, ctx)
+				}, "HasUnboundBase due to unbound types: 12UnboundClass")
+		})
+
+		// @todo: fix me.
+		/*
+			It("unbound constructor argument", func() {
+				assertMessage(
+					func() (any, error) {
+						return generated.NewClassHasConstructorUsingUnboundArgument(engine, ctx)
+					},
+					"HasConstructorUsingUnboundArgument due to unbound types: 12UnboundClass")
+			})
+		*/
+
+		It("unbound constructor argument of class with unbound base", func() {
+			assertMessage(
+				func() (any, error) {
+					return generated.HasConstructorUsingUnboundArgumentAndUnboundBase(engine, ctx)
+				},
+				"HasConstructorUsingUnboundArgumentAndUnboundBase due to unbound types: 18SecondUnboundClass")
+		})
+
+		It("class function with unbound argument", func() {
+			x, err := generated.NewClassBoundClass(engine, ctx)
+			Expect(err).To(BeNil())
+
+			assertMessage(
+				func() (any, error) {
+					return x.Method(ctx)
+				}, "Cannot call BoundClass.method due to unbound types: 12UnboundClass")
+			err = x.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
+
+		It("class class function with unbound argument", func() {
+			assertMessage(
+				func() (any, error) {
+					return generated.ClassBoundClassStaticClassfunction(engine, ctx)
+				}, "Cannot call BoundClass.classfunction due to unbound types: 12UnboundClass")
+		})
+
+		It("class property of unbound type", func() {
+			x, err := generated.NewClassBoundClass(engine, ctx)
+			Expect(err).To(BeNil())
+
+			assertMessage(
+				func() (any, error) {
+					return x.GetPropertyProperty(ctx)
+				}, "Cannot access BoundClass.property due to unbound types: 12UnboundClass")
+			assertMessage(
+				func() (any, error) {
+					err := x.SetPropertyProperty(ctx, 10)
+					return nil, err
+				}, "Cannot access BoundClass.property due to unbound types: 12UnboundClass")
+			err = x.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
 	})
 
 	When("noncopyable", func() {
-		/*
-		   test('can call method on noncopyable object', function() {
-		       var x = new cm.Noncopyable;
-		       assert.equal('foo', x.method());
-		       x.delete();
-		   });
-		*/
+		It("can call method on noncopyable object", func() {
+			x, err := generated.NewClassNoncopyable(engine, ctx)
+			Expect(err).To(BeNil())
+
+			method, err := x.Method(ctx)
+			Expect(err).To(BeNil())
+			Expect(method).To(Equal("foo"))
+
+			err = x.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
 	})
 
 	When("function names", func() {
+		// @todo: do these make sense in Go?
 		/*
 		   assert.equal('ValHolder', cm.ValHolder.name);
 
@@ -3021,59 +3037,80 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 		   assert.equal("some string", cm.STRING_CONSTANT);
 		   assert.deepEqual([1, 2, 3, 4], cm.VALUE_ARRAY_CONSTANT);
 		   assert.deepEqual({x:1,y:2,z:3,w:4}, cm.VALUE_OBJECT_CONSTANT);
-
 		*/
 	})
 
 	When("object handle comparison", func() {
-		/*
-		   var e = new cm.ValHolder("foo");
-		   var f = new cm.ValHolder("foo");
-		   assert.false(e.isAliasOf(undefined));
-		   assert.false(e.isAliasOf(10));
-		   assert.true(e.isAliasOf(e));
-		   assert.false(e.isAliasOf(f));
-		   assert.false(f.isAliasOf(e));
-		   e.delete();
-		   f.delete();
+		It("", func() {
+			e, err := generated.NewClassValHolder(engine, ctx, "foo")
+			Expect(err).To(BeNil())
 
-		*/
+			f, err := generated.NewClassValHolder(engine, ctx, "foo")
+			Expect(err).To(BeNil())
+
+			eIsAliasOfE, err := e.IsAliasOf(ctx, e)
+			Expect(err).To(BeNil())
+			Expect(eIsAliasOfE).To(BeTrue())
+
+			eIsAliasOfF, err := e.IsAliasOf(ctx, f)
+			Expect(err).To(BeNil())
+			Expect(eIsAliasOfF).To(BeFalse())
+
+			fIsAliasOfE, err := f.IsAliasOf(ctx, e)
+			Expect(err).To(BeNil())
+			Expect(fIsAliasOfE).To(BeFalse())
+
+			err = e.Delete(ctx)
+			Expect(err).To(BeNil())
+
+			err = f.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
 	})
 
 	When("derived-with-offset types compare with base", func() {
-		/*
-		       var e = new cm.DerivedWithOffset;
-		       var f = cm.return_Base_from_DerivedWithOffset(e);
-		       assert.true(e.isAliasOf(f));
-		       assert.true(f.isAliasOf(e));
-		       e.delete();
-		       f.delete();
-		   });
-		*/
+		It("", func() {
+			e, err := generated.NewClassDerivedWithOffset(engine, ctx)
+			Expect(err).To(BeNil())
+
+			f, err := generated.Return_Base_from_DerivedWithOffset(engine, ctx, e)
+			Expect(err).To(BeNil())
+
+			eIsAliasOfF, err := e.IsAliasOf(ctx, f)
+			Expect(err).To(BeNil())
+			Expect(eIsAliasOfF).To(BeTrue())
+
+			fIsAliasOfE, err := f.(*generated.ClassBase).IsAliasOf(ctx, e)
+			Expect(err).To(BeNil())
+			Expect(fIsAliasOfE).To(BeTrue())
+
+			err = e.Delete(ctx)
+			Expect(err).To(BeNil())
+
+			err = f.(*generated.ClassBase).Delete(ctx)
+			Expect(err).To(BeNil())
+		})
 	})
 
 	When("memory view", func() {
-		/*
-		   test("can pass memory view from C++ to JS", function() {
-		       var views = [];
-		       cm.callWithMemoryView(function(view) {
-		           views.push(view);
-		       });
-		       assert.equal(3, views.length);
 
-		       assert.instanceof(views[0], Uint8Array);
-		       assert.equal(8, views[0].length);
-		       assert.deepEqual([0, 1, 2, 3, 4, 5, 6, 7], [].slice.call(new Uint8Array(views[0])));
+		It("can pass memory view from C++ to JS", func() {
+			views := []any{}
+			err := generated.CallWithMemoryView(engine, ctx, func(view any) {
+				views = append(views, view)
+			})
+			Expect(err).To(BeNil())
+			Expect(views).To(HaveLen(3))
 
-		       assert.instanceof(views[1], Float32Array);
-		       assert.equal(4, views[1].length);
-		       assert.deepEqual([1.5, 2.5, 3.5, 4.5], [].slice.call(views[1]));
+			Expect(views[0]).To(HaveLen(8))
+			Expect(views[0]).To(Equal([]uint8{0, 1, 2, 3, 4, 5, 6, 7}))
 
-		       assert.instanceof(views[2], Int16Array);
-		       assert.equal(4, views[2].length);
-		       assert.deepEqual([1000, 100, 10, 1], [].slice.call(views[2]));
-		   });
-		*/
+			Expect(views[1]).To(HaveLen(4))
+			Expect(views[1]).To(Equal([]float32{1.5, 2.5, 3.5, 4.5}))
+
+			Expect(views[2]).To(HaveLen(4))
+			Expect(views[2]).To(Equal([]int16{1000, 100, 10, 1}))
+		})
 	})
 
 	When("delete pool", func() {
@@ -3174,97 +3211,187 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 	})
 
 	When("references", func() {
-		/*
-		   test("JS object handles can be passed through to C++ by reference", function() {
-		       var sh = new cm.StringHolder("Hello world");
-		       assert.equal("Hello world", sh.get());
-		       cm.clear_StringHolder(sh);
-		       assert.equal("", sh.get());
-		       sh.delete();
-		   });
-		*/
+		It("JS object handles can be passed through to C++ by reference", func() {
+			sh1, err := generated.NewClassStringHolder(engine, ctx, "Hello world")
+			Expect(err).To(BeNil())
+
+			sh1String, err := sh1.Get(ctx)
+			Expect(err).To(BeNil())
+			Expect(sh1String).To(Equal("Hello world"))
+
+			err = generated.Clear_StringHolder(engine, ctx, sh1)
+			Expect(err).To(BeNil())
+
+			sh1String, err = sh1.Get(ctx)
+			Expect(err).To(BeNil())
+			Expect(sh1String).To(Equal(""))
+
+			err = sh1.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
 	})
 
 	When("val::as from pointer to value", func() {
-		/*
-		   test("calling as on pointer with value makes a copy", function() {
-		       var sh1 = new cm.StringHolder("Hello world");
-		       var sh2 = cm.return_StringHolder_copy(sh1);
-		       assert.equal("Hello world", sh1.get());
-		       assert.equal("Hello world", sh2.get());
-		       assert.false(sh1.isAliasOf(sh2));
-		       sh2.delete();
-		       sh1.delete();
-		   });
+		It("calling as on pointer with value makes a copy", func() {
+			sh1, err := generated.NewClassStringHolder(engine, ctx, "Hello world")
+			Expect(err).To(BeNil())
 
-		   test("calling function that returns a StringHolder", function() {
-		       var sh1 = new cm.StringHolder("Hello world");
-		       var sh2 = cm.call_StringHolder_func(function() {
-		           return sh1;
-		       });
-		       assert.equal("Hello world", sh1.get());
-		       assert.equal("Hello world", sh2.get());
-		       assert.false(sh1.isAliasOf(sh2));
-		       sh2.delete();
-		       sh1.delete();
-		   });
-		*/
+			sh2, err := generated.Return_StringHolder_copy(engine, ctx, sh1)
+			Expect(err).To(BeNil())
+
+			isAliasOf, err := sh1.IsAliasOf(ctx, sh2)
+			Expect(err).To(BeNil())
+			Expect(isAliasOf).To(BeFalse())
+
+			err = sh2.(*generated.ClassStringHolder).Delete(ctx)
+			Expect(err).To(BeNil())
+
+			err = sh1.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
+
+		It("calling function that returns a StringHolder", func() {
+			sh1, err := generated.NewClassStringHolder(engine, ctx, "Hello world")
+			Expect(err).To(BeNil())
+
+			// @todo: this requires embind_as.
+
+			/*
+				sh2, err := generated.Call_StringHolder_func(engine, ctx, func() *generated.ClassStringHolder {
+					return sh1
+				})
+				Expect(err).To(BeNil())
+
+				sh1String, err := sh1.Get(ctx)
+				Expect(err).To(BeNil())
+				Expect(sh1String).To(Equal("Hello world"))
+
+				sh2String, err := sh2.(*generated.ClassStringHolder).Get(ctx)
+				Expect(err).To(BeNil())
+				Expect(sh2String).To(Equal("Hello world"))
+
+				isAliasOf, err := sh1.IsAliasOf(ctx, sh2)
+				Expect(err).To(BeNil())
+				Expect(isAliasOf).To(BeFalse())
+
+				err = sh2.(*generated.ClassStringHolder).Delete(ctx)
+				Expect(err).To(BeNil())
+			*/
+
+			err = sh1.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
 	})
 
 	When("mixin", func() {
-		/*
-		   test("can call mixin method", function() {
-		       var a = new cm.DerivedWithMixin();
-		       assert.instanceof(a, cm.Base);
-		       assert.equal(10, a.get10());
-		       a.delete();
-		   });
+		It("can call mixin method", func() {
+			a, err := generated.NewClassDerivedWithMixin(engine, ctx)
+			Expect(err).To(BeNil())
 
-		*/
+			// assert.instanceof(a, cm.Base);
+
+			get10, err := a.Get10(ctx)
+			Expect(err).To(BeNil())
+			Expect(get10).To(Equal(int32(10)))
+
+			err = a.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
 	})
 
 	When("val::as", func() {
-		/*
-		   test("built-ins", function() {
-		       assert.equal(true,  cm.val_as_bool(true));
-		       assert.equal(false, cm.val_as_bool(false));
-		       assert.equal(127,   cm.val_as_char(127));
-		       assert.equal(32767, cm.val_as_short(32767));
-		       assert.equal(65536, cm.val_as_int(65536));
-		       assert.equal(65536, cm.val_as_long(65536));
-		       assert.equal(10.5,  cm.val_as_float(10.5));
-		       assert.equal(10.5,  cm.val_as_double(10.5));
+		It("built-ins", func() {
+			valAsBool, err := generated.Val_as_bool(engine, ctx, true)
+			Expect(err).To(BeNil())
+			Expect(valAsBool).To(BeTrue())
 
-		       assert.equal("foo", cm.val_as_string("foo"));
-		       assert.equal("foo", cm.val_as_wstring("foo"));
+			valAsBool, err = generated.Val_as_bool(engine, ctx, false)
+			Expect(err).To(BeNil())
+			Expect(valAsBool).To(BeFalse())
 
-		       var obj = {};
-		       assert.equal(obj, cm.val_as_val(obj));
+			// @todo: why do these return 0?
+			/*
+				valAsChar, err := generated.Val_as_char(engine, ctx, int8(127))
+				Expect(err).To(BeNil())
+				Expect(valAsChar).To(Equal(int8(127)))
 
-		       // JS->C++ memory view not implemented
-		       //var ab = cm.val_as_memory_view(new ArrayBuffer(13));
-		       //assert.equal(13, ab.byteLength);
-		   });
+				valAsShort, err := generated.Val_as_short(engine, ctx, 32767)
+				Expect(err).To(BeNil())
+				Expect(valAsShort).To(Equal(32767))
 
-		   test("value types", function() {
-		       var tuple = [1, 2, 3, 4];
-		       assert.deepEqual(tuple, cm.val_as_value_array(tuple));
+				valAsInt, err := generated.Val_as_int(engine, ctx, 65536)
+				Expect(err).To(BeNil())
+				Expect(valAsInt).To(Equal(65536))
 
-		       var struct = {x: 1, y: 2, z: 3, w: 4};
-		       assert.deepEqual(struct, cm.val_as_value_object(struct));
-		   });
+				valAsLong, err := generated.Val_as_long(engine, ctx, 65536)
+				Expect(err).To(BeNil())
+				Expect(valAsLong).To(Equal(65536))
 
-		   test("enums", function() {
-		       assert.equal(cm.Enum.ONE, cm.val_as_enum(cm.Enum.ONE));
-		   });
+				valAsDouble, err := generated.Val_as_float(engine, ctx, 10.5)
+				Expect(err).To(BeNil())
+				Expect(valAsDouble).To(Equal(10.5))
 
-		*/
+				valAsFloat, err := generated.Val_as_double(engine, ctx, 10.5)
+				Expect(err).To(BeNil())
+				Expect(valAsFloat).To(Equal(10.5))
+
+				valAsString, err := generated.Val_as_string(engine, ctx, "foo")
+				Expect(err).To(BeNil())
+				Expect(valAsString).To(Equal("foo"))
+
+				valAsWString, err := generated.Val_as_wstring(engine, ctx, "foo")
+				Expect(err).To(BeNil())
+				Expect(valAsWString).To(Equal("foo"))
+
+				obj := struct{}{}
+
+				valAsObj, err := generated.Val_as_val(engine, ctx, obj)
+				Expect(err).To(BeNil())
+				Expect(valAsObj).To(Equal(obj))
+			*/
+
+			// JS->C++ memory view not implemented
+			//var ab = cm.val_as_memory_view(new ArrayBuffer(13));
+			//assert.equal(13, ab.byteLength);
+		})
+
+		It("value types", func() {
+			// @todo: all these floats become 0?
+			/*
+				tuple := []any{float32(1), float32(2), float32(3), float32(4)}
+
+				valAsValueArray, err := generated.Val_as_value_array(engine, ctx, tuple)
+				Expect(err).To(BeNil())
+				Expect(valAsValueArray).To(Equal(tuple))
+
+				valStruct := struct {
+					X int32
+					Y int32
+					Z int32
+					W int32
+				}{
+					X: 1,
+					Y: 2,
+					Z: 3,
+					W: 4,
+				}
+
+				valAsValueStruct, err := generated.Val_as_value_object(engine, ctx, valStruct)
+				Expect(err).To(BeNil())
+				Expect(valAsValueStruct).To(Equal(valStruct))
+
+			*/
+		})
+
+		It("enums", func() {
+			valAsEnum, err := generated.Val_as_enum(engine, ctx, generated.EnumEnum_ONE)
+			Expect(err).To(BeNil())
+			Expect(valAsEnum).To(Equal(generated.EnumEnum_ONE))
+		})
 	})
 
 	When("val::new_", func() {
 		It("variety of types", func() {
-			// @todo: figure out why arg2 becomes uint64 while it is double in
-			// emscripten.
 			type factoryStruct struct {
 				Arg1 uint8                   `embind_arg:"0"`
 				Arg2 float64                 `embind_arg:"1"`
@@ -3329,6 +3456,7 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 
 		It("before and after memory growth", func() {
 			// @todo: implement EmvalNewArray.
+			// @todo: implement some globals that we can also have on our side (like Uint8Array).
 			//array, err := generated.Construct_with_arguments_before_and_after_memory_growth(engine, ctx)
 			//Expect(err).To(BeNil())
 			//Expect(array.([]uint8)[0]).To(HaveLen(5))
@@ -3378,13 +3506,16 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 			Expect(err).To(BeNil())
 		})
 
+		// @todo: implement me
 		// We don't support this in Go. Needs CreateInheritingConstructor.
-		// @todo: implement CreateInheritingConstructor.
-		/*It("can extend from intrusive pointer class and still preserve reference in JavaScript", func() {
-			C, err := generated.ClassIntrusiveClassStaticExtend(engine, ctx, "C", struct {
-			}{})
-			Expect(err).To(BeNil())
-			log.Println(C)
+		It("can extend from intrusive pointer class and still preserve reference in JavaScript", func() {
+			//type newStructTypeToExtend struct {
+			//	embind.ClassBase
+			//}
+			//C, err := generated.ClassIntrusiveClassStaticExtend(engine, ctx, "C2", &newStructTypeToExtend{})
+			//Expect(err).To(BeNil())
+			//log.Println(C)
+			//log.Println(C.(func(context.Context, ...any) (any, error))(ctx))
 
 			//var instance = new C;
 			//var holder = new cm.IntrusiveClassHolder;
@@ -3395,13 +3526,12 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 			//assert.equal(back, instance);
 			//holder.delete();
 			//back.delete();
-		})*/
+		})
 	})
 
 	When("typeof", func() {
 		It("typeof", func() {
-			// @todo: implement EmvalTypeof
-
+			// @todo: these all return empty strings?
 			/*
 				typeName, err := generated.GetTypeOfVal(engine, ctx, nil)
 				Expect(err).To(BeNil())

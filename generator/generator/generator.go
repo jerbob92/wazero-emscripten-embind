@@ -188,17 +188,18 @@ func Generate(dir string, fileName string, wasm []byte, initFunction string) err
 			goName += strconv.Itoa(len(argumentTypes))
 		}
 
-		returnType := symbols[i].ReturnType()
-		if returnType == nil {
-			continue
-		}
-
 		symbol := TemplateSymbol{
 			Symbol:        symbols[i].Symbol(),
 			GoName:        goName,
 			ArgumentTypes: argumentTypes,
-			ReturnType:    typeNameToGeneratedName(returnType.Type(), returnType.IsClass(), returnType.IsEnum(), true),
-			ErrorValue:    typeNameToErrorValue(returnType.Type(), returnType.IsClass(), returnType.IsEnum()),
+			ReturnType:    "any",
+			ErrorValue:    "nil",
+		}
+
+		returnType := symbols[i].ReturnType()
+		if returnType != nil {
+			symbol.ReturnType = typeNameToGeneratedName(returnType.Type(), returnType.IsClass(), returnType.IsEnum(), true)
+			symbol.ErrorValue = typeNameToErrorValue(returnType.Type(), returnType.IsClass(), returnType.IsEnum())
 		}
 
 		data.Symbols = append(data.Symbols, symbol)
@@ -281,25 +282,27 @@ func Generate(dir string, fileName string, wasm []byte, initFunction string) err
 
 		properties := classes[i].Properties()
 		for pi := range properties {
-			getterType := properties[pi].GetterType()
-			if getterType == nil {
-				continue
-			}
-
 			property := TemplateClassProperty{
 				Name:       properties[pi].Name(),
 				GoName:     generateGoName(properties[pi].Name()),
 				ReadOnly:   properties[pi].ReadOnly(),
-				GetterType: typeNameToGeneratedName(getterType.Type(), getterType.IsClass(), getterType.IsEnum(), true),
-				ErrorValue: typeNameToErrorValue(getterType.Type(), getterType.IsClass(), getterType.IsEnum()),
+				GetterType: "any",
+				ErrorValue: "nil",
+			}
+
+			getterType := properties[pi].GetterType()
+			if getterType != nil {
+				property.GetterType = typeNameToGeneratedName(getterType.Type(), getterType.IsClass(), getterType.IsEnum(), true)
+				property.ErrorValue = typeNameToErrorValue(getterType.Type(), getterType.IsClass(), getterType.IsEnum())
 			}
 
 			if !property.ReadOnly {
 				setterType := properties[pi].SetterType()
-				if setterType == nil {
-					continue
+				if setterType != nil {
+					property.SetterType = typeNameToGeneratedName(setterType.Type(), setterType.IsClass(), setterType.IsEnum(), true)
+				} else {
+					property.SetterType = "any"
 				}
-				property.SetterType = typeNameToGeneratedName(setterType.Type(), setterType.IsClass(), setterType.IsEnum(), true)
 			}
 
 			class.Properties = append(class.Properties, property)
@@ -311,25 +314,27 @@ func Generate(dir string, fileName string, wasm []byte, initFunction string) err
 
 		staticProperties := classes[i].StaticProperties()
 		for pi := range staticProperties {
-			getterType := staticProperties[pi].GetterType()
-			if getterType == nil {
-				continue
-			}
-
 			property := TemplateClassProperty{
 				Name:       staticProperties[pi].Name(),
 				GoName:     generateGoName(staticProperties[pi].Name()),
 				ReadOnly:   staticProperties[pi].ReadOnly(),
-				GetterType: typeNameToGeneratedName(getterType.Type(), getterType.IsClass(), getterType.IsEnum(), true),
-				ErrorValue: typeNameToErrorValue(getterType.Type(), getterType.IsClass(), getterType.IsEnum()),
+				GetterType: "any",
+				ErrorValue: "nil",
+			}
+
+			getterType := staticProperties[pi].GetterType()
+			if getterType != nil {
+				property.GetterType = typeNameToGeneratedName(getterType.Type(), getterType.IsClass(), getterType.IsEnum(), true)
+				property.ErrorValue = typeNameToErrorValue(getterType.Type(), getterType.IsClass(), getterType.IsEnum())
 			}
 
 			if !property.ReadOnly {
 				setterType := staticProperties[pi].SetterType()
-				if setterType == nil {
-					continue
+				if setterType != nil {
+					property.SetterType = typeNameToGeneratedName(setterType.Type(), setterType.IsClass(), setterType.IsEnum(), true)
+				} else {
+					property.SetterType = "any"
 				}
-				property.SetterType = typeNameToGeneratedName(setterType.Type(), setterType.IsClass(), setterType.IsEnum(), true)
 			}
 
 			class.StaticProperties = append(class.StaticProperties, property)
@@ -352,17 +357,18 @@ func Generate(dir string, fileName string, wasm []byte, initFunction string) err
 				goName += strconv.Itoa(len(argumentTypes))
 			}
 
-			returnType := methods[mi].ReturnType()
-			if returnType == nil {
-				continue
-			}
-
 			method := TemplateClassMethod{
 				Name:          methods[mi].Symbol(),
 				GoName:        goName,
 				ArgumentTypes: argumentTypes,
-				ReturnType:    typeNameToGeneratedName(returnType.Type(), returnType.IsClass(), returnType.IsEnum(), true),
-				ErrorValue:    typeNameToErrorValue(returnType.Type(), returnType.IsClass(), returnType.IsEnum()),
+				ReturnType:    "any",
+				ErrorValue:    "nil",
+			}
+
+			returnType := methods[mi].ReturnType()
+			if returnType != nil {
+				method.ReturnType = typeNameToGeneratedName(returnType.Type(), returnType.IsClass(), returnType.IsEnum(), true)
+				method.ErrorValue = typeNameToErrorValue(returnType.Type(), returnType.IsClass(), returnType.IsEnum())
 			}
 
 			class.Methods = append(class.Methods, method)
@@ -385,17 +391,18 @@ func Generate(dir string, fileName string, wasm []byte, initFunction string) err
 				goName += strconv.Itoa(len(argumentTypes))
 			}
 
-			returnType := staticMethods[smi].ReturnType()
-			if returnType == nil {
-				continue
-			}
-
 			method := TemplateClassMethod{
 				Name:          staticMethods[smi].Symbol(),
 				GoName:        goName,
 				ArgumentTypes: argumentTypes,
-				ReturnType:    typeNameToGeneratedName(returnType.Type(), returnType.IsClass(), returnType.IsEnum(), true),
-				ErrorValue:    typeNameToErrorValue(returnType.Type(), returnType.IsClass(), returnType.IsEnum()),
+				ReturnType:    "any",
+				ErrorValue:    "nil",
+			}
+
+			returnType := staticMethods[smi].ReturnType()
+			if returnType != nil {
+				method.ReturnType = typeNameToGeneratedName(returnType.Type(), returnType.IsClass(), returnType.IsEnum(), true)
+				method.ErrorValue = typeNameToErrorValue(returnType.Type(), returnType.IsClass(), returnType.IsEnum())
 			}
 
 			class.StaticMethods = append(class.StaticMethods, method)

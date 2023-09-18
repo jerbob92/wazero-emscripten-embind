@@ -1345,19 +1345,66 @@ var RegisterSmartPtr = api.GoModuleFunc(func(ctx context.Context, mod api.Module
 var CreateInheritingConstructor = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
 	engine := MustGetEngineFromContext(ctx, mod).(*engine)
 	constructorNamePtr := api.DecodeI32(stack[0])
-	//wrapperType := api.DecodeI32(stack[1])
-	//properties := api.DecodeI32(stack[2])
+	wrapperTypePtr := api.DecodeI32(stack[1])
+	propertiesId := api.DecodeI32(stack[2])
 
 	constructorName, err := engine.readCString(uint32(constructorNamePtr))
 	if err != nil {
 		panic(fmt.Errorf("could not read name: %w", err))
 	}
 
-	log.Println(constructorName)
+	wrapperType, err := engine.requireRegisteredType(ctx, wrapperTypePtr, "wrapper")
+	if err != nil {
+		panic(fmt.Errorf("could not require registered type: %w", err))
+	}
 
-	// @todo: implement me.
-	// @todo: this basically creates a new class with the same constructor.
-	panic("CreateInheritingConstructor call unimplemented")
+	properties, err := engine.emvalEngine.toValue(propertiesId)
+	if err != nil {
+		panic(fmt.Errorf("could not get properties val: %w", err))
+	}
+
+	if _, ok := properties.(IClassBase); !ok {
+		panic(fmt.Errorf("could not register class %s with type %T, it does not embed embind.ClassBase", constructorName, properties))
+	}
+
+	reflectClassType := reflect.TypeOf(properties)
+	if reflectClassType.Kind() != reflect.Ptr {
+		panic(fmt.Errorf("could not register class %s with type %T, given value should be a pointer type", constructorName, properties))
+	}
+
+	registeredPointerType := wrapperType.(*registeredPointerType)
+	legalFunctionName := engine.makeLegalFunctionName(constructorName)
+	err = engine.exposePublicSymbol(legalFunctionName, func(ctx context.Context, this any, arguments ...any) (any, error) {
+		log.Println(registeredPointerType.name)
+		log.Println(registeredPointerType.registeredClass.name)
+		if registeredPointerType.registeredClass.constructors == nil {
+			return nil, fmt.Errorf("%s has no accessible constructor", constructorName)
+		}
+
+		// @todo: create an actual instance of properties here.
+
+		constructor, ok := registeredPointerType.registeredClass.constructors[int32(len(arguments))]
+		if !ok {
+			availableLengths := make([]string, 0)
+			for i := range registeredPointerType.registeredClass.constructors {
+				availableLengths = append(availableLengths, strconv.Itoa(int(i)))
+			}
+			sort.Strings(availableLengths)
+			return nil, fmt.Errorf("tried to invoke ctor of %s with invalid number of parameters (%d) - expected (%s) parameters instead", constructorName, len(arguments), strings.Join(availableLengths, " or "))
+		}
+
+		return constructor.fn(ctx, nil, arguments...)
+	}, nil)
+	if err != nil {
+		panic(fmt.Errorf("could not expose public symbol: %w", err))
+	}
+
+	newFn := func(ctx context.Context, arguments ...any) (any, error) {
+		return engine.publicSymbols[legalFunctionName].fn(ctx, nil, arguments...)
+	}
+
+	stack[0] = api.EncodeI32(engine.emvalEngine.toHandle(newFn))
+	panic(fmt.Errorf("CreateInheritingConstructor is not implemented (correctly)"))
 })
 
 func (e *engine) CallStaticClassMethod(ctx context.Context, className, name string, arguments ...any) (any, error) {

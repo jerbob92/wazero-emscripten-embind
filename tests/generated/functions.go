@@ -772,6 +772,14 @@ func Emval_delete(e embind.Engine, ctx context.Context, arg0 any) error {
 	return err
 }
 
+func Emval_has_own_property(e embind.Engine, ctx context.Context) (any, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_has_own_property")
+	if err != nil {
+		return nil, err
+	}
+	return res.(any), nil
+}
+
 func Emval_in(e embind.Engine, ctx context.Context, arg0 any, arg1 any) (bool, error) {
 	res, err := e.CallPublicSymbol(ctx, "emval_in", arg0, arg1)
 	if err != nil {
@@ -1176,6 +1184,22 @@ func Emval_type_of(e embind.Engine, ctx context.Context, arg0 any) (any, error) 
 	return res.(any), nil
 }
 
+func Emval_u16_string(e embind.Engine, ctx context.Context) (any, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_u16_string")
+	if err != nil {
+		return nil, err
+	}
+	return res.(any), nil
+}
+
+func Emval_u8_string(e embind.Engine, ctx context.Context) (any, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_u8_string")
+	if err != nil {
+		return nil, err
+	}
+	return res.(any), nil
+}
+
 func Enum_in_enum_out(e embind.Engine, ctx context.Context, arg0 EnumNewStyle) (EnumOldStyle, error) {
 	res, err := e.CallPublicSymbol(ctx, "enum_in_enum_out", arg0)
 	if err != nil {
@@ -1290,6 +1314,14 @@ func GetDummy1(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) (emb
 	return res.(embind.ClassBase), nil
 }
 
+func GetHasUnboundBase(e embind.Engine, ctx context.Context) (any, error) {
+	res, err := e.CallPublicSymbol(ctx, "getHasUnboundBase")
+	if err != nil {
+		return nil, err
+	}
+	return res.(any), nil
+}
+
 func GetNoncopyable(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "getNoncopyable")
 	if err != nil {
@@ -1320,6 +1352,14 @@ func GetTypeOfVal(e embind.Engine, ctx context.Context, arg0 any) (string, error
 		return "", err
 	}
 	return res.(string), nil
+}
+
+func GetUnboundClass(e embind.Engine, ctx context.Context) (any, error) {
+	res, err := e.CallPublicSymbol(ctx, "getUnboundClass")
+	if err != nil {
+		return nil, err
+	}
+	return res.(any), nil
 }
 
 func Get_literal_u16string(e embind.Engine, ctx context.Context) (string, error) {
@@ -1490,6 +1530,14 @@ func HasConstructorUsingUnboundArgument(e embind.Engine, ctx context.Context) (e
 	return res.(embind.ClassBase), nil
 }
 
+func HasConstructorUsingUnboundArgumentAndUnboundBase(e embind.Engine, ctx context.Context) (any, error) {
+	res, err := e.CallPublicSymbol(ctx, "HasConstructorUsingUnboundArgumentAndUnboundBase")
+	if err != nil {
+		return nil, err
+	}
+	return res.(any), nil
+}
+
 func HasExternalConstructor(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "HasExternalConstructor")
 	if err != nil {
@@ -1520,6 +1568,14 @@ func HasTwoBases(e embind.Engine, ctx context.Context) (embind.ClassBase, error)
 		return nil, err
 	}
 	return res.(embind.ClassBase), nil
+}
+
+func HasUnboundBase(e embind.Engine, ctx context.Context) (any, error) {
+	res, err := e.CallPublicSymbol(ctx, "HasUnboundBase")
+	if err != nil {
+		return nil, err
+	}
+	return res.(any), nil
 }
 
 func HeldAbstractClass(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {

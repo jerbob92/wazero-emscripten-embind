@@ -896,6 +896,44 @@ func (class *ClassBoundClass) GetProperty(ctx context.Context, name string) (any
 	return class.GetInstanceProperty(ctx, class, name)
 }
 
+func (class *ClassBoundClass) GetPropertyProperty(ctx context.Context) (any, error) {
+	res, err := class.GetProperty(ctx, "property")
+	if err != nil {
+		return nil, err
+	}
+
+	return res.(any), nil
+}
+func (class *ClassBoundClass) SetPropertyProperty(ctx context.Context, val any) error {
+	return class.SetProperty(ctx, "property", val)
+}
+
+func (class *ClassBoundClass) Method(ctx context.Context) (any, error) {
+	res, err := class.CallMethod(ctx, "method")
+	if err != nil {
+		return nil, err
+	}
+
+	return res.(any), nil
+}
+
+func (class *ClassBoundClass) StaticClassfunction(ctx context.Context) (any, error) {
+	res, err := class.CallInstanceMethod(ctx, nil, "classfunction")
+	if err != nil {
+		return nil, err
+	}
+
+	return res.(any), nil
+}
+func ClassBoundClassStaticClassfunction(e embind.Engine, ctx context.Context) (any, error) {
+	res, err := e.CallStaticClassMethod(ctx, "BoundClass", "classfunction")
+	if err != nil {
+		return nil, err
+	}
+
+	return res.(any), nil
+}
+
 func NewClassBoundClass(e embind.Engine, ctx context.Context) (*ClassBoundClass, error) {
 	res, err := e.CallPublicSymbol(ctx, "BoundClass")
 	if err != nil {
