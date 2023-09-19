@@ -751,8 +751,8 @@ func Embind_test_return_unique_ptr(e embind.Engine, ctx context.Context, arg0 in
 	return res.(int32), nil
 }
 
-func Emval_array(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) (any, error) {
-	res, err := e.CallPublicSymbol(ctx, "emval_array", arg0)
+func Emval_array(e embind.Engine, ctx context.Context) (any, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_array")
 	if err != nil {
 		return nil, err
 	}

@@ -77,8 +77,8 @@ val emval_u8_string(const char* s) {
     return val::u8string(s);
 }
 
-val emval_array(std::vector<int> vec) {
-    return val::array(vec);
+val emval_array() {
+    return val::array();
 }
 
 EMSCRIPTEN_BINDINGS(emval) {

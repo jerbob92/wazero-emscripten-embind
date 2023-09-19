@@ -4,6 +4,9 @@ package generated
 import "github.com/jerbob92/wazero-emscripten-embind"
 
 func Attach(e embind.Engine) error {
+	if err := e.RegisterConstant("INT_CONSTANT", Constant_INT_CONSTANT); err != nil {
+		return err
+	}
 	if err := e.RegisterConstant("SOME_CONSTANT_1", Constant_SOME_CONSTANT_1); err != nil {
 		return err
 	}
@@ -47,6 +50,21 @@ func Attach(e embind.Engine) error {
 		return err
 	}
 	if err := e.RegisterConstant("SOME_CONSTANT_9", Constant_SOME_CONSTANT_9); err != nil {
+		return err
+	}
+	if err := e.RegisterConstant("STATIC_CONST_INTEGER_VALUE_1", Constant_STATIC_CONST_INTEGER_VALUE_1); err != nil {
+		return err
+	}
+	if err := e.RegisterConstant("STATIC_CONST_INTEGER_VALUE_1000", Constant_STATIC_CONST_INTEGER_VALUE_1000); err != nil {
+		return err
+	}
+	if err := e.RegisterConstant("STRING_CONSTANT", Constant_STRING_CONSTANT); err != nil {
+		return err
+	}
+	if err := e.RegisterConstant("VALUE_ARRAY_CONSTANT", Constant_VALUE_ARRAY_CONSTANT); err != nil {
+		return err
+	}
+	if err := e.RegisterConstant("VALUE_OBJECT_CONSTANT", Constant_VALUE_OBJECT_CONSTANT); err != nil {
 		return err
 	}
 	if err := e.RegisterConstant("hasUnboundTypeNames", Constant_hasUnboundTypeNames); err != nil {

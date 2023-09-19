@@ -695,8 +695,20 @@ var _ = Describe("Using embind constants", Label("library"), func() {
 			Expect(constantsMap).To(HaveKeyWithValue("SOME_CONSTANT_13", "TestWideString"))
 			Expect(constantsMap).To(HaveKeyWithValue("SOME_CONSTANT_14", true))
 			Expect(constantsMap).To(HaveKeyWithValue("SOME_CONSTANT_15", uint64(15)))
+
 			Expect(constantsMap).To(HaveKeyWithValue("hasUnboundTypeNames", true))
-			Expect(constantsMap).To(HaveLen(16))
+			Expect(constantsMap).To(HaveKeyWithValue("STRING_CONSTANT", "some string"))
+			Expect(constantsMap).To(HaveKey("VALUE_OBJECT_CONSTANT"))
+			Expect(constantsMap["VALUE_OBJECT_CONSTANT"]).To(HaveKeyWithValue("x", float32(1)))
+			Expect(constantsMap["VALUE_OBJECT_CONSTANT"]).To(HaveKeyWithValue("y", float32(2)))
+			Expect(constantsMap["VALUE_OBJECT_CONSTANT"]).To(HaveKeyWithValue("z", float32(3)))
+			Expect(constantsMap["VALUE_OBJECT_CONSTANT"]).To(HaveKeyWithValue("w", float32(4)))
+			Expect(constantsMap).To(HaveKeyWithValue("STATIC_CONST_INTEGER_VALUE_1000", int32(1000)))
+			Expect(constantsMap).To(HaveKeyWithValue("STATIC_CONST_INTEGER_VALUE_1", int32(1)))
+			Expect(constantsMap).To(HaveKeyWithValue("INT_CONSTANT", int32(10)))
+			Expect(constantsMap).To(HaveKeyWithValue("VALUE_ARRAY_CONSTANT", []any{float32(1), float32(2), float32(3), float32(4)}))
+
+			Expect(constantsMap).To(HaveLen(22))
 		})
 	})
 })
@@ -860,6 +872,12 @@ Configuring oscillator
 Playing
 All done!
 `))
+		})
+
+		It("can create an array", func() {
+			array, err := engine.CallPublicSymbol(ctx, "emval_array")
+			Expect(err).To(BeNil())
+			Expect(array).To(Equal([]any{}))
 		})
 	})
 })

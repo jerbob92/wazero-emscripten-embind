@@ -92,6 +92,10 @@ func (ot *objectType) GoType() string {
 	return "map[string]any"
 }
 
+func (ot *objectType) FromF64(o float64) uint64 {
+	return uint64(o)
+}
+
 var RegisterValueObject = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
 	engine := MustGetEngineFromContext(ctx, mod).(*engine)
 	rawType := api.DecodeI32(stack[0])

@@ -3,7 +3,6 @@ package embind
 import (
 	"context"
 	"fmt"
-
 	"github.com/tetratelabs/wazero/api"
 )
 
@@ -87,6 +86,10 @@ func (at *arrayType) DestructorFunction(ctx context.Context, mod api.Module, poi
 
 func (at *arrayType) GoType() string {
 	return "[]any"
+}
+
+func (at *arrayType) FromF64(o float64) uint64 {
+	return uint64(o)
 }
 
 var RegisterValueArray = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {

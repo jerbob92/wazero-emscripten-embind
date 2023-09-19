@@ -10,6 +10,7 @@ import (
 	"log"
 	"os"
 	"path"
+	"reflect"
 	"sort"
 	"strconv"
 	"strings"
@@ -155,17 +156,31 @@ func Generate(dir string, fileName string, wasm []byte, initFunction string) err
 
 	constants := engine.GetConstants()
 	for i := range constants {
+		constantValue := constants[i].Value()
+		formattedConstantValue := fmt.Sprintf("%#v", constantValue)
+
 		constant := TemplateConstant{
-			Name:        constants[i].Name(),
-			GoName:      "Constant_" + constants[i].Name(),
-			Value:       fmt.Sprintf("%v", constants[i].Value()),
-			GoType:      typeNameToGeneratedName(constants[i].Type().Type(), constants[i].Type().IsClass(), constants[i].Type().IsEnum(), false),
-			ValuePrefix: "(",
-			ValueSuffix: ")",
+			Name:          constants[i].Name(),
+			GoName:        "Constant_" + constants[i].Name(),
+			Value:         formattedConstantValue,
+			CanBeConstant: true,
+			GoType:        typeNameToGeneratedName(constants[i].Type().Type(), constants[i].Type().IsClass(), constants[i].Type().IsEnum(), false),
+			ValuePrefix:   "(",
+			ValueSuffix:   ")",
 		}
 
-		if constant.GoType == "string" {
-			constant.Value = "\"" + constant.Value + "\""
+		if constantValue != nil {
+			typeOfConstant := reflect.TypeOf(constantValue)
+			switch typeOfConstant.Kind() {
+			case reflect.Map, reflect.Pointer, reflect.Struct, reflect.Slice,
+				reflect.Array, reflect.UnsafePointer, reflect.Chan:
+				constant.CanBeConstant = false
+			case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32,
+				reflect.Int64, reflect.Uint, reflect.Uint8, reflect.Uint16,
+				reflect.Uint32, reflect.Uint64, reflect.Float32, reflect.Float64:
+				// Pretty print numbers
+				constant.Value = fmt.Sprintf("%v", constantValue)
+			}
 		}
 
 		data.Constants = append(data.Constants, constant)
@@ -474,7 +489,7 @@ func ExecuteTemplate(tmpl *template.Template, name string, path string, data Tem
 	fileBytes := writer.Bytes()
 	formattedSource, err := format.Source(fileBytes)
 	if err != nil {
-		return fmt.Errorf("could not format %s: %w", name, err)
+		return fmt.Errorf("could not format %s: %w\nsource:\n%s", name, err, fileBytes)
 	}
 
 	fileWriter, err := os.Create(path)
@@ -499,12 +514,13 @@ type TemplateData struct {
 }
 
 type TemplateConstant struct {
-	Name        string
-	GoName      string
-	Value       string
-	GoType      string
-	ValuePrefix string
-	ValueSuffix string
+	Name          string
+	GoName        string
+	Value         string
+	GoType        string
+	ValuePrefix   string
+	ValueSuffix   string
+	CanBeConstant bool
 }
 
 type TemplateEnum struct {
