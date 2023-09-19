@@ -609,7 +609,7 @@ func (e *engine) checkRegisteredTypeDependencies(typeToVisit int32, seen *map[in
 				unboundTypes = append(unboundTypes, newUnboundTypes...)
 			}
 		}
-		return nil
+		return unboundTypes
 	}
 
 	unboundTypes = append(unboundTypes, typeToVisit)

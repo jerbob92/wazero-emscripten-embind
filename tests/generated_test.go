@@ -2926,12 +2926,11 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 		})
 
 		It("unbound base class produces error", func() {
-			// @todo: figure out why the missing class name isn't part of the message.
 			assertMessage(
 				func() (any, error) {
 					return generated.GetHasUnboundBase(engine, ctx, 1)
 				},
-				"getHasUnboundBase due to unbound types:")
+				"getHasUnboundBase due to unbound types: 12UnboundClass")
 		})
 
 		It("construct of class with unbound base", func() {
