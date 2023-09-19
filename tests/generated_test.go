@@ -8,6 +8,7 @@ import (
 
 	embind_external "github.com/jerbob92/wazero-emscripten-embind"
 	"github.com/jerbob92/wazero-emscripten-embind/tests/generated"
+	"github.com/jerbob92/wazero-emscripten-embind/types"
 
 	"github.com/tetratelabs/wazero"
 	"github.com/tetratelabs/wazero/api"
@@ -3022,6 +3023,7 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 		*/
 	})
 	When("constants", func() {
+		// @todo: figure out why I don't get these?
 		/*
 		   assert.equal(10, cm.INT_CONSTANT);
 
@@ -3248,29 +3250,25 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 			sh1, err := generated.NewClassStringHolder(engine, ctx, "Hello world")
 			Expect(err).To(BeNil())
 
-			// @todo: this requires embind_as.
+			sh2, err := generated.Call_StringHolder_func(engine, ctx, func() *generated.ClassStringHolder {
+				return sh1
+			})
+			Expect(err).To(BeNil())
 
-			/*
-				sh2, err := generated.Call_StringHolder_func(engine, ctx, func() *generated.ClassStringHolder {
-					return sh1
-				})
-				Expect(err).To(BeNil())
+			sh1String, err := sh1.Get(ctx)
+			Expect(err).To(BeNil())
+			Expect(sh1String).To(Equal("Hello world"))
 
-				sh1String, err := sh1.Get(ctx)
-				Expect(err).To(BeNil())
-				Expect(sh1String).To(Equal("Hello world"))
+			sh2String, err := sh2.(*generated.ClassStringHolder).Get(ctx)
+			Expect(err).To(BeNil())
+			Expect(sh2String).To(Equal("Hello world"))
 
-				sh2String, err := sh2.(*generated.ClassStringHolder).Get(ctx)
-				Expect(err).To(BeNil())
-				Expect(sh2String).To(Equal("Hello world"))
+			isAliasOf, err := sh1.IsAliasOf(ctx, sh2)
+			Expect(err).To(BeNil())
+			Expect(isAliasOf).To(BeFalse())
 
-				isAliasOf, err := sh1.IsAliasOf(ctx, sh2)
-				Expect(err).To(BeNil())
-				Expect(isAliasOf).To(BeFalse())
-
-				err = sh2.(*generated.ClassStringHolder).Delete(ctx)
-				Expect(err).To(BeNil())
-			*/
+			err = sh2.(*generated.ClassStringHolder).Delete(ctx)
+			Expect(err).To(BeNil())
 
 			err = sh1.Delete(ctx)
 			Expect(err).To(BeNil())
@@ -3303,78 +3301,66 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 			Expect(err).To(BeNil())
 			Expect(valAsBool).To(BeFalse())
 
-			// @todo: why do these return 0?
-			/*
-				valAsChar, err := generated.Val_as_char(engine, ctx, int8(127))
-				Expect(err).To(BeNil())
-				Expect(valAsChar).To(Equal(int8(127)))
+			valAsChar, err := generated.Val_as_char(engine, ctx, int8(127))
+			Expect(err).To(BeNil())
+			Expect(valAsChar).To(Equal(int8(127)))
 
-				valAsShort, err := generated.Val_as_short(engine, ctx, 32767)
-				Expect(err).To(BeNil())
-				Expect(valAsShort).To(Equal(32767))
+			valAsShort, err := generated.Val_as_short(engine, ctx, int16(32767))
+			Expect(err).To(BeNil())
+			Expect(valAsShort).To(Equal(int16(32767)))
 
-				valAsInt, err := generated.Val_as_int(engine, ctx, 65536)
-				Expect(err).To(BeNil())
-				Expect(valAsInt).To(Equal(65536))
+			valAsInt, err := generated.Val_as_int(engine, ctx, int32(65536))
+			Expect(err).To(BeNil())
+			Expect(valAsInt).To(Equal(int32(65536)))
 
-				valAsLong, err := generated.Val_as_long(engine, ctx, 65536)
-				Expect(err).To(BeNil())
-				Expect(valAsLong).To(Equal(65536))
+			valAsLong, err := generated.Val_as_long(engine, ctx, int32(65536))
+			Expect(err).To(BeNil())
+			Expect(valAsLong).To(Equal(int32(65536)))
 
-				valAsDouble, err := generated.Val_as_float(engine, ctx, 10.5)
-				Expect(err).To(BeNil())
-				Expect(valAsDouble).To(Equal(10.5))
+			valAsDouble, err := generated.Val_as_float(engine, ctx, float32(10.5))
+			Expect(err).To(BeNil())
+			Expect(valAsDouble).To(Equal(float32(10.5)))
 
-				valAsFloat, err := generated.Val_as_double(engine, ctx, 10.5)
-				Expect(err).To(BeNil())
-				Expect(valAsFloat).To(Equal(10.5))
+			valAsFloat, err := generated.Val_as_double(engine, ctx, float64(10.5))
+			Expect(err).To(BeNil())
+			Expect(valAsFloat).To(Equal(float64(10.5)))
 
-				valAsString, err := generated.Val_as_string(engine, ctx, "foo")
-				Expect(err).To(BeNil())
-				Expect(valAsString).To(Equal("foo"))
+			valAsString, err := generated.Val_as_string(engine, ctx, "foo")
+			Expect(err).To(BeNil())
+			Expect(valAsString).To(Equal("foo"))
 
-				valAsWString, err := generated.Val_as_wstring(engine, ctx, "foo")
-				Expect(err).To(BeNil())
-				Expect(valAsWString).To(Equal("foo"))
+			valAsWString, err := generated.Val_as_wstring(engine, ctx, "foo")
+			Expect(err).To(BeNil())
+			Expect(valAsWString).To(Equal("foo"))
 
-				obj := struct{}{}
+			obj := struct{}{}
 
-				valAsObj, err := generated.Val_as_val(engine, ctx, obj)
-				Expect(err).To(BeNil())
-				Expect(valAsObj).To(Equal(obj))
-			*/
+			valAsObj, err := generated.Val_as_val(engine, ctx, obj)
+			Expect(err).To(BeNil())
+			Expect(valAsObj).To(Equal(obj))
 
-			// JS->C++ memory view not implemented
+			// JS->C++ memory view not implemented (comment from emscripten)
 			//var ab = cm.val_as_memory_view(new ArrayBuffer(13));
 			//assert.equal(13, ab.byteLength);
 		})
 
 		It("value types", func() {
-			// @todo: all these floats become 0?
-			/*
-				tuple := []any{float32(1), float32(2), float32(3), float32(4)}
+			tuple := []any{float32(1), float32(2), float32(3), float32(4)}
 
-				valAsValueArray, err := generated.Val_as_value_array(engine, ctx, tuple)
-				Expect(err).To(BeNil())
-				Expect(valAsValueArray).To(Equal(tuple))
+			valAsValueArray, err := generated.Val_as_value_array(engine, ctx, tuple)
+			Expect(err).To(BeNil())
+			Expect(valAsValueArray).To(Equal(tuple))
 
-				valStruct := struct {
-					X int32
-					Y int32
-					Z int32
-					W int32
-				}{
-					X: 1,
-					Y: 2,
-					Z: 3,
-					W: 4,
-				}
+			valStruct := map[string]any{
+				"x": float32(1),
+				"y": float32(2),
+				"z": float32(3),
+				"w": float32(4),
+			}
 
-				valAsValueStruct, err := generated.Val_as_value_object(engine, ctx, valStruct)
-				Expect(err).To(BeNil())
-				Expect(valAsValueStruct).To(Equal(valStruct))
-
-			*/
+			valAsValueStruct, err := generated.Val_as_value_object(engine, ctx, valStruct)
+			Expect(err).To(BeNil())
+			Expect(valAsValueStruct).To(Equal(valStruct))
 		})
 
 		It("enums", func() {
@@ -3525,28 +3511,41 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 
 	When("typeof", func() {
 		It("typeof", func() {
-			// @todo: these all return empty strings?
-			/*
-				typeName, err := generated.GetTypeOfVal(engine, ctx, nil)
-				Expect(err).To(BeNil())
-				Expect(typeName).To(Equal("object"))
+			typeName, err := generated.GetTypeOfVal(engine, ctx, nil)
+			Expect(err).To(BeNil())
+			Expect(typeName).To(Equal("object"))
 
-				typeName, err = generated.GetTypeOfVal(engine, ctx, struct{}{})
-				Expect(err).To(BeNil())
-				Expect(typeName).To(Equal("object"))
+			typeName, err = generated.GetTypeOfVal(engine, ctx, struct{}{})
+			Expect(err).To(BeNil())
+			Expect(typeName).To(Equal("object"))
 
-				typeName, err = generated.GetTypeOfVal(engine, ctx, func() {})
-				Expect(err).To(BeNil())
-				Expect(typeName).To(Equal("function"))
+			typeName, err = generated.GetTypeOfVal(engine, ctx, func() {})
+			Expect(err).To(BeNil())
+			Expect(typeName).To(Equal("function"))
 
-				typeName, err = generated.GetTypeOfVal(engine, ctx, 1)
-				Expect(err).To(BeNil())
-				Expect(typeName).To(Equal("number"))
+			typeName, err = generated.GetTypeOfVal(engine, ctx, 1)
+			Expect(err).To(BeNil())
+			Expect(typeName).To(Equal("number"))
 
-				typeName, err = generated.GetTypeOfVal(engine, ctx, "hi")
-				Expect(err).To(BeNil())
-				Expect(typeName).To(Equal("string"))
-			*/
+			typeName, err = generated.GetTypeOfVal(engine, ctx, "hi")
+			Expect(err).To(BeNil())
+			Expect(typeName).To(Equal("string"))
+
+			typeName, err = generated.GetTypeOfVal(engine, ctx, types.Undefined)
+			Expect(err).To(BeNil())
+			Expect(typeName).To(Equal("undefined"))
+
+			typeName, err = generated.GetTypeOfVal(engine, ctx, true)
+			Expect(err).To(BeNil())
+			Expect(typeName).To(Equal("boolean"))
+
+			typeName, err = generated.GetTypeOfVal(engine, ctx, int64(0))
+			Expect(err).To(BeNil())
+			Expect(typeName).To(Equal("bigint"))
+
+			typeName, err = generated.GetTypeOfVal(engine, ctx, uint64(0))
+			Expect(err).To(BeNil())
+			Expect(typeName).To(Equal("bigint"))
 		})
 	})
 

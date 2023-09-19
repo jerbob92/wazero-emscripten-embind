@@ -79,6 +79,13 @@ func (ft *floatType) FromF64(o float64) uint64 {
 	return api.EncodeF64(o)
 }
 
+func (ft *floatType) ToF64(o uint64) float64 {
+	if ft.size == 4 {
+		return float64(api.DecodeF32(o))
+	}
+	return api.DecodeF64(o)
+}
+
 var RegisterFloat = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
 	engine := MustGetEngineFromContext(ctx, mod).(*engine)
 

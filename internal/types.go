@@ -53,6 +53,10 @@ func (bt *baseType) FromF64(o float64) uint64 {
 	return api.EncodeF64(o)
 }
 
+func (bt *baseType) ToF64(o uint64) float64 {
+	return float64(o)
+}
+
 type registeredType interface {
 	RawType() int32
 	Name() string
@@ -67,6 +71,7 @@ type registeredType interface {
 	NativeType() api.ValueType
 	GoType() string
 	FromF64(o float64) uint64
+	ToF64(o uint64) float64
 }
 
 type IType interface {

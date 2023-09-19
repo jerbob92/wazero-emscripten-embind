@@ -35,7 +35,7 @@ func (ot *objectType) FromWireType(ctx context.Context, mod api.Module, ptr uint
 func (ot *objectType) ToWireType(ctx context.Context, mod api.Module, destructors *[]*destructorFunc, o any) (uint64, error) {
 	obj, ok := o.(map[string]any)
 	if !ok {
-		return 0, fmt.Errorf("incorrect input, not an string map")
+		return 0, fmt.Errorf("incorrect input, not a map[string]any")
 	}
 
 	for i := range ot.reg.fields {

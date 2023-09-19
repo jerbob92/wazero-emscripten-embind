@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"reflect"
 	"strconv"
 	"strings"
@@ -527,7 +526,7 @@ var EmvalAs = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack [
 		panic(fmt.Errorf("could not call toWireType on _emval_as: %w", err))
 	}
 
-	stack[0] = returnVal
+	stack[0] = api.EncodeF64(returnType.ToF64(returnVal))
 })
 
 var EmvalNew = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
@@ -903,11 +902,32 @@ var EmvalTypeof = api.GoModuleFunc(func(ctx context.Context, mod api.Module, sta
 		panic(fmt.Errorf("could not find handle: %w", err))
 	}
 
-	log.Println(handle)
+	// Default type.
+	typeOf := "object"
 
-	// @todo: implement me properly.
+	if handle != nil {
+		reflectTypeOf := reflect.TypeOf(handle)
+		switch reflectTypeOf.Kind() {
+		case reflect.Func:
+			typeOf = "function"
+		case reflect.String:
+			typeOf = "string"
+		case reflect.Bool:
+			typeOf = "boolean"
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32,
+			reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32,
+			reflect.Uintptr, reflect.Float32, reflect.Float64:
+			typeOf = "number"
+		case reflect.Int64, reflect.Uint64:
+			typeOf = "bigint"
+		}
 
-	stack[0] = api.EncodeI32(engine.emvalEngine.toHandle("object"))
+		if handle == types.Undefined {
+			typeOf = "undefined"
+		}
+	}
+
+	stack[0] = api.EncodeI32(engine.emvalEngine.toHandle(typeOf))
 })
 
 var EmvalAsInt64 = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {

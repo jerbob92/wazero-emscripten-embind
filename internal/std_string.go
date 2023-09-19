@@ -3,7 +3,6 @@ package embind
 import (
 	"context"
 	"fmt"
-
 	"github.com/tetratelabs/wazero/api"
 )
 
@@ -53,6 +52,7 @@ func (sst *stdStringType) ToWireType(ctx context.Context, mod api.Module, destru
 	if err != nil {
 		return 0, err
 	}
+
 	base := api.DecodeU32(mallocRes[0])
 	ptr := base + 4
 
