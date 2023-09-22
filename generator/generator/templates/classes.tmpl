@@ -24,6 +24,14 @@ func (class *{{ $class.GoName }}) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *{{ $class.GoName }}) DeleteLater(ctx context.Context) (embind.ClassBase, error) {
+	return class.DeleteInstanceLater(ctx, class)
+}
+
+func (class *{{ $class.GoName }}) IsDeleted(ctx context.Context) bool {
+	return class.IsInstanceDeleted(ctx, class)
+}
+
 func (class *{{ $class.GoName }}) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
 	return class.IsAliasOfInstance(ctx, class, second)
 }

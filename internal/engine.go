@@ -29,6 +29,8 @@ type engine struct {
 	registeredTuples     map[int32]*registeredTuple
 	registeredObjects    map[int32]*registeredObject
 	registeredInstances  map[uint32]IClassBase
+	deletionQueue        []IClassBase
+	delayFunction        DelayFunction
 	emvalEngine          *emvalEngine
 }
 
@@ -761,6 +763,53 @@ func (e *engine) validateThis(ctx context.Context, this any, classType *register
 
 	// @todo: check if based.ptrType.registeredClass is or extends classType.registeredClass
 
-	// todo: kill this
+	// todo: kill this (comment from Emscripten)
 	return e.upcastPointer(ctx, based.getPtr(), based.getPtrType().registeredClass, classType.registeredClass)
+}
+
+func (e *engine) CountEmvalHandles() int {
+	return len(e.emvalEngine.allocator.allocated) - len(e.emvalEngine.allocator.freelist)
+}
+
+func (e *engine) GetInheritedInstanceCount() int {
+	return len(e.registeredInstances)
+}
+
+func (e *engine) GetLiveInheritedInstances() []IClassBase {
+	instances := make([]IClassBase, len(e.registeredInstances))
+	i := 0
+	for id := range e.registeredInstances {
+		instances[i] = e.registeredInstances[id]
+		i++
+	}
+	return instances
+}
+
+func (e *engine) FlushPendingDeletes(ctx context.Context) error {
+	for len(e.deletionQueue) > 0 {
+		obj := e.deletionQueue[len(e.deletionQueue)-1]
+		e.deletionQueue = e.deletionQueue[:len(e.deletionQueue)-1]
+
+		obj.getRegisteredPtrTypeRecord().deleteScheduled = false
+		err := obj.DeleteInstance(ctx, obj)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (e *engine) SetDelayFunction(fn DelayFunction) error {
+	e.delayFunction = fn
+
+	if len(e.deletionQueue) > 0 && fn != nil {
+		err := fn(func(ctx context.Context) error {
+			return e.FlushPendingDeletes(ctx)
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

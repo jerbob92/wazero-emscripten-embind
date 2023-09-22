@@ -74,6 +74,10 @@ func (ea *emvalAllocator) get(id int32) (*emvalHandle, error) {
 		return nil, fmt.Errorf("invalid id: %d", id)
 	}
 
+	if ea.allocated[int(id)] == nil {
+		return nil, fmt.Errorf("invalid id: %d", id)
+	}
+
 	return ea.allocated[int(id)], nil
 }
 

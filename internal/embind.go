@@ -25,7 +25,14 @@ type IEngine interface {
 	RegisterEmvalSymbol(name string, symbol any) error
 	EmvalToHandle(value any) int32
 	EmvalToValue(handle int32) (any, error)
+	CountEmvalHandles() int
+	GetInheritedInstanceCount() int
+	GetLiveInheritedInstances() []IClassBase
+	FlushPendingDeletes(ctx context.Context) error
+	SetDelayFunction(fn DelayFunction) error
 }
+
+type DelayFunction func(func(ctx context.Context) error) error
 
 type IEngineConfig interface {
 }
@@ -92,6 +99,9 @@ func CreateEngine(config IEngineConfig) IEngine {
 		registeredPointers:   map[int32]*registeredPointer{},
 		registeredTuples:     map[int32]*registeredTuple{},
 		registeredObjects:    map[int32]*registeredObject{},
+		registeredInstances:  map[uint32]IClassBase{},
+		deletionQueue:        []IClassBase{},
+		delayFunction:        nil,
 		emvalEngine:          createEmvalEngine(),
 	}
 }

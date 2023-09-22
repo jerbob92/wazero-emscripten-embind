@@ -29,6 +29,7 @@ var engine embind_external.Engine
 var runtime wazero.Runtime
 var mod api.Module
 var wasmData []byte
+var compiledModule wazero.CompiledModule
 
 var _ = BeforeSuite(func() {
 	wasm, err := os.ReadFile("../testdata/wasm/tests.wasm")
@@ -47,7 +48,7 @@ var _ = BeforeSuite(func() {
 		return
 	}
 
-	compiledModule, err := runtime.CompileModule(ctx, wasm)
+	compiledModule, err = runtime.CompileModule(ctx, wasm)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -76,13 +77,21 @@ var _ = BeforeSuite(func() {
 		Expect(err).To(BeNil())
 		return
 	}
+})
 
+var _ = AfterSuite(func() {
+	runtime.Close(ctx)
+})
+
+var _ = BeforeEach(func() {
 	moduleConfig := wazero.NewModuleConfig().
 		WithStartFunctions("_initialize").
 		WithStdout(os.Stdout).
 		WithStderr(os.Stderr).
 		WithName("")
 
+	var err error
+	engine = embind_external.CreateEngine(embind_external.NewConfig())
 	ctx = engine.Attach(ctx)
 	mod, err = runtime.InstantiateModule(ctx, compiledModule, moduleConfig)
 	if err != nil {
@@ -95,20 +104,21 @@ var _ = BeforeSuite(func() {
 		Expect(err).To(BeNil())
 		return
 	}
-	// @todo: implement leak detection.
-	/*
-	   cm.setDelayFunction(undefined);
-	   assert.equal(0, cm.count_emval_handles());
-	*/
+
+	err = engine.SetDelayFunction(nil)
+	Expect(err).To(BeNil())
+
+	emvalHandleCount := engine.CountEmvalHandles()
+	Expect(emvalHandleCount, 0)
 })
 
-var _ = AfterSuite(func() {
-	// @todo: implement leak detection.
-	/*
-	   cm.flushPendingDeletes();
-	   ssert.equal(0, cm.count_emval_handles());
-	*/
-	runtime.Close(ctx)
+var _ = AfterEach(func() {
+	err := engine.FlushPendingDeletes(ctx)
+	Expect(err).To(BeNil())
+
+	emvalHandleCount := engine.CountEmvalHandles()
+	Expect(emvalHandleCount, 0)
+	mod.Close(ctx)
 })
 
 var _ = Describe("executing original embind tests", Label("library"), func() {
@@ -3110,100 +3120,184 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 	})
 
 	When("delete pool", func() {
-		/*
-		   test("can delete objects later", function() {
-		       var v = new cm.ValHolder({});
-		       v.deleteLater();
-		       assert.deepEqual({}, v.getVal());
-		       cm.flushPendingDeletes();
-		       assert.throws(cm.BindingError, function() {
-		           v.getVal();
-		       });
-		   });
+		It("can delete objects later", func() {
+			v, err := generated.NewClassValHolder(engine, ctx, struct{}{})
+			Expect(err).To(BeNil())
 
-		   test("calling deleteLater twice is an error", function() {
-		       var v = new cm.ValHolder({});
-		       v.deleteLater();
-		       assert.throws(cm.BindingError, function() {
-		           v.deleteLater();
-		       });
-		   });
+			_, err = v.DeleteLater(ctx)
+			Expect(err).To(BeNil())
 
-		   test("can clone instances that have been scheduled for deletion", function() {
-		       var v = new cm.ValHolder({});
-		       v.deleteLater();
-		       var v2 = v.clone();
-		       v2.delete();
-		   });
+			val, err := v.GetVal(ctx)
+			Expect(err).To(BeNil())
+			Expect(val).To(Equal(struct{}{}))
 
-		   test("deleteLater returns the object", function() {
-		       var v = (new cm.ValHolder({})).deleteLater();
-		       assert.deepEqual({}, v.getVal());
-		   });
+			err = engine.FlushPendingDeletes(ctx)
 
-		   test("deleteLater throws if object is already deleted", function() {
-		       var v = new cm.ValHolder({});
-		       v.delete();
-		       assert.throws(cm.BindingError, function() {
-		           v.deleteLater();
-		       });
-		   });
+			val, err = v.GetVal(ctx)
+			Expect(err).To(Not(BeNil()))
+			if err != nil {
+				Expect(err.Error()).To(ContainSubstring("cannot pass deleted object as a pointer of type"))
+			}
+		})
 
-		   test("delete throws if object is already scheduled for deletion", function() {
-		       var v = new cm.ValHolder({});
-		       v.deleteLater();
-		       assert.throws(cm.BindingError, function() {
-		           v.delete();
-		       });
-		   });
+		It("calling deleteLater twice is an error", func() {
+			v, err := generated.NewClassValHolder(engine, ctx, struct{}{})
+			Expect(err).To(BeNil())
 
-		   test("deleteLater invokes delay function", function() {
-		       var runLater;
-		       cm.setDelayFunction(function(fn) {
-		           runLater = fn;
-		       });
+			_, err = v.DeleteLater(ctx)
+			Expect(err).To(BeNil())
 
-		       var v = new cm.ValHolder({});
-		       assert.false(runLater);
-		       v.deleteLater();
-		       assert.true(runLater);
-		       assert.false(v.isDeleted());
-		       runLater();
-		       assert.true(v.isDeleted());
-		   });
+			_, err = v.DeleteLater(ctx)
+			Expect(err).To(Not(BeNil()))
+			if err != nil {
+				Expect(err.Error()).To(ContainSubstring("object already scheduled for deletion"))
+			}
+		})
 
-		   test("deleteLater twice invokes delay function once", function() {
-		       var count = 0;
-		       var runLater;
-		       cm.setDelayFunction(function(fn) {
-		           ++count;
-		           runLater = fn;
-		       });
+		It("can clone instances that have been scheduled for deletion", func() {
+			v, err := generated.NewClassValHolder(engine, ctx, struct{}{})
+			Expect(err).To(BeNil())
 
-		       (new cm.ValHolder({})).deleteLater();
-		       (new cm.ValHolder({})).deleteLater();
-		       assert.equal(1, count);
-		       runLater();
-		       (new cm.ValHolder({})).deleteLater();
-		       assert.equal(2, count);
-		   });
+			_, err = v.DeleteLater(ctx)
+			Expect(err).To(BeNil())
 
-		   test('The delay function is immediately invoked if the deletion queue is not empty', function() {
-		       (new cm.ValHolder({})).deleteLater();
-		       var count = 0;
-		       cm.setDelayFunction(function(fn) {
-		           ++count;
-		       });
-		       assert.equal(1, count);
-		   });
+			v2, err := v.Clone(ctx)
+			Expect(err).To(BeNil())
 
-		   // The idea is that an interactive application would
-		   // periodically flush the deleteLater queue by calling
-		   //
-		   // setDelayFunction(function(fn) {
-		   //     setTimeout(fn, 0);
-		   // });
-		*/
+			err = v2.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
+
+		It("deleteLater returns the object", func() {
+			v, err := generated.NewClassValHolder(engine, ctx, struct{}{})
+			Expect(err).To(BeNil())
+
+			vReturned, err := v.DeleteLater(ctx)
+			Expect(err).To(BeNil())
+
+			val, err := vReturned.(*generated.ClassValHolder).GetVal(ctx)
+			Expect(err).To(BeNil())
+			Expect(val).To(Equal(struct{}{}))
+		})
+
+		It("deleteLater throws if object is already deleted", func() {
+			v, err := generated.NewClassValHolder(engine, ctx, struct{}{})
+			Expect(err).To(BeNil())
+
+			err = v.Delete(ctx)
+			Expect(err).To(BeNil())
+
+			_, err = v.DeleteLater(ctx)
+			Expect(err).To(Not(BeNil()))
+			if err != nil {
+				Expect(err.Error()).To(ContainSubstring("class handle already deleted"))
+			}
+		})
+
+		It("delete throws if object is already scheduled for deletion", func() {
+			v, err := generated.NewClassValHolder(engine, ctx, struct{}{})
+			Expect(err).To(BeNil())
+
+			_, err = v.DeleteLater(ctx)
+			Expect(err).To(BeNil())
+
+			err = v.Delete(ctx)
+			Expect(err).To(Not(BeNil()))
+			if err != nil {
+				Expect(err.Error()).To(ContainSubstring("object already scheduled for deletion"))
+			}
+		})
+
+		It("deleteLater invokes delay function", func() {
+			var runLater func(ctx context.Context) error
+
+			err := engine.SetDelayFunction(func(fn func(ctx context.Context) error) error {
+				runLater = fn
+				return nil
+			})
+
+			Expect(err).To(BeNil())
+
+			v, err := generated.NewClassValHolder(engine, ctx, struct{}{})
+			Expect(err).To(BeNil())
+
+			Expect(runLater).To(BeNil())
+
+			_, err = v.DeleteLater(ctx)
+			Expect(err).To(BeNil())
+
+			Expect(runLater).To(Not(BeNil()))
+
+			isDeleted := v.IsDeleted(ctx)
+
+			Expect(isDeleted).To(BeFalse())
+			err = runLater(ctx)
+			Expect(err).To(BeNil())
+
+			isDeleted = v.IsDeleted(ctx)
+			Expect(isDeleted).To(BeTrue())
+		})
+
+		It("deleteLater twice invokes delay function once", func() {
+			count := 0
+			var runLater func(ctx context.Context) error
+
+			err := engine.SetDelayFunction(func(fn func(ctx context.Context) error) error {
+				count++
+				runLater = fn
+				return nil
+			})
+
+			Expect(err).To(BeNil())
+
+			v, err := generated.NewClassValHolder(engine, ctx, struct{}{})
+			Expect(err).To(BeNil())
+
+			_, err = v.DeleteLater(ctx)
+			Expect(err).To(BeNil())
+
+			v2, err := generated.NewClassValHolder(engine, ctx, struct{}{})
+			Expect(err).To(BeNil())
+
+			_, err = v2.DeleteLater(ctx)
+			Expect(err).To(BeNil())
+
+			Expect(count).To(Equal(1))
+
+			err = runLater(ctx)
+			Expect(err).To(BeNil())
+
+			v3, err := generated.NewClassValHolder(engine, ctx, struct{}{})
+			Expect(err).To(BeNil())
+
+			_, err = v3.DeleteLater(ctx)
+			Expect(err).To(BeNil())
+
+			Expect(count).To(Equal(2))
+		})
+
+		It("The delay function is immediately invoked if the deletion queue is not empty", func() {
+			v, err := generated.NewClassValHolder(engine, ctx, struct{}{})
+			Expect(err).To(BeNil())
+
+			_, err = v.DeleteLater(ctx)
+			Expect(err).To(BeNil())
+
+			count := 0
+			err = engine.SetDelayFunction(func(fn func(ctx context.Context) error) error {
+				count++
+				return nil
+			})
+			Expect(err).To(BeNil())
+			Expect(count).To(Equal(1))
+		})
+
+		// The idea is that an interactive application would
+		// periodically flush the deleteLater queue by calling
+		//
+		// setDelayFunction(function(fn) {
+		//     setTimeout(fn, 0);
+		// });
 	})
 
 	When("references", func() {

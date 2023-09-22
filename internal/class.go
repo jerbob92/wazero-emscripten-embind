@@ -115,11 +115,11 @@ func (erc *classType) validate() error {
 	return nil
 }
 
-func (erc *classType) isDeleted(handle IClassBase) bool {
+func (erc *classType) isDeleted(ctx context.Context, handle IClassBase) bool {
 	return handle.getRegisteredPtrTypeRecord().ptr == 0
 }
 
-func (erc *classType) deleteLater(handle IClassBase) (any, error) {
+func (erc *classType) deleteLater(ctx context.Context, handle IClassBase) (IClassBase, error) {
 	registeredPtrTypeRecord := handle.getRegisteredPtrTypeRecord()
 	if registeredPtrTypeRecord.ptr == 0 {
 		return nil, fmt.Errorf("class handle already deleted")
@@ -129,13 +129,17 @@ func (erc *classType) deleteLater(handle IClassBase) (any, error) {
 		return nil, fmt.Errorf("object already scheduled for deletion")
 	}
 
-	// @todo: implement me.
-	/*
-	   deletionQueue.push(this);
-	   if (deletionQueue.length === 1 && delayFunction) {
-	     delayFunction(flushPendingDeletes);
-	   }
-	*/
+	e := MustGetEngineFromContext(ctx, nil).(*engine)
+	e.deletionQueue = append(e.deletionQueue, handle)
+
+	if len(e.deletionQueue) == 1 && e.delayFunction != nil {
+		err := e.delayFunction(func(ctx context.Context) error {
+			return e.FlushPendingDeletes(ctx)
+		})
+		if err != nil {
+			return nil, err
+		}
+	}
 
 	registeredPtrTypeRecord.deleteScheduled = true
 
@@ -214,7 +218,7 @@ func (erc *classType) delete(ctx context.Context, handle IClassBase) error {
 		return err
 	}
 
-	if registeredPtrTypeRecord.preservePointerOnDelete {
+	if !registeredPtrTypeRecord.preservePointerOnDelete {
 		registeredPtrTypeRecord.smartPtr = 0
 		registeredPtrTypeRecord.ptr = 0
 	}
@@ -453,6 +457,14 @@ func (ecb *ClassBase) DeleteInstance(ctx context.Context, this IClassBase) error
 	return ecb.classType.delete(ctx, this)
 }
 
+func (ecb *ClassBase) DeleteInstanceLater(ctx context.Context, this IClassBase) (IClassBase, error) {
+	return ecb.classType.deleteLater(ctx, this)
+}
+
+func (ecb *ClassBase) IsInstanceDeleted(ctx context.Context, this IClassBase) bool {
+	return ecb.classType.isDeleted(ctx, this)
+}
+
 func (ecb *ClassBase) IsAliasOfInstance(ctx context.Context, this IClassBase, second IClassBase) (bool, error) {
 	return ecb.classType.isAliasOf(ctx, this, second)
 }
@@ -520,6 +532,8 @@ type IClassBase interface {
 	isValid() bool
 	CloneInstance(ctx context.Context, this IClassBase) (IClassBase, error)
 	DeleteInstance(ctx context.Context, this IClassBase) error
+	DeleteInstanceLater(ctx context.Context, this IClassBase) (IClassBase, error)
+	IsInstanceDeleted(ctx context.Context, this IClassBase) bool
 	IsAliasOfInstance(ctx context.Context, this IClassBase, second IClassBase) (bool, error)
 	CallInstanceMethod(ctx context.Context, this any, name string, arguments ...any) (any, error)
 	SetInstanceProperty(ctx context.Context, this any, name string, value any) error

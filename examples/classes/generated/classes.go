@@ -23,6 +23,14 @@ func (class *ClassMyClass) Delete(ctx context.Context) error {
 	return class.DeleteInstance(ctx, class)
 }
 
+func (class *ClassMyClass) DeleteLater(ctx context.Context) (embind.ClassBase, error) {
+	return class.DeleteInstanceLater(ctx, class)
+}
+
+func (class *ClassMyClass) IsDeleted(ctx context.Context) bool {
+	return class.IsInstanceDeleted(ctx, class)
+}
+
 func (class *ClassMyClass) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
 	return class.IsAliasOfInstance(ctx, class, second)
 }
