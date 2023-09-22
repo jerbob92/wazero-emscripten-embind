@@ -109,7 +109,7 @@ var _ = BeforeEach(func() {
 	Expect(err).To(BeNil())
 
 	emvalHandleCount := engine.CountEmvalHandles()
-	Expect(emvalHandleCount, 0)
+	Expect(emvalHandleCount).To(Equal(0))
 })
 
 var _ = AfterEach(func() {
@@ -117,7 +117,8 @@ var _ = AfterEach(func() {
 	Expect(err).To(BeNil())
 
 	emvalHandleCount := engine.CountEmvalHandles()
-	Expect(emvalHandleCount, 0)
+	Expect(emvalHandleCount).To(Equal(0))
+
 	mod.Close(ctx)
 })
 
@@ -2420,29 +2421,53 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 	})
 
 	When("raw pointers", func() {
-		/*
-		   test("can pass raw pointers into functions if explicitly allowed", function() {
-		       var vh = new cm.ValHolder({});
-		       cm.ValHolder.set_via_raw_pointer(vh, 10);
-		       assert.equal(10, cm.ValHolder.get_via_raw_pointer(vh));
-		       vh.delete();
-		   });
+		It("can pass raw pointers into functions if explicitly allowed", func() {
+			vh, err := generated.NewClassValHolder(engine, ctx, "foo")
+			Expect(err).To(BeNil())
 
-		   test("can return raw pointers from functions if explicitly allowed", function() {
-		       var p = cm.embind_test_return_raw_base_ptr();
-		       assert.equal("Base", p.getClassName());
-		       p.delete();
-		   });
+			err = vh.StaticSet_via_raw_pointer(ctx, vh, 10)
+			Expect(err).To(BeNil())
 
-		   test("can pass multiple raw pointers to functions", function() {
-		       var target = new cm.ValHolder(undefined);
-		       var source = new cm.ValHolder("hi");
-		       cm.ValHolder.transfer_via_raw_pointer(target, source);
-		       assert.equal("hi", target.getVal());
-		       target.delete();
-		       source.delete();
-		   });
-		*/
+			val, err := vh.StaticGet_via_raw_pointer(ctx, vh)
+			Expect(err).To(BeNil())
+			Expect(val).To(Equal(10))
+
+			err = vh.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
+
+		It("can return raw pointers from functions if explicitly allowed", func() {
+			p, err := generated.Embind_test_return_raw_base_ptr(engine, ctx)
+			Expect(err).To(BeNil())
+
+			className, err := p.CallInstanceMethod(ctx, p, "getClassName")
+			Expect(className).To(Equal("Base"))
+
+			err = p.DeleteInstance(ctx, p)
+			Expect(err).To(BeNil())
+		})
+
+		It("can pass multiple raw pointers to functions", func() {
+			target, err := generated.NewClassValHolder(engine, ctx, types.Undefined)
+			Expect(err).To(BeNil())
+
+			source, err := generated.NewClassValHolder(engine, ctx, "hi")
+			Expect(err).To(BeNil())
+
+			err = generated.ClassValHolderStaticTransfer_via_raw_pointer(engine, ctx, target, source)
+			Expect(err).To(BeNil())
+
+			val, err := target.GetVal(ctx)
+			Expect(err).To(BeNil())
+
+			Expect(val).To(Equal("hi"))
+
+			err = target.Delete(ctx)
+			Expect(err).To(BeNil())
+
+			err = source.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
 	})
 
 	When("implementing abstract methods with JS objects", func() {
@@ -2898,23 +2923,37 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 	})
 
 	When("registration order", func() {
-		/*
-		   test("registration of tuple elements out of order leaves them in order", function() {
-		       var ot = cm.getOrderedTuple();
-		       assert.instanceof(ot[0], cm.FirstElement);
-		       assert.instanceof(ot[1], cm.SecondElement);
-		       ot[0].delete();
-		       ot[1].delete();
-		   });
+		It("registration of tuple elements out of order leaves them in order", func() {
+			ot, err := generated.GetOrderedTuple(engine, ctx)
+			Expect(err).To(BeNil())
 
-		   test("registration of struct elements out of order", function() {
-		       var os = cm.getOrderedStruct();
-		       assert.instanceof(os.first, cm.FirstElement);
-		       assert.instanceof(os.second, cm.SecondElement);
-		       os.first.delete();
-		       os.second.delete();
-		   });
-		*/
+			Expect(ot).To(HaveLen(2))
+			Expect(ot[0]).To(BeAssignableToTypeOf(&generated.ClassFirstElement{}))
+			Expect(ot[1]).To(BeAssignableToTypeOf(&generated.ClassSecondElement{}))
+
+			err = ot[0].(*generated.ClassFirstElement).Delete(ctx)
+			Expect(err).To(BeNil())
+
+			err = ot[1].(*generated.ClassSecondElement).Delete(ctx)
+			Expect(err).To(BeNil())
+		})
+
+		It("registration of struct elements out of order", func() {
+			ot, err := generated.GetOrderedStruct(engine, ctx)
+			Expect(err).To(BeNil())
+
+			Expect(ot).To(HaveKey("first"))
+			Expect(ot).To(HaveKey("second"))
+
+			Expect(ot["first"]).To(BeAssignableToTypeOf(&generated.ClassFirstElement{}))
+			Expect(ot["second"]).To(BeAssignableToTypeOf(&generated.ClassSecondElement{}))
+
+			err = ot["first"].(*generated.ClassFirstElement).Delete(ctx)
+			Expect(err).To(BeNil())
+
+			err = ot["second"].(*generated.ClassSecondElement).Delete(ctx)
+			Expect(err).To(BeNil())
+		})
 	})
 
 	When("unbound types", func() {
@@ -3033,17 +3072,12 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 		*/
 	})
 	When("constants", func() {
-		// @todo: figure out why I don't get these?
-		/*
-		   assert.equal(10, cm.INT_CONSTANT);
-
-		   assert.equal(1, cm.STATIC_CONST_INTEGER_VALUE_1);
-		   assert.equal(1000, cm.STATIC_CONST_INTEGER_VALUE_1000);
-
-		   assert.equal("some string", cm.STRING_CONSTANT);
-		   assert.deepEqual([1, 2, 3, 4], cm.VALUE_ARRAY_CONSTANT);
-		   assert.deepEqual({x:1,y:2,z:3,w:4}, cm.VALUE_OBJECT_CONSTANT);
-		*/
+		Expect(generated.Constant_INT_CONSTANT, 10)
+		Expect(generated.Constant_STATIC_CONST_INTEGER_VALUE_1, 1)
+		Expect(generated.Constant_STATIC_CONST_INTEGER_VALUE_1000, 1000)
+		Expect(generated.Constant_STRING_CONSTANT, "some string")
+		Expect(generated.Constant_VALUE_ARRAY_CONSTANT, []any{float32(1), float32(2), float32(3), float32(4)})
+		Expect(generated.Constant_VALUE_OBJECT_CONSTANT, map[string]interface{}{"w": 4, "x": 1, "y": 2, "z": 3})
 	})
 
 	When("object handle comparison", func() {

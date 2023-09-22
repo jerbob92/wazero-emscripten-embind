@@ -768,7 +768,7 @@ func (e *engine) validateThis(ctx context.Context, this any, classType *register
 }
 
 func (e *engine) CountEmvalHandles() int {
-	return len(e.emvalEngine.allocator.allocated) - len(e.emvalEngine.allocator.freelist)
+	return len(e.emvalEngine.allocator.allocated) - len(e.emvalEngine.allocator.freelist) - e.emvalEngine.allocator.reserved
 }
 
 func (e *engine) GetInheritedInstanceCount() int {
