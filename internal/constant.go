@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"github.com/tetratelabs/wazero/api"
+	"reflect"
 )
 
 type IConstant interface {
@@ -24,7 +25,10 @@ type registeredConstant struct {
 
 func (rc *registeredConstant) validate() error {
 	if rc.hasGoValue && rc.hasCppValue {
-		if rc.goValue != rc.cppValue {
+		// Only compare when values can be compared.
+		goValueType := reflect.TypeOf(rc.goValue)
+		cppValueType := reflect.TypeOf(rc.cppValue)
+		if goValueType.Comparable() && cppValueType.Comparable() && rc.goValue != rc.cppValue {
 			return fmt.Errorf("constant %s has a different value in Go than in C++ (go: %v (%T), cpp: %v (%T))", rc.name, rc.goValue, rc.goValue, rc.cppValue, rc.cppValue)
 		}
 	}
