@@ -12,5 +12,8 @@ func Enum_in_enum_out(e embind.Engine, ctx context.Context, arg0 EnumNewStyle) (
 	if err != nil {
 		return EnumOldStyle(0), err
 	}
+	if res == nil {
+		return EnumOldStyle(0), nil
+	}
 	return res.(EnumOldStyle), nil
 }

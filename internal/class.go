@@ -472,7 +472,7 @@ func (ecb *ClassBase) IsAliasOfInstance(ctx context.Context, this IClassBase, se
 func (ecb *ClassBase) CallInstanceMethod(ctx context.Context, this any, name string, arguments ...any) (any, error) {
 	method, ok := ecb.classType.methods[name]
 	if !ok {
-		return nil, fmt.Errorf("method %s is not found on %T", name, this)
+		return nil, fmt.Errorf("%s.%s() is not found", ecb.classType.name, name)
 	}
 
 	// Ensure that the engine is attached. Allows calling methods on the class
@@ -480,7 +480,7 @@ func (ecb *ClassBase) CallInstanceMethod(ctx context.Context, this any, name str
 	ctx = ecb.engine.Attach(ctx)
 
 	if method.isStatic && this != nil {
-		return nil, fmt.Errorf("method %s on %T is static", name, this)
+		return nil, fmt.Errorf("%s.%s() is static", ecb.classType.name, name)
 	}
 
 	return method.fn(ctx, this, arguments...)
@@ -489,7 +489,7 @@ func (ecb *ClassBase) CallInstanceMethod(ctx context.Context, this any, name str
 func (ecb *ClassBase) SetInstanceProperty(ctx context.Context, this any, name string, value any) error {
 	property, ok := ecb.classType.properties[name]
 	if !ok {
-		return fmt.Errorf("property %s is not found on %T", name, this)
+		return fmt.Errorf("%s.%s is a not found", ecb.classType.name, name)
 	}
 
 	// Ensure that the engine is attached. Allows setting properties on the
@@ -497,11 +497,11 @@ func (ecb *ClassBase) SetInstanceProperty(ctx context.Context, this any, name st
 	ctx = ecb.engine.Attach(ctx)
 
 	if property.Static() && this != nil {
-		return fmt.Errorf("property %s on %T is static", name, this)
+		return fmt.Errorf("%s.%s is static", ecb.classType.name, name)
 	}
 
 	if property.ReadOnly() {
-		return fmt.Errorf("property %s on %T is read-only", name, this)
+		return fmt.Errorf("%s.%s is a read-only property", ecb.classType.name, name)
 	}
 
 	return property.set(ctx, this, value)
@@ -510,7 +510,7 @@ func (ecb *ClassBase) SetInstanceProperty(ctx context.Context, this any, name st
 func (ecb *ClassBase) GetInstanceProperty(ctx context.Context, this any, name string) (any, error) {
 	property, ok := ecb.classType.properties[name]
 	if !ok {
-		return nil, fmt.Errorf("property %s is not found on %T", name, this)
+		return nil, fmt.Errorf("%s.%s is a not found", ecb.classType.name, name)
 	}
 
 	// Ensure that the engine is attached. Allows setting properties on the
@@ -518,7 +518,7 @@ func (ecb *ClassBase) GetInstanceProperty(ctx context.Context, this any, name st
 	ctx = ecb.engine.Attach(ctx)
 
 	if property.Static() && this != nil {
-		return nil, fmt.Errorf("property %s on %T is static", name, this)
+		return nil, fmt.Errorf("%s.%s is static", ecb.classType.name, name)
 	}
 
 	return property.get(ctx, this)
@@ -1367,6 +1367,8 @@ var RegisterSmartPtr = api.GoModuleFunc(func(ctx context.Context, mod api.Module
 })
 
 var CreateInheritingConstructor = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
+	panic(fmt.Errorf("CreateInheritingConstructor is not implemented (correctly)"))
+
 	engine := MustGetEngineFromContext(ctx, mod).(*engine)
 	constructorNamePtr := api.DecodeI32(stack[0])
 	wrapperTypePtr := api.DecodeI32(stack[1])
@@ -1428,7 +1430,6 @@ var CreateInheritingConstructor = api.GoModuleFunc(func(ctx context.Context, mod
 	}
 
 	stack[0] = api.EncodeI32(engine.emvalEngine.toHandle(newFn))
-	panic(fmt.Errorf("CreateInheritingConstructor is not implemented (correctly)"))
 })
 
 func (e *engine) CallStaticClassMethod(ctx context.Context, className, name string, arguments ...any) (any, error) {

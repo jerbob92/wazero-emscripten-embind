@@ -12,6 +12,9 @@ func MyClass(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	if err != nil {
 		return nil, err
 	}
+	if res == nil {
+		return nil, nil
+	}
 	return res.(embind.ClassBase), nil
 }
 

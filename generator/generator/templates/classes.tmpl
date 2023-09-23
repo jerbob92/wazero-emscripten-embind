@@ -17,6 +17,9 @@ func (class *{{ $class.GoName }}) Clone(ctx context.Context) (*{{ $class.GoName 
 	if err != nil {
 		return nil, err
 	}
+	if res == nil {
+		return nil, nil
+	}
 	return res.(*{{ $class.GoName }}), nil
 }
 
@@ -55,6 +58,10 @@ func (class *{{ $class.GoName }}) GetProperty{{ $property.GoName }}(ctx context.
         return {{ $property.ErrorValue }}, err
     }
 
+	if res == nil {
+		return {{ $property.ErrorValue }}, nil
+	}
+
     return res.({{ $property.GetterType }}), nil
 }
 {{ if not ($property.ReadOnly) -}}
@@ -69,6 +76,10 @@ func (class *{{ $class.GoName }}) {{ $method.GoName }}(ctx context.Context{{ ran
     res, err := class.CallMethod(ctx, "{{ $method.Name }}"{{ range $index, $argumentType := $method.ArgumentTypes -}}, arg{{ $index }}{{ end }})
     if err != nil {
         return {{ $method.ErrorValue }}, err
+    }
+
+    if res == nil {
+        return {{ $method.ErrorValue }}, nil
     }
 
     return res.({{ $method.ReturnType }}), nil
@@ -88,12 +99,20 @@ func (class *{{ $class.GoName }}) Static{{ $method.GoName }}(ctx context.Context
         return {{ $method.ErrorValue }}, err
     }
 
+    if res == nil {
+        return {{ $method.ErrorValue }}, nil
+    }
+
     return res.({{ $method.ReturnType }}), nil
 }
 func {{ $class.GoName }}Static{{ $method.GoName }}(e embind.Engine, ctx context.Context{{ range $index, $argumentType := $method.ArgumentTypes -}}, arg{{ $index }} {{ $argumentType }}{{ end }}) ({{ $method.ReturnType }}, error)  {
     res, err := e.CallStaticClassMethod(ctx, "{{ $class.Name }}", "{{ $method.Name }}"{{ range $index, $argumentType := $method.ArgumentTypes -}}, arg{{ $index }}{{ end }})
     if err != nil {
         return {{ $method.ErrorValue }}, err
+    }
+
+    if res == nil {
+        return {{ $method.ErrorValue }}, nil
     }
 
     return res.({{ $method.ReturnType }}), nil
@@ -116,6 +135,10 @@ func (class *{{ $class.GoName }}) GetStaticProperty{{ $property.GoName }}(ctx co
         return {{ $property.ErrorValue }}, err
     }
 
+	if res == nil {
+		return {{ $property.ErrorValue }}, nil
+	}
+
     return res.({{ $property.GetterType }}), nil
 }
 func {{ $class.GoName }}GetStaticProperty{{ $property.GoName }}(e embind.Engine, ctx context.Context) ({{ $property.GetterType }}, error)  {
@@ -123,6 +146,10 @@ func {{ $class.GoName }}GetStaticProperty{{ $property.GoName }}(e embind.Engine,
     if err != nil {
         return {{ $property.ErrorValue }}, err
     }
+
+	if res == nil {
+		return {{ $property.ErrorValue }}, nil
+	}
 
     return res.({{ $property.GetterType }}), nil
 }
@@ -141,6 +168,10 @@ func New{{ $class.GoName }}{{ $constructor.Name }}(e embind.Engine, ctx context.
     if err != nil {
         return nil, err
     }
+
+	if res == nil {
+		return nil, nil
+	}
 
     return res.(*{{ $class.GoName }}), nil
 }

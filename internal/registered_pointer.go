@@ -274,6 +274,7 @@ func (rpt *registeredPointerType) nonConstNoSmartPtrRawPointerToWireType(ctx con
 	if !ok {
 		return 0, fmt.Errorf("invalid %s, check whether you constructed it properly through embind, the given value is a %T", rpt.name, o)
 	}
+
 	_, isBaseClass := o.(*ClassBase)
 	if !isBaseClass {
 		// @todo: can we do this without reflection?
@@ -314,16 +315,19 @@ func (rpt *registeredPointerType) genericPointerToWireType(ctx context.Context, 
 		if rpt.isSmartPointer {
 			res, err := rpt.rawConstructor.Call(ctx)
 			if err != nil {
-				ptr = api.DecodeU32(res[0])
+				return 0, err
 			}
+
 			if destructors != nil {
 				destructorsRef := *destructors
 				destructorsRef = append(destructorsRef, &destructorFunc{
 					apiFunction: rpt.rawDestructor,
-					args:        []uint64{api.EncodeU32(ptr)},
+					args:        []uint64{res[0]},
 				})
+				*destructors = destructorsRef
 			}
-			return api.EncodeU32(ptr), nil
+
+			return res[0], nil
 		} else {
 			return 0, nil
 		}

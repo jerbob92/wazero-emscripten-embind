@@ -937,7 +937,7 @@ var _ = Describe("Using embind classes", Label("library"), func() {
 					res, err := myClass.CallInstanceMethod(ctx, myClass, "unknown", 1, 2, 3)
 					Expect(err).To(Not(BeNil()))
 					if err != nil {
-						Expect(err.Error()).To(ContainSubstring("method unknown is not found"))
+						Expect(err.Error()).To(ContainSubstring("MyClass.unknown() is not found"))
 					}
 					Expect(res).To(BeNil())
 				})
@@ -992,14 +992,14 @@ var _ = Describe("Using embind classes", Label("library"), func() {
 					res, err := myClass.GetInstanceProperty(ctx, myClass, "test")
 					Expect(err).To(Not(BeNil()))
 					if err != nil {
-						Expect(err.Error()).To(ContainSubstring("property test is not found"))
+						Expect(err.Error()).To(ContainSubstring("MyClass.test is a not found"))
 					}
 					Expect(res).To(BeNil())
 
 					err = myClass.SetInstanceProperty(ctx, myClass, "test", 123)
 					Expect(err).To(Not(BeNil()))
 					if err != nil {
-						Expect(err.Error()).To(ContainSubstring("property test is not found"))
+						Expect(err.Error()).To(ContainSubstring("MyClass.test is a not found"))
 					}
 					Expect(res).To(BeNil())
 				})
@@ -1008,7 +1008,7 @@ var _ = Describe("Using embind classes", Label("library"), func() {
 					err := myClass.SetInstanceProperty(ctx, myClass, "y", "")
 					Expect(err).To(Not(BeNil()))
 					if err != nil {
-						Expect(err.Error()).To(ContainSubstring("is read-only"))
+						Expect(err.Error()).To(ContainSubstring("MyClass.y is a read-only property"))
 					}
 				})
 

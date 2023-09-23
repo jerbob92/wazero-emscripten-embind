@@ -16,6 +16,9 @@ func (class *ClassMyClass) Clone(ctx context.Context) (*ClassMyClass, error) {
 	if err != nil {
 		return nil, err
 	}
+	if res == nil {
+		return nil, nil
+	}
 	return res.(*ClassMyClass), nil
 }
 
@@ -53,6 +56,10 @@ func (class *ClassMyClass) GetPropertyX(ctx context.Context) (int32, error) {
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 func (class *ClassMyClass) SetPropertyX(ctx context.Context, val int32) error {
@@ -75,12 +82,20 @@ func (class *ClassMyClass) StaticGetStringFromInstance(ctx context.Context, arg0
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 func ClassMyClassStaticGetStringFromInstance(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) (string, error) {
 	res, err := e.CallStaticClassMethod(ctx, "MyClass", "getStringFromInstance", arg0)
 	if err != nil {
 		return "", err
+	}
+
+	if res == nil {
+		return "", nil
 	}
 
 	return res.(string), nil
@@ -92,6 +107,10 @@ func NewClassMyClass1(e embind.Engine, ctx context.Context, arg0 int32) (*ClassM
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(*ClassMyClass), nil
 }
 
@@ -99,6 +118,10 @@ func NewClassMyClass2(e embind.Engine, ctx context.Context, arg0 int32, arg1 str
 	res, err := e.CallPublicSymbol(ctx, "MyClass", arg0, arg1)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassMyClass), nil

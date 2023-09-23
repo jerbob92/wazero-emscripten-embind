@@ -2,6 +2,7 @@ package tests
 
 import (
 	"context"
+	embind "github.com/jerbob92/wazero-emscripten-embind/internal"
 	"log"
 	"os"
 	"testing"
@@ -25,6 +26,9 @@ func TestEmbindGenerated(t *testing.T) {
 }
 
 var ctx = context.Background()
+
+//var ctx = context.WithValue(context.Background(), experimental.FunctionListenerFactoryKey{}, logging.NewLoggingListenerFactory(os.Stdout))
+
 var engine embind_external.Engine
 var runtime wazero.Runtime
 var mod api.Module
@@ -1389,1035 +1393,1344 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 	})
 
 	When("vector", func() {
-		/*
-		   test("std::vector returns as an native object", function() {
-		       var vec = cm.emval_test_return_vector();
+		It("std::vector returns as an native object", func() {
+			vec, err := generated.Emval_test_return_vector(engine, ctx)
 
-		       assert.equal(3, vec.size());
-		       assert.equal(10, vec.get(0));
-		       assert.equal(20, vec.get(1));
-		       assert.equal(30, vec.get(2));
-		       vec.delete();
-		   });
+			size, err := vec.CallInstanceMethod(ctx, vec, "size")
+			Expect(err).To(BeNil())
+			Expect(size).To(Equal(uint32(3)))
 
-		   test("out of bounds std::vector access returns undefined", function() {
-		       var vec = cm.emval_test_return_vector();
+			get0, err := vec.CallInstanceMethod(ctx, vec, "get", uint32(0))
+			Expect(err).To(BeNil())
+			Expect(get0).To(Equal(int32(10)))
 
-		       assert.equal(undefined, vec.get(4));
-		       // only test a negative index without assertions.
-		       if (!cm.getCompilerSetting('ASSERTIONS')) {
-		           assert.equal(undefined, vec.get(-1));
-		       }
-		       vec.delete();
-		   });
+			get1, err := vec.CallInstanceMethod(ctx, vec, "get", uint32(1))
+			Expect(err).To(BeNil())
+			Expect(get1).To(Equal(int32(20)))
 
-		   if (cm.getCompilerSetting('ASSERTIONS')) {
-		       test("out of type range array index throws with assertions", function() {
-		           var vec = cm.emval_test_return_vector();
+			get2, err := vec.CallInstanceMethod(ctx, vec, "get", uint32(2))
+			Expect(err).To(BeNil())
+			Expect(get2).To(Equal(int32(30)))
 
-		           assert.throws(TypeError, function() { vec.get(-1); });
+			err = vec.DeleteInstance(ctx, vec)
+			Expect(err).To(BeNil())
+		})
 
-		           vec.delete();
-		       });
-		   }
+		It("out of bounds std::vector access returns undefined", func() {
+			vec, err := generated.Emval_test_return_vector(engine, ctx)
 
-		   test("std::vector<std::shared_ptr<>> can be passed back", function() {
-		       var vec = cm.emval_test_return_shared_ptr_vector();
+			get4, err := vec.CallInstanceMethod(ctx, vec, "get", uint32(4))
+			Expect(err).To(BeNil())
+			Expect(get4).To(Equal(types.Undefined))
 
-		       assert.equal(2, vec.size());
-		       var str0 = vec.get(0);
-		       var str1 = vec.get(1);
+			err = vec.DeleteInstance(ctx, vec)
+			Expect(err).To(BeNil())
+		})
 
-		       assert.equal('string #1', str0.get());
-		       assert.equal('string #2', str1.get());
-		       str0.delete();
-		       str1.delete();
+		It("std::vector<std::shared_ptr<>> can be passed back", func() {
+			vec, err := generated.Emval_test_return_shared_ptr_vector(engine, ctx)
+			Expect(err).To(BeNil())
 
-		       vec.delete();
-		   });
+			size, err := vec.CallInstanceMethod(ctx, vec, "size")
+			Expect(err).To(BeNil())
+			Expect(size).To(Equal(uint32(2)))
 
-		   test("objects can be pushed back", function() {
-		       var vectorHolder = new cm.VectorHolder();
-		       var vec = vectorHolder.get();
-		       assert.equal(2, vec.size());
+			str0, err := vec.CallInstanceMethod(ctx, vec, "get", uint32(0))
+			Expect(err).To(BeNil())
 
-		       var str = new cm.StringHolder('abc');
-		       vec.push_back(str);
-		       str.delete();
-		       assert.equal(3, vec.size());
-		       var str = vec.get(2);
-		       assert.equal('abc', str.get());
+			str1, err := vec.CallInstanceMethod(ctx, vec, "get", uint32(1))
+			Expect(err).To(BeNil())
 
-		       str.delete();
-		       vec.delete();
-		       vectorHolder.delete();
-		   });
+			str0Str, err := str0.(embind.IClassBase).CallInstanceMethod(ctx, str0, "get")
+			Expect(err).To(BeNil())
+			Expect(str0Str).To(Equal("string #1"))
 
-		   test("can get elements with array operator", function(){
-		       var vec = cm.emval_test_return_vector();
-		       assert.equal(10, vec.get(0));
-		       vec.delete();
-		   });
+			str1Str, err := str1.(embind.IClassBase).CallInstanceMethod(ctx, str1, "get")
+			Expect(err).To(BeNil())
+			Expect(str1Str).To(Equal("string #2"))
 
-		   test("can set elements with array operator", function() {
-		       var vec = cm.emval_test_return_vector();
-		       assert.equal(10, vec.get(0));
-		       vec.set(2, 60);
-		       assert.equal(60, vec.get(2));
-		       vec.delete();
-		   });
+			err = str0.(embind.IClassBase).DeleteInstance(ctx, str0.(embind.IClassBase))
+			Expect(err).To(BeNil())
 
-		   test("can set and get objects", function() {
-		       var vec = cm.emval_test_return_shared_ptr_vector();
-		       var str = vec.get(0);
-		       assert.equal('string #1', str.get());
-		       str.delete();
-		       vec.delete();
-		   });
+			err = str1.(embind.IClassBase).DeleteInstance(ctx, str1.(embind.IClassBase))
+			Expect(err).To(BeNil())
 
-		   test("resize appends the given value", function() {
-		       var vec = cm.emval_test_return_vector();
+			err = vec.DeleteInstance(ctx, vec)
+			Expect(err).To(BeNil())
+		})
 
-		       vec.resize(5, 42);
-		       assert.equal(5, vec.size());
-		       assert.equal(10, vec.get(0));
-		       assert.equal(20, vec.get(1));
-		       assert.equal(30, vec.get(2));
-		       assert.equal(42, vec.get(3));
-		       assert.equal(42, vec.get(4));
-		       vec.delete();
-		   });
+		It("objects can be pushed back", func() {
+			vectorHolder, err := generated.NewClassVectorHolder(engine, ctx)
+			Expect(err).To(BeNil())
 
-		   test("resize preserves content when shrinking", function() {
-		       var vec = cm.emval_test_return_vector();
+			vec, err := vectorHolder.Get(ctx)
+			Expect(err).To(BeNil())
 
-		       vec.resize(2, 42);
-		       assert.equal(2, vec.size());
-		       assert.equal(10, vec.get(0));
-		       assert.equal(20, vec.get(1));
-		       vec.delete();
-		   });
-		*/
-	})
+			size, err := vec.CallInstanceMethod(ctx, vec, "size")
+			Expect(size).To(Equal(uint32(2)))
 
-	When("vector", func() {
-		/*
-		   test("std::vector returns as an native object", function() {
-		       var vec = cm.emval_test_return_vector();
+			str, err := generated.NewClassStringHolder(engine, ctx, "abc")
+			Expect(err).To(BeNil())
 
-		       assert.equal(3, vec.size());
-		       assert.equal(10, vec.get(0));
-		       assert.equal(20, vec.get(1));
-		       assert.equal(30, vec.get(2));
-		       vec.delete();
-		   });
+			_, err = vec.CallInstanceMethod(ctx, vec, "push_back", str)
+			Expect(err).To(BeNil())
 
-		   test("out of bounds std::vector access returns undefined", function() {
-		       var vec = cm.emval_test_return_vector();
+			err = str.Delete(ctx)
+			Expect(err).To(BeNil())
 
-		       assert.equal(undefined, vec.get(4));
-		       // only test a negative index without assertions.
-		       if (!cm.getCompilerSetting('ASSERTIONS')) {
-		           assert.equal(undefined, vec.get(-1));
-		       }
-		       vec.delete();
-		   });
+			size, err = vec.CallInstanceMethod(ctx, vec, "size")
+			Expect(err).To(BeNil())
+			Expect(size).To(Equal(uint32(3)))
 
-		   if (cm.getCompilerSetting('ASSERTIONS')) {
-		       test("out of type range array index throws with assertions", function() {
-		           var vec = cm.emval_test_return_vector();
+			getStr, err := vec.CallInstanceMethod(ctx, vec, "get", uint32(2))
+			Expect(err).To(BeNil())
 
-		           assert.throws(TypeError, function() { vec.get(-1); });
+			getStrGet, err := getStr.(embind.IClassBase).CallInstanceMethod(ctx, getStr, "get")
+			Expect(err).To(BeNil())
+			Expect(getStrGet).To(Equal("abc"))
 
-		           vec.delete();
-		       });
-		   }
+			err = getStr.(embind.IClassBase).DeleteInstance(ctx, getStr.(embind.IClassBase))
+			Expect(err).To(BeNil())
 
-		   test("std::vector<std::shared_ptr<>> can be passed back", function() {
-		       var vec = cm.emval_test_return_shared_ptr_vector();
+			err = vec.DeleteInstance(ctx, vec)
+			Expect(err).To(BeNil())
 
-		       assert.equal(2, vec.size());
-		       var str0 = vec.get(0);
-		       var str1 = vec.get(1);
+			err = vectorHolder.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
 
-		       assert.equal('string #1', str0.get());
-		       assert.equal('string #2', str1.get());
-		       str0.delete();
-		       str1.delete();
+		It("can get elements with array operator", func() {
+			vec, err := generated.Emval_test_return_vector(engine, ctx)
+			Expect(err).To(BeNil())
 
-		       vec.delete();
-		   });
+			get, err := vec.CallInstanceMethod(ctx, vec, "get", uint32(0))
+			Expect(err).To(BeNil())
+			Expect(get).To(Equal(int32(10)))
 
-		   test("objects can be pushed back", function() {
-		       var vectorHolder = new cm.VectorHolder();
-		       var vec = vectorHolder.get();
-		       assert.equal(2, vec.size());
+			err = vec.DeleteInstance(ctx, vec)
+			Expect(err).To(BeNil())
+		})
 
-		       var str = new cm.StringHolder('abc');
-		       vec.push_back(str);
-		       str.delete();
-		       assert.equal(3, vec.size());
-		       var str = vec.get(2);
-		       assert.equal('abc', str.get());
+		It("can set elements with array operator", func() {
+			vec, err := generated.Emval_test_return_vector(engine, ctx)
+			Expect(err).To(BeNil())
 
-		       str.delete();
-		       vec.delete();
-		       vectorHolder.delete();
-		   });
+			get0, err := vec.CallInstanceMethod(ctx, vec, "get", uint32(0))
+			Expect(err).To(BeNil())
+			Expect(get0).To(Equal(int32(10)))
 
-		   test("can get elements with array operator", function(){
-		       var vec = cm.emval_test_return_vector();
-		       assert.equal(10, vec.get(0));
-		       vec.delete();
-		   });
+			_, err = vec.CallInstanceMethod(ctx, vec, "set", uint32(2), int32(60))
+			Expect(err).To(BeNil())
 
-		   test("can set elements with array operator", function() {
-		       var vec = cm.emval_test_return_vector();
-		       assert.equal(10, vec.get(0));
-		       vec.set(2, 60);
-		       assert.equal(60, vec.get(2));
-		       vec.delete();
-		   });
+			get2, err := vec.CallInstanceMethod(ctx, vec, "get", uint32(2))
+			Expect(err).To(BeNil())
+			Expect(get2).To(Equal(int32(60)))
 
-		   test("can set and get objects", function() {
-		       var vec = cm.emval_test_return_shared_ptr_vector();
-		       var str = vec.get(0);
-		       assert.equal('string #1', str.get());
-		       str.delete();
-		       vec.delete();
-		   });
+			err = vec.DeleteInstance(ctx, vec)
+			Expect(err).To(BeNil())
+		})
 
-		   test("resize appends the given value", function() {
-		       var vec = cm.emval_test_return_vector();
+		It("can set and get objects", func() {
+			vec, err := generated.Emval_test_return_shared_ptr_vector(engine, ctx)
+			Expect(err).To(BeNil())
 
-		       vec.resize(5, 42);
-		       assert.equal(5, vec.size());
-		       assert.equal(10, vec.get(0));
-		       assert.equal(20, vec.get(1));
-		       assert.equal(30, vec.get(2));
-		       assert.equal(42, vec.get(3));
-		       assert.equal(42, vec.get(4));
-		       vec.delete();
-		   });
+			str, err := vec.CallInstanceMethod(ctx, vec, "get", uint32(0))
+			Expect(err).To(BeNil())
 
-		   test("resize preserves content when shrinking", function() {
-		       var vec = cm.emval_test_return_vector();
+			strGetStr, err := str.(embind.IClassBase).CallInstanceMethod(ctx, str.(embind.IClassBase), "get")
+			Expect(err).To(BeNil())
+			Expect(strGetStr).To(Equal("string #1"))
 
-		       vec.resize(2, 42);
-		       assert.equal(2, vec.size());
-		       assert.equal(10, vec.get(0));
-		       assert.equal(20, vec.get(1));
-		       vec.delete();
-		   });
+			err = str.(embind.IClassBase).DeleteInstance(ctx, str.(embind.IClassBase))
+			Expect(err).To(BeNil())
 
-		*/
+			err = vec.DeleteInstance(ctx, vec)
+			Expect(err).To(BeNil())
+		})
+
+		It("resize appends the given value", func() {
+			vec, err := generated.Emval_test_return_vector(engine, ctx)
+			Expect(err).To(BeNil())
+
+			_, err = vec.CallInstanceMethod(ctx, vec, "resize", uint32(5), int32(42))
+			Expect(err).To(BeNil())
+
+			size, err := vec.CallInstanceMethod(ctx, vec, "size")
+			Expect(err).To(BeNil())
+			Expect(size).To(Equal(uint32(5)))
+
+			get0, err := vec.CallInstanceMethod(ctx, vec, "get", uint32(0))
+			Expect(err).To(BeNil())
+			Expect(get0).To(Equal(int32(10)))
+
+			get1, err := vec.CallInstanceMethod(ctx, vec, "get", uint32(1))
+			Expect(err).To(BeNil())
+			Expect(get1).To(Equal(int32(20)))
+
+			get2, err := vec.CallInstanceMethod(ctx, vec, "get", uint32(2))
+			Expect(err).To(BeNil())
+			Expect(get2).To(Equal(int32(30)))
+
+			get3, err := vec.CallInstanceMethod(ctx, vec, "get", uint32(3))
+			Expect(err).To(BeNil())
+			Expect(get3).To(Equal(int32(42)))
+
+			get4, err := vec.CallInstanceMethod(ctx, vec, "get", uint32(4))
+			Expect(err).To(BeNil())
+			Expect(get4).To(Equal(int32(42)))
+
+			err = vec.DeleteInstance(ctx, vec)
+			Expect(err).To(BeNil())
+		})
+
+		It("resize preserves content when shrinking", func() {
+			vec, err := generated.Emval_test_return_vector(engine, ctx)
+			Expect(err).To(BeNil())
+
+			_, err = vec.CallInstanceMethod(ctx, vec, "resize", uint32(2), int32(42))
+			Expect(err).To(BeNil())
+
+			size, err := vec.CallInstanceMethod(ctx, vec, "size")
+			Expect(err).To(BeNil())
+			Expect(size).To(Equal(uint32(2)))
+
+			get0, err := vec.CallInstanceMethod(ctx, vec, "get", uint32(0))
+			Expect(err).To(BeNil())
+			Expect(get0).To(Equal(int32(10)))
+
+			get1, err := vec.CallInstanceMethod(ctx, vec, "get", uint32(1))
+			Expect(err).To(BeNil())
+			Expect(get1).To(Equal(int32(20)))
+
+			err = vec.DeleteInstance(ctx, vec)
+			Expect(err).To(BeNil())
+		})
 	})
 
 	When("map", func() {
-		/*
-		   test("std::map returns as native object", function() {
-		       var map = cm.embind_test_get_string_int_map();
+		It("std::map returns as native object", func() {
+			newMap, err := generated.Embind_test_get_string_int_map(engine, ctx)
+			Expect(err).To(BeNil())
 
-		       assert.equal(2, map.size());
-		       assert.equal(1, map.get("one"));
-		       assert.equal(2, map.get("two"));
+			size, err := newMap.CallInstanceMethod(ctx, newMap, "size")
+			Expect(err).To(BeNil())
+			Expect(size).To(Equal(uint32(2)))
 
-		       map.delete();
-		   });
+			one, err := newMap.CallInstanceMethod(ctx, newMap, "get", "one")
+			Expect(err).To(BeNil())
+			Expect(one).To(Equal(int32(1)))
 
-		   test("std::map can get keys", function() {
-		       var map = cm.embind_test_get_string_int_map();
+			two, err := newMap.CallInstanceMethod(ctx, newMap, "get", "two")
+			Expect(err).To(BeNil())
+			Expect(two).To(Equal(int32(2)))
 
-		       var keys = map.keys();
-		       assert.equal(map.size(), keys.size());
-		       assert.equal("one", keys.get(0));
-		       assert.equal("two", keys.get(1));
-		       keys.delete();
+			err = newMap.DeleteInstance(ctx, newMap)
+			Expect(err).To(BeNil())
+		})
 
-		       map.delete();
-		   });
+		It("std::map can get keys", func() {
+			newMap, err := generated.Embind_test_get_string_int_map(engine, ctx)
+			Expect(err).To(BeNil())
 
-		   test("std::map can set keys and values", function() {
-		       var map = cm.embind_test_get_string_int_map();
+			size, err := newMap.CallInstanceMethod(ctx, newMap, "size")
+			Expect(err).To(BeNil())
 
-		       assert.equal(2, map.size());
+			keys, err := newMap.CallInstanceMethod(ctx, newMap, "keys")
+			Expect(err).To(BeNil())
 
-		       map.set("three", 3);
+			keysClass := keys.(embind.IClassBase)
 
-		       assert.equal(3, map.size());
-		       assert.equal(3, map.get("three"));
+			keysSize, err := keysClass.CallInstanceMethod(ctx, keysClass, "size")
+			Expect(err).To(BeNil())
 
-		       map.set("three", 4);
+			Expect(keysSize).To(Equal(size.(uint32)))
 
-		       assert.equal(3, map.size());
-		       assert.equal(4, map.get("three"));
+			one, err := keysClass.CallInstanceMethod(ctx, keysClass, "get", uint32(0))
+			Expect(err).To(BeNil())
+			Expect(one).To(Equal("one"))
 
-		       map.delete();
-		   });
+			two, err := keysClass.CallInstanceMethod(ctx, keysClass, "get", uint32(1))
+			Expect(err).To(BeNil())
+			Expect(two).To(Equal("two"))
 
-		*/
+			err = keysClass.DeleteInstance(ctx, keysClass)
+
+			err = newMap.DeleteInstance(ctx, newMap)
+			Expect(err).To(BeNil())
+		})
+
+		It("std::map can set keys and values", func() {
+			newMap, err := generated.Embind_test_get_string_int_map(engine, ctx)
+
+			size, err := newMap.CallInstanceMethod(ctx, newMap, "size")
+			Expect(err).To(BeNil())
+			Expect(size).To(Equal(uint32(2)))
+
+			_, err = newMap.CallInstanceMethod(ctx, newMap, "set", "three", int32(3))
+			Expect(err).To(BeNil())
+
+			size, err = newMap.CallInstanceMethod(ctx, newMap, "size")
+			Expect(err).To(BeNil())
+			Expect(size).To(Equal(uint32(3)))
+
+			three, err := newMap.CallInstanceMethod(ctx, newMap, "get", "three")
+			Expect(err).To(BeNil())
+			Expect(three).To(Equal(int32(3)))
+
+			_, err = newMap.CallInstanceMethod(ctx, newMap, "set", "three", int32(4))
+			Expect(err).To(BeNil())
+
+			size, err = newMap.CallInstanceMethod(ctx, newMap, "size")
+			Expect(err).To(BeNil())
+			Expect(size).To(Equal(uint32(3)))
+
+			three, err = newMap.CallInstanceMethod(ctx, newMap, "get", "three")
+			Expect(err).To(BeNil())
+			Expect(three).To(Equal(int32(4)))
+
+			err = newMap.DeleteInstance(ctx, newMap)
+			Expect(err).To(BeNil())
+		})
 	})
 
 	When("functors", func() {
-		/*
-		   test("can get and call function ptrs", function() {
-		       var ptr = cm.emval_test_get_function_ptr();
-		       assert.equal("foobar", ptr.opcall("foobar"));
-		       ptr.delete();
-		   });
+		It("can get and call function ptrs", func() {
+			ptr, err := generated.Emval_test_get_function_ptr(engine, ctx)
+			Expect(err).To(BeNil())
 
-		   test("can pass functor to C++", function() {
-		       var ptr = cm.emval_test_get_function_ptr();
-		       assert.equal("asdf", cm.emval_test_take_and_call_functor(ptr));
-		       ptr.delete();
-		   });
+			opcall, err := ptr.CallInstanceMethod(ctx, ptr, "opcall", "foobar")
+			Expect(err).To(BeNil())
+			Expect(opcall).To(Equal("foobar"))
 
-		   test("can clone handles", function() {
-		       var a = cm.emval_test_get_function_ptr();
-		       var b = a.clone();
-		       a.delete();
+			err = ptr.DeleteInstance(ctx, ptr)
+			Expect(err).To(BeNil())
+		})
 
-		       assert.throws(cm.BindingError, function() {
-		           a.delete();
-		       });
-		       b.delete();
-		   });
+		It("can pass functor to C++", func() {
+			ptr, err := generated.Emval_test_get_function_ptr(engine, ctx)
+			Expect(err).To(BeNil())
 
-		*/
+			takeAndCallResult, err := generated.Emval_test_take_and_call_functor(engine, ctx, ptr)
+			Expect(err).To(BeNil())
+			Expect(takeAndCallResult).To(Equal("asdf"))
+
+			err = ptr.DeleteInstance(ctx, ptr)
+			Expect(err).To(BeNil())
+		})
+
+		It("can clone handles", func() {
+			a, err := generated.Emval_test_get_function_ptr(engine, ctx)
+			Expect(err).To(BeNil())
+
+			b, err := a.CloneInstance(ctx, a)
+			Expect(err).To(BeNil())
+
+			err = a.DeleteInstance(ctx, a)
+			Expect(err).To(BeNil())
+
+			err = a.DeleteInstance(ctx, a)
+			Expect(err).To(Not(BeNil()))
+			Expect(err.Error()).To(ContainSubstring("class handle already deleted"))
+
+			err = b.DeleteInstance(ctx, b)
+			Expect(err).To(BeNil())
+		})
 	})
 
 	When("classes", func() {
-		/*
-			        test("class instance", function() {
-			            var a = {foo: 'bar'};
-			            assert.equal(0, cm.count_emval_handles());
-			            var c = new cm.ValHolder(a);
-			            assert.equal(1, cm.count_emval_handles());
-			            assert.equal('bar', c.getVal().foo);
-			            assert.equal(1, cm.count_emval_handles());
+		It("class instance", func() {
+			a := map[string]any{"foo": "bar"}
 
-			            c.setVal('1234');
-			            assert.equal('1234', c.getVal());
+			countEmvalHandles := engine.CountEmvalHandles()
+			Expect(countEmvalHandles).To(Equal(0))
 
-			            c.delete();
-			            assert.equal(0, cm.count_emval_handles());
-			        });
+			c, err := generated.NewClassValHolder(engine, ctx, a)
+			Expect(err).To(BeNil())
 
-			        test("class properties can be methods", function() {
-			            var a = {};
-			            var b = {foo: 'foo'};
-			            var c = new cm.ValHolder(a);
-			            assert.equal(a, c.val);
-			            c.val = b;
-			            assert.equal(b, c.val);
-			            c.delete();
-			        });
+			countEmvalHandles = engine.CountEmvalHandles()
+			Expect(countEmvalHandles).To(Equal(1))
 
-			        test("class properties can be std::function objects", function() {
-			            var a = {};
-			            var b = {foo: 'foo'};
-			            var c = new cm.ValHolder(a);
-			            assert.equal(a, c.function_val);
-			            c.function_val = b;
-			            assert.equal(b, c.function_val);
-			            c.delete();
-			        });
+			getVal, err := c.GetVal(ctx)
+			Expect(err).To(BeNil())
+			Expect(getVal).To(HaveKeyWithValue("foo", "bar"))
 
-			        test("class properties can be read-only std::function objects", function() {
-			            var a = {};
-			            var h = new cm.ValHolder(a);
-			            assert.equal(a, h.readonly_function_val);
-			            var e = assert.throws(cm.BindingError, function() {
-			                h.readonly_function_val = 10;
-			            });
-			            assert.equal('ValHolder.readonly_function_val is a read-only property', e.message);
-			            h.delete();
-			        });
+			countEmvalHandles = engine.CountEmvalHandles()
+			Expect(countEmvalHandles).To(Equal(1))
 
-			        test("class properties can be function objects (functor)", function() {
-			            var a = {};
-			            var b = {foo: 'foo'};
-			            var c = new cm.ValHolder(a);
-			            assert.equal(a, c.functor_val);
-			            c.function_val = b;
-			            assert.equal(b, c.functor_val);
-			            c.delete();
-			        });
+			err = c.SetVal(ctx, "1234")
+			Expect(err).To(BeNil())
 
-			        test("class properties can be read-only function objects (functor)", function() {
-			            var a = {};
-			            var h = new cm.ValHolder(a);
-			            assert.equal(a, h.readonly_functor_val);
-			            var e = assert.throws(cm.BindingError, function() {
-			                h.readonly_functor_val = 10;
-			            });
-			            assert.equal('ValHolder.readonly_functor_val is a read-only property', e.message);
-			            h.delete();
-			        });
+			getVal, err = c.GetVal(ctx)
+			Expect(err).To(BeNil())
+			Expect(getVal).To(Equal("1234"))
 
-			        test("class properties can be read-only", function() {
-			            var a = {};
-			            var h = new cm.ValHolder(a);
-			            assert.equal(a, h.val_readonly);
-			            var e = assert.throws(cm.BindingError, function() {
-			                h.val_readonly = 10;
-			            });
-			            assert.equal('ValHolder.val_readonly is a read-only property', e.message);
-			            h.delete();
-			        });
+			err = c.Delete(ctx)
+			Expect(err).To(BeNil())
 
-			        test("read-only member field", function() {
-			            var a = new cm.HasReadOnlyProperty(10);
-			            assert.equal(10, a.i);
-			            var e = assert.throws(cm.BindingError, function() {
-			                a.i = 20;
-			            });
-			            assert.equal('HasReadOnlyProperty.i is a read-only property', e.message);
-			            a.delete();
-			        });
+			countEmvalHandles = engine.CountEmvalHandles()
+			Expect(countEmvalHandles).To(Equal(0))
+		})
 
-			        test("class instance $$ property is non-enumerable", function() {
-			            var c = new cm.ValHolder(undefined);
-			            assert.deepEqual([], Object.keys(c));
-			            var d = c.clone();
-			            c.delete();
+		It("class properties can be methods", func() {
+			a := map[string]any{}
+			b := map[string]any{"foo": "foo"}
+			c, err := generated.NewClassValHolder(engine, ctx, a)
+			Expect(err).To(BeNil())
 
-			            assert.deepEqual([], Object.keys(d));
-			            d.delete();
-			        });
+			val, err := c.GetPropertyVal(ctx)
+			Expect(err).To(BeNil())
+			Expect(val).To(Equal(a))
 
-			        test("class methods", function() {
-			            assert.equal(10, cm.ValHolder.some_class_method(10));
+			err = c.SetPropertyVal(ctx, b)
+			Expect(err).To(BeNil())
 
-			            var b = cm.ValHolder.makeValHolder("foo");
-			            assert.equal("foo", b.getVal());
-			            b.delete();
-			        });
+			val, err = c.GetPropertyVal(ctx)
+			Expect(err).To(BeNil())
+			Expect(val).To(Equal(b))
 
-			        test("function objects as class constructors", function() {
-			            var a = new cm.ConstructFromStdFunction("foo", 10);
-			            assert.equal("foo", a.getVal());
-			            assert.equal(10, a.getA());
+			err = c.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
 
-			            var b = new cm.ConstructFromFunctionObject("bar", 12);
-			            assert.equal("bar", b.getVal());
-			            assert.equal(12, b.getA());
+		It("class properties can be std::function objects", func() {
+			a := map[string]any{}
+			b := map[string]any{"foo": "foo"}
+			c, err := generated.NewClassValHolder(engine, ctx, a)
+			Expect(err).To(BeNil())
 
-			            a.delete();
-			            b.delete();
-			        });
+			val, err := c.GetPropertyFunction_val(ctx)
+			Expect(err).To(BeNil())
+			Expect(val).To(Equal(a))
 
-			        test("function objects as class methods", function() {
-			            var b = cm.ValHolder.makeValHolder("foo");
+			err = c.SetPropertyFunction_val(ctx, b)
+			Expect(err).To(BeNil())
 
-			            // get & set via std::function
-			            assert.equal("foo", b.getValFunction());
-			            b.setValFunction("bar");
+			val, err = c.GetPropertyFunction_val(ctx)
+			Expect(err).To(BeNil())
+			Expect(val).To(Equal(b))
 
-			            // get & set via 'callable'
-			            assert.equal("bar", b.getValFunctor());
-			            b.setValFunctor("baz");
+			err = c.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
 
-			            assert.equal("baz", b.getValFunction());
+		It("class properties can be read-only std::function objects", func() {
+			a := map[string]any{}
 
-			            b.delete();
-			        });
+			h, err := generated.NewClassValHolder(engine, ctx, a)
+			Expect(err).To(BeNil())
 
-			        test("can't call methods on deleted class instances", function() {
-			            var c = new cm.ValHolder(undefined);
-			            c.delete();
-			            assert.throws(cm.BindingError, function() {
-			                c.getVal();
-			            });
-			            assert.throws(cm.BindingError, function() {
-			                c.delete();
-			            });
-			        });
+			funcVal, err := h.GetPropertyReadonly_function_val(ctx)
+			Expect(err).To(BeNil())
+			Expect(funcVal).To(Equal(a))
 
-			        test("calling constructor without new raises BindingError", function() {
-			            var e = assert.throws(cm.BindingError, function() {
-			                cm.ValHolder(undefined);
-			            });
-			            assert.equal("Use 'new' to construct ValHolder", e.message);
-			        });
+			err = h.SetProperty(ctx, "readonly_function_val", 10)
+			Expect(err).To(Not(BeNil()))
+			Expect(err.Error()).To(ContainSubstring("ValHolder.readonly_function_val is a read-only property"))
 
-			        test("can return class instances by value", function() {
-			            var c = cm.emval_test_return_ValHolder();
-			            assert.deepEqual({}, c.getVal());
-			            c.delete();
-			        });
+			err = h.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
 
-			        test("can pass class instances to functions by reference", function() {
-			            var a = {a:1};
-			            var c = new cm.ValHolder(a);
-			            cm.emval_test_set_ValHolder_to_empty_object(c);
-			            assert.deepEqual({}, c.getVal());
-			            c.delete();
-			        });
+		It("class properties can be function objects (functor)", func() {
+			a := map[string]any{}
+			b := map[string]any{"foo": "foo"}
+			c, err := generated.NewClassValHolder(engine, ctx, a)
+			Expect(err).To(BeNil())
 
-			        test("can pass smart pointer by reference", function() {
-			            var base = cm.embind_test_return_smart_base_ptr();
-			            var name = cm.embind_test_get_class_name_via_reference_to_smart_base_ptr(base);
-			            assert.equal("Base", name);
-			            base.delete();
-			        });
+			functor_val, err := c.GetPropertyFunctor_val(ctx)
+			Expect(err).To(BeNil())
+			Expect(functor_val).To(Equal(a))
 
-			        test("can pass smart pointer by value", function() {
-			            var base = cm.embind_test_return_smart_base_ptr();
-			            var name = cm.embind_test_get_class_name_via_smart_base_ptr(base);
-			            assert.equal("Base", name);
-			            base.delete();
-			        });
+			err = c.SetPropertyFunction_val(ctx, b)
+			Expect(err).To(BeNil())
 
-			        // todo: fix this
-			        // This test does not work because we make no provision for argument values
-			        // having been changed after returning from a C++ routine invocation. In
-			        // this specific case, the original pointee of the smart pointer was
-			        // freed and replaced by a new one, but the ptr in our local handle
-			        // was never updated after returning from the call.
-			        test("can modify smart pointers passed by reference", function() {
+			functor_val, err = c.GetPropertyFunctor_val(ctx)
+			Expect(err).To(BeNil())
+			Expect(functor_val).To(Equal(b))
+
+			err = c.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
+
+		It("class properties can be read-only function objects (functor)", func() {
+			a := map[string]any{}
+			h, err := generated.NewClassValHolder(engine, ctx, a)
+			Expect(err).To(BeNil())
+
+			readonly_functor_val, err := h.GetPropertyReadonly_functor_val(ctx)
+			Expect(err).To(BeNil())
+			Expect(readonly_functor_val).To(Equal(a))
+
+			err = h.SetProperty(ctx, "readonly_functor_val", 10)
+			Expect(err).ToNot(BeNil())
+			Expect(err.Error()).To(ContainSubstring("ValHolder.readonly_functor_val is a read-only property"))
+
+			err = h.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
+
+		It("class properties can be read-only", func() {
+			a := map[string]any{}
+			h, err := generated.NewClassValHolder(engine, ctx, a)
+			Expect(err).To(BeNil())
+
+			val_readonly, err := h.GetPropertyVal_readonly(ctx)
+			Expect(err).To(BeNil())
+			Expect(val_readonly).To(Equal(a))
+
+			err = h.SetProperty(ctx, "val_readonly", 10)
+			Expect(err).ToNot(BeNil())
+			Expect(err.Error()).To(ContainSubstring("ValHolder.val_readonly is a read-only property"))
+
+			err = h.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
+
+		It("read-only member field", func() {
+			a, err := generated.NewClassHasReadOnlyProperty(engine, ctx, 10)
+
+			i, err := a.GetPropertyI(ctx)
+			Expect(i).To(Equal(int32(10)))
+
+			err = a.SetProperty(ctx, "i", 20)
+			Expect(err).ToNot(BeNil())
+			Expect(err.Error()).To(ContainSubstring("HasReadOnlyProperty.i is a read-only property"))
+
+			err = a.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
+
+		It("class instance $$ property is non-enumerable", func() {
+			c, err := generated.NewClassValHolder(engine, ctx, types.Undefined)
+			Expect(err).To(BeNil())
+
+			//assert.deepEqual([], Object.keys(c));
+
+			d, err := c.Clone(ctx)
+			Expect(err).To(BeNil())
+
+			err = c.Delete(ctx)
+			Expect(err).To(BeNil())
+
+			//assert.deepEqual([], Object.keys(d));
+
+			err = d.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
+
+		It("class methods", func() {
+			someClassMethod, err := generated.ClassValHolderStaticSome_class_method(engine, ctx, 10)
+			Expect(err).To(BeNil())
+			Expect(someClassMethod).To(Equal(int32(10)))
+
+			b, err := generated.ClassValHolderStaticMakeValHolder(engine, ctx, "foo")
+			Expect(err).To(BeNil())
+
+			getVal, err := b.CallInstanceMethod(ctx, b, "getVal")
+			Expect(err).To(BeNil())
+			Expect(getVal).To(Equal("foo"))
+
+			err = b.DeleteInstance(ctx, b)
+			Expect(err).To(BeNil())
+		})
+
+		It("function objects as class constructors", func() {
+			a, err := generated.NewClassConstructFromStdFunction(engine, ctx, "foo", 10)
+			Expect(err).To(BeNil())
+
+			getVal, err := a.GetVal(ctx)
+			Expect(err).To(BeNil())
+			Expect(getVal).To(Equal("foo"))
+
+			getA, err := a.GetA(ctx)
+			Expect(err).To(BeNil())
+			Expect(getA).To(Equal(int32(10)))
+
+			b, err := generated.NewClassConstructFromFunctionObject(engine, ctx, "bar", 12)
+			Expect(err).To(BeNil())
+
+			getVal, err = b.GetVal(ctx)
+			Expect(err).To(BeNil())
+			Expect(getVal).To(Equal("bar"))
+
+			getA, err = b.GetA(ctx)
+			Expect(err).To(BeNil())
+			Expect(getA).To(Equal(int32(12)))
+
+			err = a.Delete(ctx)
+			Expect(err).To(BeNil())
+
+			err = b.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
+
+		It("function objects as class methods", func() {
+			b, err := generated.ClassValHolderStaticMakeValHolder(engine, ctx, "foo")
+			Expect(err).To(BeNil())
+
+			// get & set via std::function
+			getValFunction, err := b.CallInstanceMethod(ctx, b, "getValFunction")
+			Expect(err).To(BeNil())
+			Expect(getValFunction).To(Equal("foo"))
+
+			_, err = b.CallInstanceMethod(ctx, b, "setValFunction", "bar")
+			Expect(err).To(BeNil())
+
+			// get & set via 'callable'
+			getValFunctor, err := b.CallInstanceMethod(ctx, b, "getValFunctor")
+			Expect(err).To(BeNil())
+			Expect(getValFunctor).To(Equal("bar"))
+
+			_, err = b.CallInstanceMethod(ctx, b, "setValFunctor", "baz")
+			Expect(err).To(BeNil())
+
+			getValFunction, err = b.CallInstanceMethod(ctx, b, "getValFunction")
+			Expect(err).To(BeNil())
+			Expect(getValFunction).To(Equal("baz"))
+
+			err = b.DeleteInstance(ctx, b)
+			Expect(err).To(BeNil())
+		})
+
+		It("can't call methods on deleted class instances", func() {
+			c, err := generated.NewClassValHolder(engine, ctx, types.Undefined)
+			Expect(err).To(BeNil())
+
+			err = c.Delete(ctx)
+			Expect(err).To(BeNil())
+
+			_, err = c.GetVal(ctx)
+			Expect(err).To(Not(BeNil()))
+			Expect(err.Error()).To(ContainSubstring("cannot pass deleted object as a pointer of type ValHolder const*"))
+
+			err = c.Delete(ctx)
+			Expect(err).To(Not(BeNil()))
+			Expect(err.Error()).To(ContainSubstring("class handle already deleted"))
+		})
+
+		It("can return class instances by value", func() {
+			c, err := generated.Emval_test_return_ValHolder(engine, ctx)
+			Expect(err).To(BeNil())
+
+			getVal, err := c.CallInstanceMethod(ctx, c, "getVal")
+			Expect(err).To(BeNil())
+			Expect(getVal).To(Equal(map[string]any{}))
+
+			err = c.DeleteInstance(ctx, c)
+			Expect(err).To(BeNil())
+		})
+
+		It("can pass class instances to functions by reference", func() {
+			a := map[string]any{"a": 1}
+			c, err := generated.NewClassValHolder(engine, ctx, a)
+			err = generated.Emval_test_set_ValHolder_to_empty_object(engine, ctx, c)
+			getVal, err := c.CallInstanceMethod(ctx, c, "getVal")
+			Expect(err).To(BeNil())
+			Expect(getVal).To(Equal(map[string]any{}))
+
+			err = c.DeleteInstance(ctx, c)
+			Expect(err).To(BeNil())
+		})
+
+		It("can pass smart pointer by reference", func() {
+			base, err := generated.Embind_test_return_smart_base_ptr(engine, ctx)
+			Expect(err).To(BeNil())
+
+			name, err := generated.Embind_test_get_class_name_via_reference_to_smart_base_ptr(engine, ctx, base)
+			Expect(err).To(BeNil())
+			Expect(name).To(Equal("Base"))
+
+			err = base.DeleteInstance(ctx, base)
+			Expect(err).To(BeNil())
+		})
+
+		It("can pass smart pointer by value", func() {
+			base, err := generated.Embind_test_return_smart_base_ptr(engine, ctx)
+			Expect(err).To(BeNil())
+
+			name, err := generated.Embind_test_get_class_name_via_smart_base_ptr(engine, ctx, base)
+			Expect(err).To(BeNil())
+			Expect(name).To(Equal("Base"))
+
+			err = base.DeleteInstance(ctx, base)
+			Expect(err).To(BeNil())
+		})
+
+		// todo: fix this (comment from Emscripten
+		// This test does not work because we make no provision for argument values
+		// having been changed after returning from a C++ routine invocation. In
+		// this specific case, the original pointee of the smart pointer was
+		// freed and replaced by a new one, but the ptr in our local handle
+		// was never updated after returning from the call.
+		It("can modify smart pointers passed by reference", func() {
 			//            var base = cm.embind_test_return_smart_base_ptr();
 			//            cm.embind_modify_smart_pointer_passed_by_reference(base);
 			//            assert.equal("Changed", base.getClassName());
 			//            base.delete();
-			        });
+		})
 
-			        test("can not modify smart pointers passed by value", function() {
-			            var base = cm.embind_test_return_smart_base_ptr();
-			            cm.embind_attempt_to_modify_smart_pointer_when_passed_by_value(base);
-			            assert.equal("Base", base.getClassName());
-			            base.delete();
-			        });
+		It("can not modify smart pointers passed by value", func() {
+			base, err := generated.Embind_test_return_smart_base_ptr(engine, ctx)
+			Expect(err).To(BeNil())
 
-			        test("const return value", function() {
-			            var c = new cm.ValHolder("foo");
-			            assert.equal("foo", c.getConstVal());
-			            c.delete();
-			        });
+			err = generated.Embind_attempt_to_modify_smart_pointer_when_passed_by_value(engine, ctx, base)
+			Expect(err).To(BeNil())
 
-			        test("return object by const ref", function() {
-			            var c = new cm.ValHolder("foo");
-			            assert.equal("foo", c.getValConstRef());
-			            c.delete();
-			        });
+			className, err := base.CallInstanceMethod(ctx, base, "getClassName")
+			Expect(err).To(BeNil())
+			Expect(className).To(Equal("Base"))
 
-			        test("instanceof", function() {
-			            var c = new cm.ValHolder("foo");
-			            assert.instanceof(c, cm.ValHolder);
-			            c.delete();
-			        });
+			err = base.DeleteInstance(ctx, base)
+			Expect(err).To(BeNil())
+		})
 
-			        test("can access struct fields", function() {
-			            var c = new cm.CustomStruct();
-			            assert.equal(10, c.field);
-			            assert.equal(10, c.getField());
-			            c.delete();
-			        });
+		It("const return value", func() {
+			c, err := generated.NewClassValHolder(engine, ctx, "foo")
+			Expect(err).To(BeNil())
 
-			        test("can set struct fields", function() {
-			            var c = new cm.CustomStruct();
-			            c.field = 15;
-			            assert.equal(15, c.field);
-			            c.delete();
-			        });
+			constRef, err := c.GetConstVal(ctx)
+			Expect(err).To(BeNil())
+			Expect(constRef).To(Equal("foo"))
 
-			        test("assignment returns value", function() {
-			            var c = new cm.CustomStruct();
-			            assert.equal(15, c.field = 15);
-			            c.delete();
-			        });
+			err = c.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
 
-			        if (cm.getCompilerSetting('ASSERTIONS')) {
-			            test("assigning string or object to integer raises TypeError with assertions", function() {
-			                var c = new cm.CustomStruct();
-			                var e = assert.throws(TypeError, function() {
-			                    c.field = "hi";
-			                });
-			                assert.equal('Cannot convert "hi" to int', e.message);
+		It("return object by const ref", func() {
+			c, err := generated.NewClassValHolder(engine, ctx, "foo")
+			Expect(err).To(BeNil())
 
-			                var e = assert.throws(TypeError, function() {
-			                    c.field = {foo:'bar'};
-			                });
-			                assert.equal('Cannot convert "[object Object]" to int', e.message);
+			constRef, err := c.GetValConstRef(ctx)
+			Expect(err).To(BeNil())
+			Expect(constRef).To(Equal("foo"))
 
-			                c.delete();
-			            });
-			        } else {
-			            test("assigning string or object to integer is converted to 0", function() {
-			                var c = new cm.CustomStruct();
+			err = c.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
 
-			                c.field = "hi";
-			                assert.equal(0, c.field);
-			                c.field = {foo:'bar'};
-			                assert.equal(0, c.field);
+		It("instanceof", func() {
+			c, err := generated.NewClassValHolder(engine, ctx, "foo")
+			Expect(err).To(BeNil())
 
-			                c.delete();
-			            });
-			        }
+			err = c.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
 
-			        test("can return tuples by value", function() {
-			            var c = cm.emval_test_return_TupleVector();
-			            assert.deepEqual([1, 2, 3, 4], c);
-			        });
+		It("can access struct fields", func() {
+			c, err := generated.NewClassCustomStruct(engine, ctx)
+			Expect(err).To(BeNil())
 
-			        test("tuples can contain tuples", function() {
-			            var c = cm.emval_test_return_TupleVectorTuple();
-			            assert.deepEqual([[1, 2, 3, 4]], c);
-			        });
+			field, err := c.GetPropertyField(ctx)
+			Expect(err).To(BeNil())
+			Expect(field).To(Equal(int32(10)))
 
-			        test("can pass tuples by value", function() {
-			            var c = cm.emval_test_take_and_return_TupleVector([4, 5, 6, 7]);
-			            assert.deepEqual([4, 5, 6, 7], c);
-			        });
+			field, err = c.GetField(ctx)
+			Expect(err).To(BeNil())
+			Expect(field).To(Equal(int32(10)))
 
-			        test("can return structs by value", function() {
-			            var c = cm.emval_test_return_StructVector();
-			            assert.deepEqual({x: 1, y: 2, z: 3, w: 4}, c);
-			        });
+			err = c.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
 
-			        test("can pass structs by value", function() {
-			            var c = cm.emval_test_take_and_return_StructVector({x: 4, y: 5, z: 6, w: 7});
-			            assert.deepEqual({x: 4, y: 5, z: 6, w: 7}, c);
-			        });
+		It("can set struct fields", func() {
+			c, err := generated.NewClassCustomStruct(engine, ctx)
+			Expect(err).To(BeNil())
 
-			        test("can pass and return tuples in structs", function() {
-			            var d = cm.emval_test_take_and_return_TupleInStruct({field: [1, 2, 3, 4]});
-			            assert.deepEqual({field: [1, 2, 3, 4]}, d);
-			        });
+			err = c.SetPropertyField(ctx, 15)
+			Expect(err).To(BeNil())
 
-			        test("can pass and return arrays in structs", function() {
-			            var d = cm.emval_test_take_and_return_ArrayInStruct({
-			              field1: [1, 2],
-			              field2: [
-			                { x: 1, y: 2 },
-			                { x: 3, y: 4 }
-			              ]
-			            });
-			            assert.deepEqual({
-			              field1: [1, 2],
-			              field2: [
-			                { x: 1, y: 2 },
-			                { x: 3, y: 4 }
-			              ]
-			            }, d);
-			        });
+			field, err := c.GetPropertyField(ctx)
+			Expect(err).To(BeNil())
+			Expect(field).To(Equal(int32(15)))
 
-			        test("can clone handles", function() {
-			            var a = new cm.ValHolder({});
-			            assert.equal(1, cm.count_emval_handles());
-			            var b = a.clone();
-			            a.delete();
+			err = c.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
 
-			            assert.equal(1, cm.count_emval_handles());
+		It("can return tuples by value", func() {
+			c, err := generated.Emval_test_return_TupleVector(engine, ctx)
+			Expect(err).To(BeNil())
+			Expect(c).To(Equal([]any{float32(1), float32(2), float32(3), float32(4)}))
+		})
 
-			            assert.throws(cm.BindingError, function() {
-			                a.delete();
-			            });
-			            b.delete();
+		It("tuples can contain tuples", func() {
+			c, err := generated.Emval_test_return_TupleVectorTuple(engine, ctx)
+			Expect(err).To(BeNil())
+			Expect(c).To(Equal([]any{[]any{float32(1), float32(2), float32(3), float32(4)}}))
+		})
 
-			            assert.equal(0, cm.count_emval_handles());
-			        });
+		It("can pass tuples by value", func() {
+			c, err := generated.Emval_test_take_and_return_TupleVector(engine, ctx, []any{float32(4), float32(5), float32(6), float32(7)})
+			Expect(err).To(BeNil())
+			Expect(c).To(Equal([]any{float32(4), float32(5), float32(6), float32(7)}))
+		})
 
-			        test("A shared pointer set/get point to the same underlying pointer", function() {
-			            var a = new cm.SharedPtrHolder();
-			            var b = a.get();
+		It("can return structs by value", func() {
+			c, err := generated.Emval_test_return_StructVector(engine, ctx)
+			Expect(err).To(BeNil())
+			Expect(c).To(Equal(map[string]any{"x": float32(1), "y": float32(2), "z": float32(3), "w": float32(4)}))
+		})
 
-			            a.set(b);
-			            var c = a.get();
+		It("can pass structs by value", func() {
+			c, err := generated.Emval_test_take_and_return_StructVector(engine, ctx, map[string]any{"x": float32(4), "y": float32(5), "z": float32(6), "w": float32(7)})
+			Expect(err).To(BeNil())
+			Expect(c).To(Equal(map[string]any{"x": float32(4), "y": float32(5), "z": float32(6), "w": float32(7)}))
+		})
 
-			            assert.true(b.isAliasOf(c));
-			            b.delete();
-			            c.delete();
-			            a.delete();
-			        });
+		It("can pass and return tuples in structs", func() {
+			d, err := generated.Emval_test_take_and_return_TupleInStruct(engine, ctx, map[string]any{"field": []any{float32(1), float32(2), float32(3), float32(4)}})
+			Expect(err).To(BeNil())
+			Expect(d).To(Equal(map[string]any{"field": []any{float32(1), float32(2), float32(3), float32(4)}}))
+		})
 
-			        test("can return shared ptrs from instance methods", function() {
-			            var a = new cm.SharedPtrHolder();
+		It("can pass and return arrays in structs", func() {
+			d, err := generated.Emval_test_take_and_return_ArrayInStruct(engine, ctx, map[string]any{
+				"field1": []any{int32(1), int32(2)},
+				"field2": []any{
+					map[string]any{"x": int32(1), "y": int32(2)},
+					map[string]any{"x": int32(3), "y": int32(4)},
+				},
+			})
+			Expect(err).To(BeNil())
+			Expect(d).To(Equal(map[string]any{
+				"field1": []any{int32(1), int32(2)},
+				"field2": []any{
+					map[string]any{"x": int32(1), "y": int32(2)},
+					map[string]any{"x": int32(3), "y": int32(4)},
+				},
+			}))
+		})
 
-			            // returns the shared_ptr.
-			            var b = a.get();
+		It("can clone handles", func() {
+			a, err := generated.NewClassValHolder(engine, ctx, struct{}{})
+			countHandles := engine.CountEmvalHandles()
+			Expect(err).To(BeNil())
+			Expect(countHandles).To(Equal(1))
 
-			            assert.equal("a string", b.get());
-			            b.delete();
-			            a.delete();
-			        });
+			b, err := a.Clone(ctx)
+			Expect(err).To(BeNil())
 
-			        test("smart ptrs clone correctly", function() {
-			            assert.equal(0, cm.count_emval_handles());
+			err = a.DeleteInstance(ctx, a)
+			Expect(err).To(BeNil())
 
-			            var a = cm.emval_test_return_shared_ptr();
+			countHandles = engine.CountEmvalHandles()
+			Expect(countHandles).To(Equal(1))
 
-			            var b = a.clone();
-			            a.delete();
+			err = a.DeleteInstance(ctx, a)
+			Expect(err).ToNot(BeNil())
+			Expect(err.Error()).To(ContainSubstring("class handle already deleted"))
 
-			            assert.equal(1, cm.count_emval_handles());
+			err = b.DeleteInstance(ctx, b)
+			Expect(err).To(BeNil())
 
-			            assert.throws(cm.BindingError, function() {
-			                a.delete();
-			            });
-			            b.delete();
+			countHandles = engine.CountEmvalHandles()
+			Expect(countHandles).To(Equal(0))
+		})
 
-			            assert.equal(0, cm.count_emval_handles());
-			        });
+		It("A shared pointer set/get point to the same underlying pointer", func() {
+			a, err := generated.NewClassSharedPtrHolder(engine, ctx)
+			Expect(err).To(BeNil())
 
-			        test("can't clone if already deleted", function() {
-			            var a = new cm.ValHolder({});
-			            a.delete();
-			            assert.throws(cm.BindingError, function() {
-			                a.clone();
-			            });
-			        });
+			b, err := a.Get(ctx)
+			Expect(err).To(BeNil())
 
-			        test("virtual calls work correctly", function() {
-			            var derived = cm.embind_test_return_raw_polymorphic_derived_ptr_as_base();
-			            assert.equal("PolyDerived", derived.virtualGetClassName());
-			            derived.delete();
-			        });
+			err = a.Set(ctx, b)
+			Expect(err).To(BeNil())
 
-			        test("virtual calls work correctly on smart ptrs", function() {
-			            var derived = cm.embind_test_return_smart_polymorphic_derived_ptr_as_base();
-			            assert.equal("PolyDerived", derived.virtualGetClassName());
-			            derived.delete();
-			        });
+			c, err := a.Get(ctx)
+			Expect(err).To(BeNil())
 
-			        test("Empty smart ptr is null", function() {
-			            var a = cm.emval_test_return_empty_shared_ptr();
-			            assert.equal(null, a);
-			        });
+			isAliasOf, err := b.IsAliasOfInstance(ctx, b, c)
+			Expect(err).To(BeNil())
+			Expect(isAliasOf).To(BeTrue())
 
-			        test("string cannot be given as smart pointer argument", function() {
-			            assert.throws(cm.BindingError, function() {
-			                cm.emval_test_is_shared_ptr_null("hello world");
-			            });
-			        });
+			err = b.DeleteInstance(ctx, b)
+			Expect(err).To(BeNil())
 
-			        test("number cannot be given as smart pointer argument", function() {
-			            assert.throws(cm.BindingError, function() {
-			                cm.emval_test_is_shared_ptr_null(105);
-			            });
-			        });
+			err = c.DeleteInstance(ctx, c)
+			Expect(err).To(BeNil())
 
-			        test("raw pointer cannot be given as smart pointer argument", function() {
-			            var p = new cm.ValHolder({});
-			            assert.throws(cm.BindingError, function() { cm.emval_test_is_shared_ptr_null(p); });
-			            p.delete();
-			        });
+			err = a.DeleteInstance(ctx, a)
+			Expect(err).To(BeNil())
+		})
 
-			        test("null is passed as empty smart pointer", function() {
-			            assert.true(cm.emval_test_is_shared_ptr_null(null));
-			        });
+		It("can return shared ptrs from instance methods", func() {
+			a, err := generated.NewClassSharedPtrHolder(engine, ctx)
+			Expect(err).To(BeNil())
 
-			        test("Deleting already deleted smart ptrs fails", function() {
-			            var a = cm.emval_test_return_shared_ptr();
-			            a.delete();
-			            assert.throws(cm.BindingError, function() {
-			                a.delete();
-			            });
-			        });
+			b, err := a.Get(ctx)
+			Expect(err).To(BeNil())
 
-			        test("returned unique_ptr does not call destructor", function() {
-			            var logged = "";
-			            var c = new cm.emval_test_return_unique_ptr_lifetime(function (s) { logged += s; });
-			            assert.equal("(constructor)", logged);
-			            c.delete();
-			        });
+			get, err := b.CallInstanceMethod(ctx, b, "get")
+			Expect(get).To(Equal("a string"))
 
-			        test("returned unique_ptr calls destructor on delete", function() {
-			            var logged = "";
-			            var c = new cm.emval_test_return_unique_ptr_lifetime(function (s) { logged += s; });
-			            logged = "";
-			            c.delete();
-			            assert.equal("(destructor)", logged);
-			        });
+			err = b.DeleteInstance(ctx, b)
+			Expect(err).To(BeNil())
 
-			        test("StringHolder", function() {
-			            var a = new cm.StringHolder("foobar");
-			            assert.equal("foobar", a.get());
+			err = a.DeleteInstance(ctx, a)
+			Expect(err).To(BeNil())
+		})
 
-			            a.set("barfoo");
-			            assert.equal("barfoo", a.get());
+		It("smart ptrs clone correctly", func() {
+			countHandles := engine.CountEmvalHandles()
+			Expect(countHandles).To(Equal(0))
 
-			            assert.equal("barfoo", a.get_const_ref());
+			a, err := generated.Emval_test_return_shared_ptr(engine, ctx)
+			Expect(err).To(BeNil())
 
-			            a.delete();
-			        });
+			b, err := a.CloneInstance(ctx, a)
+			Expect(err).To(BeNil())
 
-			        test("can call methods on unique ptr", function() {
-			            var result = cm.emval_test_return_unique_ptr();
+			err = a.DeleteInstance(ctx, a)
+			Expect(err).To(BeNil())
 
-			            result.setVal('1234');
-			            assert.equal('1234', result.getVal());
-			            result.delete();
-			        });
+			countHandles = engine.CountEmvalHandles()
+			Expect(countHandles).To(Equal(1))
 
-			        test("can call methods on shared ptr", function(){
-			            var result = cm.emval_test_return_shared_ptr();
-			            result.setVal('1234');
+			err = a.DeleteInstance(ctx, a)
+			Expect(err).ToNot(BeNil())
+			Expect(err.Error()).To(ContainSubstring("as"))
 
-			            assert.equal('1234', result.getVal());
-			            result.delete();
-			        });
+			err = b.DeleteInstance(ctx, b)
+			Expect(err).To(BeNil())
 
-			        test("Non functors throw exception", function() {
-			            var a = {foo: 'bar'};
-			            var c = new cm.ValHolder(a);
-			            assert.throws(TypeError, function() {
-			                c();
-			            });
-			            c.delete();
-			        });
+			countHandles = engine.CountEmvalHandles()
+			Expect(countHandles).To(Equal(0))
+		})
 
-			        test("non-member methods", function() {
-			            var a = {foo: 'bar'};
-			            var c = new cm.ValHolder(a);
-			            c.setEmpty(); // non-member method
-			            assert.deepEqual({}, c.getValNonMember());
-			            c.delete();
-			        });
+		It("can't clone if already deleted", func() {
+			a, err := generated.NewClassValHolder(engine, ctx, struct{}{})
+			Expect(err).To(BeNil())
 
-			        test("instantiating class without constructor gives error", function() {
-			            var e = assert.throws(cm.BindingError, function() {
-			                cm.AbstractClass();
-			            });
-			            assert.equal("Use 'new' to construct AbstractClass", e.message);
+			err = a.Delete(ctx)
+			Expect(err).To(BeNil())
 
-			            var e = assert.throws(cm.BindingError, function() {
-			                new cm.AbstractClass();
-			            });
-			            assert.equal("AbstractClass has no accessible constructor", e.message);
-			        });
+			_, err = a.Clone(ctx)
+			Expect(err).ToNot(BeNil())
+			Expect(err.Error()).To(ContainSubstring("class handle already deleted"))
+		})
 
-			        test("can construct class with external constructor", function() {
-			            var e = new cm.HasExternalConstructor("foo");
-			            assert.instanceof(e, cm.HasExternalConstructor);
-			            assert.equal("foo", e.getString());
-			            e.delete();
-			        });
-		*/
+		It("virtual calls work correctly", func() {
+			derived, err := generated.Embind_test_return_raw_polymorphic_derived_ptr_as_base(engine, ctx)
+			Expect(err).To(BeNil())
+
+			virtualClassName, err := derived.CallInstanceMethod(ctx, derived, "virtualGetClassName")
+			Expect(err).To(BeNil())
+			Expect(virtualClassName).To(Equal("PolyDerived"))
+
+			err = derived.DeleteInstance(ctx, derived)
+			Expect(err).To(BeNil())
+		})
+
+		It("virtual calls work correctly on smart ptrs", func() {
+			derived, err := generated.Embind_test_return_smart_polymorphic_derived_ptr_as_base(engine, ctx)
+			Expect(err).To(BeNil())
+
+			virtualClassName, err := derived.CallInstanceMethod(ctx, derived, "virtualGetClassName")
+			Expect(err).To(BeNil())
+			Expect(virtualClassName).To(Equal("PolyDerived"))
+
+			err = derived.DeleteInstance(ctx, derived)
+			Expect(err).To(BeNil())
+		})
+
+		It("Empty smart ptr is null", func() {
+			a, err := generated.Emval_test_return_empty_shared_ptr(engine, ctx)
+			Expect(err).To(BeNil())
+			Expect(a).To(BeNil())
+		})
+
+		It("string cannot be given as smart pointer argument", func() {
+			_, err := engine.CallPublicSymbol(ctx, "emval_test_is_shared_ptr_null", "hello world")
+			Expect(err).ToNot(BeNil())
+			Expect(err.Error()).To(ContainSubstring("check whether you constructed it properly through embind, the given value is a string"))
+		})
+
+		It("number cannot be given as smart pointer argument", func() {
+			_, err := engine.CallPublicSymbol(ctx, "emval_test_is_shared_ptr_null", 105)
+			Expect(err).ToNot(BeNil())
+			Expect(err.Error()).To(ContainSubstring("check whether you constructed it properly through embind, the given value is a int"))
+		})
+
+		It("raw pointer cannot be given as smart pointer argument", func() {
+			p, err := generated.NewClassValHolder(engine, ctx, struct{}{})
+			Expect(err).To(BeNil())
+
+			_, err = generated.Emval_test_is_shared_ptr_null(engine, ctx, p)
+			Expect(err).ToNot(BeNil())
+			Expect(err.Error()).To(ContainSubstring("passing raw pointer to smart pointer is illegal"))
+
+			err = p.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
+
+		It("null is passed as empty smart pointer", func() {
+			isNull, err := generated.Emval_test_is_shared_ptr_null(engine, ctx, nil)
+			Expect(err).To(BeNil())
+			Expect(isNull).To(BeTrue())
+		})
+
+		It("Deleting already deleted smart ptrs fails", func() {
+			a, err := generated.Emval_test_return_shared_ptr(engine, ctx)
+			Expect(err).To(BeNil())
+
+			err = a.DeleteInstance(ctx, a)
+			Expect(err).To(BeNil())
+
+			err = a.DeleteInstance(ctx, a)
+			Expect(err).ToNot(BeNil())
+			Expect(err.Error()).To(ContainSubstring("class handle already deleted"))
+		})
+
+		It("returned unique_ptr does not call destructor", func() {
+			logged := ""
+
+			c, err := generated.Emval_test_return_unique_ptr_lifetime(engine, ctx, func(s string) { logged += s })
+			Expect(err).To(BeNil())
+			Expect(logged).To(Equal("(constructor)"))
+
+			err = c.DeleteInstance(ctx, c)
+			Expect(err).To(BeNil())
+		})
+
+		It("returned unique_ptr calls destructor on delete", func() {
+			logged := ""
+
+			c, err := generated.Emval_test_return_unique_ptr_lifetime(engine, ctx, func(s string) { logged += s })
+			Expect(err).To(BeNil())
+
+			logged = ""
+
+			err = c.DeleteInstance(ctx, c)
+			Expect(err).To(BeNil())
+
+			Expect(logged).To(Equal("(destructor)"))
+		})
+
+		It("StringHolder", func() {
+			a, err := generated.NewClassStringHolder(engine, ctx, "foobar")
+			Expect(err).To(BeNil())
+
+			str, err := a.Get(ctx)
+			Expect(err).To(BeNil())
+			Expect(str).To(Equal("foobar"))
+
+			err = a.Set(ctx, "barfoo")
+
+			str, err = a.Get(ctx)
+			Expect(err).To(BeNil())
+			Expect(str).To(Equal("barfoo"))
+
+			constRef, err := a.Get_const_ref(ctx)
+			Expect(err).To(BeNil())
+			Expect(constRef).To(Equal("barfoo"))
+
+			err = a.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
+
+		It("can call methods on unique ptr", func() {
+			result, err := generated.Emval_test_return_unique_ptr(engine, ctx)
+			Expect(err).To(BeNil())
+
+			_, err = result.CallInstanceMethod(ctx, result, "setVal", "1234")
+			Expect(err).To(BeNil())
+
+			getVal, err := result.CallInstanceMethod(ctx, result, "getVal")
+			Expect(err).To(BeNil())
+			Expect(getVal).To(Equal("1234"))
+
+			err = result.DeleteInstance(ctx, result)
+			Expect(err).To(BeNil())
+		})
+
+		It("can call methods on shared ptr", func() {
+			result, err := generated.Emval_test_return_shared_ptr(engine, ctx)
+			Expect(err).To(BeNil())
+
+			_, err = result.CallInstanceMethod(ctx, result, "setVal", "1234")
+			Expect(err).To(BeNil())
+
+			getVal, err := result.CallInstanceMethod(ctx, result, "getVal")
+			Expect(err).To(BeNil())
+			Expect(getVal).To(Equal("1234"))
+
+			err = result.DeleteInstance(ctx, result)
+			Expect(err).To(BeNil())
+		})
+
+		It("non-member methods", func() {
+			a := map[string]any{"foo": "bar"}
+			c, err := generated.NewClassValHolder(engine, ctx, a)
+			Expect(err).To(BeNil())
+
+			err = c.SetEmpty(ctx)
+			Expect(err).To(BeNil())
+
+			valNonMember, err := c.GetValNonMember(ctx)
+			Expect(err).To(BeNil())
+			Expect(valNonMember).To(Equal(map[string]any{}))
+
+			err = c.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
+
+		It("instantiating class without constructor gives error", func() {
+			_, err := generated.AbstractClass(engine, ctx)
+			Expect(err).ToNot(BeNil())
+			Expect(err.Error()).To(ContainSubstring("AbstractClass has no accessible constructor"))
+		})
+
+		It("can construct class with external constructor", func() {
+			e, err := generated.NewClassHasExternalConstructor(engine, ctx, "foo")
+			Expect(err).To(BeNil())
+
+			str, err := e.GetString(ctx)
+			Expect(err).To(BeNil())
+			Expect(str).To(Equal("foo"))
+
+			err = e.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
 	})
 
 	When("const", func() {
-		/*
-		   test("calling non-const method with const handle is error", function() {
-		       var vh = cm.ValHolder.makeConst({});
-		       var e = assert.throws(cm.BindingError, function() {
-		           vh.setVal({});
-		       });
-		       assert.equal('Cannot convert argument of type ValHolder const* to parameter type ValHolder*', e.message);
-		       vh.delete();
-		   });
+		It("calling non-const method with const handle is error", func() {
+			vh, err := generated.ClassValHolderStaticMakeConst(engine, ctx, struct{}{})
+			Expect(err).To(BeNil())
 
-		   test("passing const pointer to non-const pointer is error", function() {
-		       var vh = new cm.ValHolder.makeConst({});
-		       var e = assert.throws(cm.BindingError, function() {
-		           cm.ValHolder.set_via_raw_pointer(vh, {});
-		       });
-		       assert.equal('Cannot convert argument of type ValHolder const* to parameter type ValHolder*', e.message);
-		       vh.delete();
-		   });
+			_, err = vh.CallInstanceMethod(ctx, vh, "setVal", struct{}{})
+			Expect(err).To(Not(BeNil()))
+			Expect(err.Error()).To(ContainSubstring("cannot convert argument of type ValHolder const* to parameter type ValHolder*"))
 
-		*/
+			err = vh.DeleteInstance(ctx, vh)
+			Expect(err).To(BeNil())
+		})
+
+		It("passing const pointer to non-const pointer is error", func() {
+			vh, err := generated.ClassValHolderStaticMakeConst(engine, ctx, struct{}{})
+
+			err = generated.ClassValHolderStaticSet_via_raw_pointer(engine, ctx, vh, struct{}{})
+			Expect(err).To(Not(BeNil()))
+
+			Expect(err.Error()).To(ContainSubstring("cannot convert argument of type ValHolder const* to parameter type ValHolder*"))
+
+			err = vh.DeleteInstance(ctx, vh)
+			Expect(err).To(BeNil())
+		})
 	})
 
 	When("smart pointers", func() {
-		/*
-		   test("constructor can return smart pointer", function() {
-		       var e = new cm.HeldBySmartPtr(10, "foo");
-		       assert.instanceof(e, cm.HeldBySmartPtr);
-		       assert.equal(10, e.i);
-		       assert.equal("foo", e.s);
-		       var f = cm.takesHeldBySmartPtr(e);
-		       f.delete();
-		       e.delete();
-		   });
+		It("constructor can return smart pointer", func() {
+			e, err := generated.NewClassHeldBySmartPtr(engine, ctx, 10, "foo")
+			Expect(err).To(BeNil())
 
-		   test("cannot pass incorrect smart pointer type", function() {
-		       var e = cm.emval_test_return_shared_ptr();
-		       assert.throws(cm.BindingError, function() {
-		           cm.takesHeldBySmartPtr(e);
-		       });
-		       e.delete();
-		   });
+			i, err := e.GetPropertyI(ctx)
+			Expect(err).To(BeNil())
+			Expect(i).To(Equal(int32(10)))
 
-		   test("smart pointer object has no object keys", function() {
-		       var e = new cm.HeldBySmartPtr(10, "foo");
-		       assert.deepEqual([], Object.keys(e));
+			s, err := e.GetPropertyS(ctx)
+			Expect(err).To(BeNil())
+			Expect(s).To(Equal("foo"))
 
-		       var f = e.clone();
-		       e.delete();
+			f, err := generated.TakesHeldBySmartPtr(engine, ctx, e)
+			Expect(err).To(BeNil())
 
-		       assert.deepEqual([], Object.keys(f));
-		       f.delete();
-		   });
+			err = f.DeleteInstance(ctx, f)
+			Expect(err).To(BeNil())
 
-		   test("smart pointer object has correct constructor name", function() {
-		       var e = new cm.HeldBySmartPtr(10, "foo");
-		       assert.equal("HeldBySmartPtr", e.constructor.name);
-		       e.delete();
-		   });
+			err = e.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
 
-		   test("constructor can return smart pointer", function() {
-		       var e = new cm.HeldBySmartPtr(10, "foo");
-		       assert.instanceof(e, cm.HeldBySmartPtr);
-		       assert.equal(10, e.i);
-		       assert.equal("foo", e.s);
-		       var f = cm.takesHeldBySmartPtr(e);
-		       assert.instanceof(f, cm.HeldBySmartPtr);
-		       f.delete();
-		       e.delete();
-		   });
+		It("cannot pass incorrect smart pointer type", func() {
+			e, err := generated.Emval_test_return_shared_ptr(engine, ctx)
+			Expect(err).To(BeNil())
 
-		   test("custom smart pointer", function() {
-		       var e = new cm.HeldByCustomSmartPtr(20, "bar");
-		       assert.instanceof(e, cm.HeldByCustomSmartPtr);
-		       assert.equal(20, e.i);
-		       assert.equal("bar", e.s);
-		       e.delete();
-		   });
+			_, err = generated.TakesHeldBySmartPtr(engine, ctx, e)
+			Expect(err).To(Not(BeNil()))
+			Expect(err.Error()).To(ContainSubstring("expected null or instance of HeldBySmartPtr, got an instance of ValHolder"))
 
-		   test("custom smart pointer passed through wiretype", function() {
-		       var e = new cm.HeldByCustomSmartPtr(20, "bar");
-		       var f = cm.passThroughCustomSmartPtr(e);
-		       e.delete();
+			err = e.DeleteInstance(ctx, e)
+			Expect(err).To(BeNil())
+		})
 
-		       assert.instanceof(f, cm.HeldByCustomSmartPtr);
-		       assert.equal(20, f.i);
-		       assert.equal("bar", f.s);
+		It("constructor can return smart pointer", func() {
+			e, err := generated.NewClassHeldBySmartPtr(engine, ctx, 10, "foo")
+			Expect(err).To(BeNil())
 
-		       f.delete();
-		   });
+			i, err := e.GetPropertyI(ctx)
+			Expect(err).To(BeNil())
+			Expect(i).To(Equal(int32(10)))
 
-		   test("cannot give null to by-value argument", function() {
-		       var e = assert.throws(cm.BindingError, function() {
-		           cm.takesHeldBySmartPtr(null);
-		       });
-		       assert.equal('null is not a valid HeldBySmartPtr', e.message);
-		   });
+			s, err := e.GetPropertyS(ctx)
+			Expect(err).To(BeNil())
+			Expect(s).To(Equal("foo"))
 
-		   test("raw pointer can take and give null", function() {
-		       assert.equal(null, cm.passThroughRawPtr(null));
-		   });
+			f, err := generated.TakesHeldBySmartPtr(engine, ctx, e)
 
-		   test("custom smart pointer can take and give null", function() {
-		       assert.equal(null, cm.passThroughCustomSmartPtr(null));
-		   });
+			err = f.DeleteInstance(ctx, f)
+			Expect(err).To(BeNil())
 
-		   test("cannot pass shared_ptr to CustomSmartPtr", function() {
-		       var o = cm.HeldByCustomSmartPtr.createSharedPtr(10, "foo");
-		       var e = assert.throws(cm.BindingError, function() {
-		           cm.passThroughCustomSmartPtr(o);
-		       });
-		       assert.equal('Cannot convert argument of type shared_ptr<HeldByCustomSmartPtr> to parameter type CustomSmartPtr<HeldByCustomSmartPtr>', e.message);
-		       o.delete();
-		   });
+			err = e.Delete(ctx)
+			Expect(err).To(BeNil())
+		})
 
-		   test("custom smart pointers can be passed to shared_ptr parameter", function() {
-		       var e = cm.HeldBySmartPtr.newCustomPtr(10, "abc");
-		       assert.equal(10, e.i);
-		       assert.equal("abc", e.s);
+		It("custom smart pointer", func() {
+			// @todo: fix me.
+			/*
+				e, err := generated.NewClassHeldByCustomSmartPtr(engine, ctx, 20, "bar")
+				Expect(err).To(BeNil())
 
-		       cm.takesHeldBySmartPtrSharedPtr(e).delete();
-		       e.delete();
-		   });
+				i, err := e.GetPropertyI(ctx)
+				Expect(err).To(BeNil())
+				Expect(i).To(Equal(int32(20)))
 
-		   test("can call non-member functions as methods", function() {
-		       var e = new cm.HeldBySmartPtr(20, "bar");
-		       var f = e.returnThis();
-		       e.delete();
-		       assert.equal(20, f.i);
-		       assert.equal("bar", f.s);
-		       f.delete();
-		   });
-		*/
+				s, err := e.GetPropertyS(ctx)
+				Expect(err).To(BeNil())
+				Expect(s).To(Equal("bar"))
+
+				err = e.Delete(ctx)
+				Expect(err).To(BeNil())*/
+		})
+
+		It("custom smart pointer passed through wiretype", func() {
+			// @todo: fix me.
+			/*
+				e, err := generated.NewClassHeldByCustomSmartPtr(engine, ctx, 20, "bar")
+				Expect(err).To(BeNil())
+
+				f, err := generated.PassThroughCustomSmartPtr(engine, ctx, e)
+				Expect(err).To(BeNil())
+
+				err = e.Delete(ctx)
+				Expect(err).To(BeNil())
+
+				i, err := f.GetInstanceProperty(ctx, f, "i")
+				Expect(err).To(BeNil())
+				Expect(i).To(Equal(int32(20)))
+
+				s, err := f.GetInstanceProperty(ctx, f, "s")
+				Expect(err).To(BeNil())
+				Expect(s).To(Equal("bar"))
+
+				err = f.DeleteInstance(ctx, f)
+				Expect(err).To(BeNil())*/
+		})
+
+		It("cannot give null to by-value argument", func() {
+			e, err := generated.TakesHeldBySmartPtr(engine, ctx, nil)
+			Expect(err).To(Not(BeNil()))
+			Expect(err.Error()).To(ContainSubstring("nil is not a valid HeldBySmartPtr"))
+			Expect(e).To(BeNil())
+		})
+
+		It("raw pointer can take and give null", func() {
+			e, err := generated.PassThroughRawPtr(engine, ctx, nil)
+			Expect(err).To(BeNil())
+			Expect(e).To(BeNil())
+		})
+
+		It("custom smart pointer can take and give null", func() {
+			// @todo: fix me
+			/*
+				e, err := generated.PassThroughCustomSmartPtr(engine, ctx, nil)
+				Expect(err).To(BeNil())
+				Expect(e).To(BeNil())
+			*/
+		})
+
+		It("cannot pass shared_ptr to CustomSmartPtr", func() {
+			o, err := generated.ClassHeldByCustomSmartPtrStaticCreateSharedPtr(engine, ctx, 10, "foo")
+			Expect(err).To(BeNil())
+
+			e, err := generated.PassThroughCustomSmartPtr(engine, ctx, o)
+			Expect(err).To(Not(BeNil()))
+			Expect(err.Error()).To(ContainSubstring("cannot convert argument of type shared_ptr<HeldByCustomSmartPtr> to parameter type CustomSmartPtr<HeldByCustomSmartPtr>"))
+			Expect(e).To(BeNil())
+
+			err = o.DeleteInstance(ctx, o)
+			Expect(err).To(BeNil())
+		})
+
+		It("custom smart pointers can be passed to shared_ptr parameter", func() {
+			// @todo: fix me
+			/*
+				e, err := generated.ClassHeldBySmartPtrStaticNewCustomPtr(engine, ctx, 10, "abc")
+				Expect(err).To(BeNil())
+
+				i, err := e.GetInstanceProperty(ctx, e, "i")
+				Expect(err).To(BeNil())
+				Expect(i, 10)
+
+				s, err := e.GetInstanceProperty(ctx, e, "s")
+				Expect(err).To(BeNil())
+				Expect(s, "abc")
+
+				tmp, err := generated.TakesHeldBySmartPtrSharedPtr(engine, ctx, e)
+				Expect(err).To(BeNil())
+
+				err = tmp.DeleteInstance(ctx, tmp)
+				Expect(err).To(BeNil())
+
+				err = e.DeleteInstance(ctx, e)
+				Expect(err).To(BeNil())
+			*/
+		})
+
+		It("can call non-member functions as methods", func() {
+			e, err := generated.NewClassHeldBySmartPtr(engine, ctx, 20, "bar")
+			Expect(err).To(BeNil())
+
+			f, err := e.ReturnThis(ctx)
+			Expect(err).To(BeNil())
+
+			err = e.Delete(ctx)
+			Expect(err).To(BeNil())
+
+			i, err := f.GetInstanceProperty(ctx, f, "i")
+			Expect(err).To(BeNil())
+			Expect(i, 10)
+
+			s, err := f.GetInstanceProperty(ctx, f, "s")
+			Expect(err).To(BeNil())
+			Expect(s, "abc")
+
+			err = f.DeleteInstance(ctx, f)
+			Expect(err).To(BeNil())
+		})
 	})
 
 	When("enumerations", func() {
-		/*
-		   test("can compare enumeration values", function() {
-		       assert.equal(cm.Enum.ONE, cm.Enum.ONE);
-		       assert.notEqual(cm.Enum.ONE, cm.Enum.TWO);
-		   });
-
-		   if (typeof INVOKED_FROM_EMSCRIPTEN_TEST_RUNNER === "undefined") { // TODO: Enable this to work in Emscripten runner as well!
-		       test("repr includes enum value", function() {
-		           assert.equal('<#Enum_ONE {}>', IMVU.repr(cm.Enum.ONE));
-		           assert.equal('<#Enum_TWO {}>', IMVU.repr(cm.Enum.TWO));
-		       });
-		   }
-
-		   test("instanceof", function() {
-		       assert.instanceof(cm.Enum.ONE, cm.Enum);
-		   });
-
-		   test("can pass and return enumeration values to functions", function() {
-		       assert.equal(cm.Enum.TWO, cm.emval_test_take_and_return_Enum(cm.Enum.TWO));
-		   });
-
-		*/
+		It("can pass and return enumeration values to functions", func() {
+			tar, err := generated.Emval_test_take_and_return_Enum(engine, ctx, generated.EnumEnum_TWO)
+			Expect(err).To(BeNil())
+			Expect(tar).To(Equal(generated.EnumEnum_TWO))
+		})
 	})
 
 	When("C++11 enum class", func() {
-		/*
-		       test("can compare enumeration values", function() {
-		           assert.equal(cm.EnumClass.ONE, cm.EnumClass.ONE);
-		           assert.notEqual(cm.EnumClass.ONE, cm.EnumClass.TWO);
-		       });
-
-		       if (typeof INVOKED_FROM_EMSCRIPTEN_TEST_RUNNER === "undefined") { // TODO: Enable this to work in Emscripten runner as well!
-		           test("repr includes enum value", function() {
-		               assert.equal('<#EnumClass_ONE {}>', IMVU.repr(cm.EnumClass.ONE));
-		               assert.equal('<#EnumClass_TWO {}>', IMVU.repr(cm.EnumClass.TWO));
-		           });
-		       }
-
-		       test("instanceof", function() {
-		           assert.instanceof(cm.EnumClass.ONE, cm.EnumClass);
-		       });
-
-		       test("can pass and return enumeration values to functions", function() {
-		           assert.equal(cm.EnumClass.TWO, cm.emval_test_take_and_return_EnumClass(cm.EnumClass.TWO));
-		       });
-		   });
-		*/
+		It("can pass and return enumeration values to functions", func() {
+			tar, err := generated.Emval_test_take_and_return_EnumClass(engine, ctx, generated.EnumEnumClass_TWO)
+			Expect(err).To(BeNil())
+			Expect(tar).To(Equal(generated.EnumEnumClass_TWO))
+		})
 	})
 
 	When("emval call tests", func() {
-		/*
-		   test("can call functions from C++", function() {
-		       var called = false;
-		       cm.emval_test_call_function(function(i, f, tv, sv) {
-		           called = true;
-		           assert.equal(10, i);
-		           assert.equal(1.5, f);
-		           assert.deepEqual([1.25, 2.5, 3.75, 4], tv);
-		           assert.deepEqual({x: 1.25, y: 2.5, z: 3.75, w:4}, sv);
-		       }, 10, 1.5, [1.25, 2.5, 3.75, 4], {x: 1.25, y: 2.5, z: 3.75, w:4});
-		       assert.true(called);
-		   });
-		*/
-	})
+		It("can call functions from C++", func() {
+			called := false
+			err := generated.Emval_test_call_function(engine, ctx, func(i int32, f float32, tv []any, sv map[string]any) {
+				called = true
 
-	When("extending built-in classes", func() {
-		/*
-		   // cm.ValHolder.prototype.patched = 10; // this sets instanceCounts.patched inside of Deletable module !?!
-
-		   test("can access patched value on new instances", function() {
-		       cm.ValHolder.prototype.patched = 10;
-		       var c = new cm.ValHolder(undefined);
-		       assert.equal(10, c.patched);
-		       c.delete();
-		       cm.ValHolder.prototype.patched = undefined;
-		   });
-
-		   test("can access patched value on returned instances", function() {
-		       cm.ValHolder.prototype.patched = 10;
-		       var c = cm.emval_test_return_ValHolder();
-		       assert.equal(10, c.patched);
-		       c.delete();
-		       cm.ValHolder.prototype.patched = undefined;
-		   });
-
-		*/
+				Expect(i).To(Equal(int32(10)))
+				Expect(f).To(Equal(float32(1.5)))
+				Expect(tv).To(Equal([]any{float32(1.25), float32(2.5), float32(3.75), float32(4)}))
+				Expect(sv).To(Equal(map[string]any{"x": float32(1.25), "y": float32(2.5), "z": float32(3.75), "w": float32(4)}))
+			}, 10, 1.5, []any{float32(1.25), float32(2.5), float32(3.75), float32(4)}, map[string]any{"x": float32(1.25), "y": float32(2.5), "z": float32(3.75), "w": float32(4)})
+			Expect(err).To(BeNil())
+			Expect(called).To(BeTrue())
+		})
 	})
 
 	When("raw pointers", func() {
@@ -3057,20 +3370,6 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 		})
 	})
 
-	When("function names", func() {
-		// @todo: do these make sense in Go?
-		/*
-		   assert.equal('ValHolder', cm.ValHolder.name);
-
-		   if (!cm.getCompilerSetting('DYNAMIC_EXECUTION')) {
-		     assert.equal('', cm.ValHolder.prototype.setVal.name);
-		     assert.equal('', cm.ValHolder.makeConst.name);
-		   } else {
-		     assert.equal('ValHolder$setVal', cm.ValHolder.prototype.setVal.name);
-		     assert.equal('ValHolder$makeConst', cm.ValHolder.makeConst.name);
-		   }
-		*/
-	})
 	When("constants", func() {
 		Expect(generated.Constant_INT_CONSTANT, 10)
 		Expect(generated.Constant_STATIC_CONST_INTEGER_VALUE_1, 1)
@@ -3615,7 +3914,7 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 		})
 
 		// @todo: implement me
-		// We don't support this in Go. Needs CreateInheritingConstructor.
+		// We don't support this in Go right now. Needs CreateInheritingConstructor.
 		It("can extend from intrusive pointer class and still preserve reference in JavaScript", func() {
 			//type newStructTypeToExtend struct {
 			//	embind.ClassBase

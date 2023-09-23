@@ -16,6 +16,9 @@ func (class *ClassAbstractClass) Clone(ctx context.Context) (*ClassAbstractClass
 	if err != nil {
 		return nil, err
 	}
+	if res == nil {
+		return nil, nil
+	}
 	return res.(*ClassAbstractClass), nil
 }
 
@@ -53,6 +56,10 @@ func (class *ClassAbstractClass) AbstractMethod(ctx context.Context) (string, er
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -62,6 +69,10 @@ func (class *ClassAbstractClass) ConcreteMethod(ctx context.Context) (string, er
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -69,6 +80,10 @@ func (class *ClassAbstractClass) OptionalMethod(ctx context.Context, arg0 string
 	res, err := class.CallMethod(ctx, "optionalMethod", arg0)
 	if err != nil {
 		return "", err
+	}
+
+	if res == nil {
+		return "", nil
 	}
 
 	return res.(string), nil
@@ -90,12 +105,20 @@ func (class *ClassAbstractClass) StaticExtend(ctx context.Context, arg0 string, 
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 func ClassAbstractClassStaticExtend(e embind.Engine, ctx context.Context, arg0 string, arg1 any) (any, error) {
 	res, err := e.CallStaticClassMethod(ctx, "AbstractClass", "extend", arg0, arg1)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(any), nil
@@ -107,12 +130,20 @@ func (class *ClassAbstractClass) StaticImplement(ctx context.Context, arg0 any) 
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(embind.ClassBase), nil
 }
 func ClassAbstractClassStaticImplement(e embind.Engine, ctx context.Context, arg0 any) (embind.ClassBase, error) {
 	res, err := e.CallStaticClassMethod(ctx, "AbstractClass", "implement", arg0)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(embind.ClassBase), nil
@@ -126,6 +157,9 @@ func (class *ClassAbstractClassWithConstructor) Clone(ctx context.Context) (*Cla
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassAbstractClassWithConstructor), nil
 }
@@ -164,6 +198,10 @@ func (class *ClassAbstractClassWithConstructor) AbstractMethod(ctx context.Conte
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -171,6 +209,10 @@ func (class *ClassAbstractClassWithConstructor) ConcreteMethod(ctx context.Conte
 	res, err := class.CallMethod(ctx, "concreteMethod")
 	if err != nil {
 		return "", err
+	}
+
+	if res == nil {
+		return "", nil
 	}
 
 	return res.(string), nil
@@ -182,12 +224,20 @@ func (class *ClassAbstractClassWithConstructor) StaticExtend(ctx context.Context
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 func ClassAbstractClassWithConstructorStaticExtend(e embind.Engine, ctx context.Context, arg0 string, arg1 any) (any, error) {
 	res, err := e.CallStaticClassMethod(ctx, "AbstractClassWithConstructor", "extend", arg0, arg1)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(any), nil
@@ -199,12 +249,20 @@ func (class *ClassAbstractClassWithConstructor) StaticImplement(ctx context.Cont
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(embind.ClassBase), nil
 }
 func ClassAbstractClassWithConstructorStaticImplement(e embind.Engine, ctx context.Context, arg0 any, arg1 string) (embind.ClassBase, error) {
 	res, err := e.CallStaticClassMethod(ctx, "AbstractClassWithConstructor", "implement", arg0, arg1)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(embind.ClassBase), nil
@@ -218,6 +276,9 @@ func (class *ClassAbstractClassWithConstructorWrapper) Clone(ctx context.Context
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassAbstractClassWithConstructorWrapper), nil
 }
@@ -256,6 +317,10 @@ func (class *ClassAbstractClassWithConstructorWrapper) AbstractMethod(ctx contex
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -263,6 +328,10 @@ func (class *ClassAbstractClassWithConstructorWrapper) ConcreteMethod(ctx contex
 	res, err := class.CallMethod(ctx, "concreteMethod")
 	if err != nil {
 		return "", err
+	}
+
+	if res == nil {
+		return "", nil
 	}
 
 	return res.(string), nil
@@ -279,12 +348,20 @@ func (class *ClassAbstractClassWithConstructorWrapper) StaticExtend(ctx context.
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 func ClassAbstractClassWithConstructorWrapperStaticExtend(e embind.Engine, ctx context.Context, arg0 string, arg1 any) (any, error) {
 	res, err := e.CallStaticClassMethod(ctx, "AbstractClassWithConstructorWrapper", "extend", arg0, arg1)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(any), nil
@@ -296,12 +373,20 @@ func (class *ClassAbstractClassWithConstructorWrapper) StaticImplement(ctx conte
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(embind.ClassBase), nil
 }
 func ClassAbstractClassWithConstructorWrapperStaticImplement(e embind.Engine, ctx context.Context, arg0 any, arg1 string) (embind.ClassBase, error) {
 	res, err := e.CallStaticClassMethod(ctx, "AbstractClassWithConstructorWrapper", "implement", arg0, arg1)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(embind.ClassBase), nil
@@ -315,6 +400,9 @@ func (class *ClassAbstractClassWrapper) Clone(ctx context.Context) (*ClassAbstra
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassAbstractClassWrapper), nil
 }
@@ -353,6 +441,10 @@ func (class *ClassAbstractClassWrapper) AbstractMethod(ctx context.Context) (str
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -360,6 +452,10 @@ func (class *ClassAbstractClassWrapper) ConcreteMethod(ctx context.Context) (str
 	res, err := class.CallMethod(ctx, "concreteMethod")
 	if err != nil {
 		return "", err
+	}
+
+	if res == nil {
+		return "", nil
 	}
 
 	return res.(string), nil
@@ -374,6 +470,10 @@ func (class *ClassAbstractClassWrapper) OptionalMethod(ctx context.Context, arg0
 	res, err := class.CallMethod(ctx, "optionalMethod", arg0)
 	if err != nil {
 		return "", err
+	}
+
+	if res == nil {
+		return "", nil
 	}
 
 	return res.(string), nil
@@ -395,12 +495,20 @@ func (class *ClassAbstractClassWrapper) StaticExtend(ctx context.Context, arg0 s
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 func ClassAbstractClassWrapperStaticExtend(e embind.Engine, ctx context.Context, arg0 string, arg1 any) (any, error) {
 	res, err := e.CallStaticClassMethod(ctx, "AbstractClassWrapper", "extend", arg0, arg1)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(any), nil
@@ -412,12 +520,20 @@ func (class *ClassAbstractClassWrapper) StaticImplement(ctx context.Context, arg
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(embind.ClassBase), nil
 }
 func ClassAbstractClassWrapperStaticImplement(e embind.Engine, ctx context.Context, arg0 any) (embind.ClassBase, error) {
 	res, err := e.CallStaticClassMethod(ctx, "AbstractClassWrapper", "implement", arg0)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(embind.ClassBase), nil
@@ -431,6 +547,9 @@ func (class *ClassBase) Clone(ctx context.Context) (*ClassBase, error) {
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassBase), nil
 }
@@ -469,6 +588,10 @@ func (class *ClassBase) GetPropertyBaseMember(ctx context.Context) (int32, error
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 func (class *ClassBase) SetPropertyBaseMember(ctx context.Context, val int32) error {
@@ -479,6 +602,10 @@ func (class *ClassBase) GetPropertyMember(ctx context.Context) (int32, error) {
 	res, err := class.GetProperty(ctx, "member")
 	if err != nil {
 		return int32(0), err
+	}
+
+	if res == nil {
+		return int32(0), nil
 	}
 
 	return res.(int32), nil
@@ -493,6 +620,10 @@ func (class *ClassBase) GetBaseMember(ctx context.Context) (int32, error) {
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 
@@ -500,6 +631,10 @@ func (class *ClassBase) GetClassName(ctx context.Context) (string, error) {
 	res, err := class.CallMethod(ctx, "getClassName")
 	if err != nil {
 		return "", err
+	}
+
+	if res == nil {
+		return "", nil
 	}
 
 	return res.(string), nil
@@ -511,6 +646,10 @@ func (class *ClassBase) GetClassNameFromBase(ctx context.Context) (string, error
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -520,6 +659,10 @@ func (class *ClassBase) GetClassNameNotAvailableInDerivedClasses(ctx context.Con
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -527,6 +670,10 @@ func (class *ClassBase) GetMember(ctx context.Context) (int32, error) {
 	res, err := class.CallMethod(ctx, "getMember")
 	if err != nil {
 		return int32(0), err
+	}
+
+	if res == nil {
+		return int32(0), nil
 	}
 
 	return res.(int32), nil
@@ -548,12 +695,20 @@ func (class *ClassBase) StaticClassFunction(ctx context.Context) (string, error)
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 func ClassBaseStaticClassFunction(e embind.Engine, ctx context.Context) (string, error) {
 	res, err := e.CallStaticClassMethod(ctx, "Base", "classFunction")
 	if err != nil {
 		return "", err
+	}
+
+	if res == nil {
+		return "", nil
 	}
 
 	return res.(string), nil
@@ -563,6 +718,10 @@ func NewClassBase(e embind.Engine, ctx context.Context) (*ClassBase, error) {
 	res, err := e.CallPublicSymbol(ctx, "Base")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassBase), nil
@@ -576,6 +735,9 @@ func (class *ClassBase1) Clone(ctx context.Context) (*ClassBase1, error) {
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassBase1), nil
 }
@@ -614,6 +776,10 @@ func (class *ClassBase1) GetField(ctx context.Context) (string, error) {
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -621,6 +787,10 @@ func NewClassBase1(e embind.Engine, ctx context.Context) (*ClassBase1, error) {
 	res, err := e.CallPublicSymbol(ctx, "Base1")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassBase1), nil
@@ -634,6 +804,9 @@ func (class *ClassBase2) Clone(ctx context.Context) (*ClassBase2, error) {
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassBase2), nil
 }
@@ -672,6 +845,10 @@ func (class *ClassBase2) GetPropertyField(ctx context.Context) (string, error) {
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 func (class *ClassBase2) SetPropertyField(ctx context.Context, val string) error {
@@ -682,6 +859,10 @@ func (class *ClassBase2) GetField(ctx context.Context) (string, error) {
 	res, err := class.CallMethod(ctx, "getField")
 	if err != nil {
 		return "", err
+	}
+
+	if res == nil {
+		return "", nil
 	}
 
 	return res.(string), nil
@@ -695,6 +876,9 @@ func (class *ClassBaseClass) Clone(ctx context.Context) (*ClassBaseClass, error)
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassBaseClass), nil
 }
@@ -738,12 +922,20 @@ func (class *ClassBaseClass) StaticExtend(ctx context.Context, arg0 string, arg1
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 func ClassBaseClassStaticExtend(e embind.Engine, ctx context.Context, arg0 string, arg1 any) (any, error) {
 	res, err := e.CallStaticClassMethod(ctx, "BaseClass", "extend", arg0, arg1)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(any), nil
@@ -755,12 +947,20 @@ func (class *ClassBaseClass) StaticImplement(ctx context.Context, arg0 any) (emb
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(embind.ClassBase), nil
 }
 func ClassBaseClassStaticImplement(e embind.Engine, ctx context.Context, arg0 any) (embind.ClassBase, error) {
 	res, err := e.CallStaticClassMethod(ctx, "BaseClass", "implement", arg0)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(embind.ClassBase), nil
@@ -774,6 +974,9 @@ func (class *ClassBaseClassWrapper) Clone(ctx context.Context) (*ClassBaseClassW
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassBaseClassWrapper), nil
 }
@@ -822,12 +1025,20 @@ func (class *ClassBaseClassWrapper) StaticExtend(ctx context.Context, arg0 strin
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 func ClassBaseClassWrapperStaticExtend(e embind.Engine, ctx context.Context, arg0 string, arg1 any) (any, error) {
 	res, err := e.CallStaticClassMethod(ctx, "BaseClassWrapper", "extend", arg0, arg1)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(any), nil
@@ -839,12 +1050,20 @@ func (class *ClassBaseClassWrapper) StaticImplement(ctx context.Context, arg0 an
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(embind.ClassBase), nil
 }
 func ClassBaseClassWrapperStaticImplement(e embind.Engine, ctx context.Context, arg0 any) (embind.ClassBase, error) {
 	res, err := e.CallStaticClassMethod(ctx, "BaseClassWrapper", "implement", arg0)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(embind.ClassBase), nil
@@ -858,6 +1077,9 @@ func (class *ClassBigClass) Clone(ctx context.Context) (*ClassBigClass, error) {
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassBigClass), nil
 }
@@ -896,6 +1118,10 @@ func (class *ClassBigClass) GetPropertyMember(ctx context.Context) (int32, error
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 func (class *ClassBigClass) SetPropertyMember(ctx context.Context, val int32) error {
@@ -906,6 +1132,10 @@ func (class *ClassBigClass) GetPropertyOtherMember(ctx context.Context) (int32, 
 	res, err := class.GetProperty(ctx, "otherMember")
 	if err != nil {
 		return int32(0), err
+	}
+
+	if res == nil {
+		return int32(0), nil
 	}
 
 	return res.(int32), nil
@@ -920,6 +1150,10 @@ func (class *ClassBigClass) GetPropertyYetAnotherMember(ctx context.Context) (in
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 func (class *ClassBigClass) SetPropertyYetAnotherMember(ctx context.Context, val int32) error {
@@ -932,6 +1166,10 @@ func (class *ClassBigClass) GetMember(ctx context.Context) (int32, error) {
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 
@@ -939,6 +1177,10 @@ func NewClassBigClass(e embind.Engine, ctx context.Context) (*ClassBigClass, err
 	res, err := e.CallPublicSymbol(ctx, "BigClass")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassBigClass), nil
@@ -952,6 +1194,9 @@ func (class *ClassBoundClass) Clone(ctx context.Context) (*ClassBoundClass, erro
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassBoundClass), nil
 }
@@ -990,6 +1235,10 @@ func (class *ClassBoundClass) GetPropertyProperty(ctx context.Context) (any, err
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 func (class *ClassBoundClass) SetPropertyProperty(ctx context.Context, val any) error {
@@ -1002,6 +1251,10 @@ func (class *ClassBoundClass) Method(ctx context.Context, arg0 any) (any, error)
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 
@@ -1009,6 +1262,10 @@ func (class *ClassBoundClass) StaticClassfunction(ctx context.Context, arg0 any)
 	res, err := class.CallInstanceMethod(ctx, nil, "classfunction", arg0)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(any), nil
@@ -1019,6 +1276,10 @@ func ClassBoundClassStaticClassfunction(e embind.Engine, ctx context.Context, ar
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 
@@ -1026,6 +1287,10 @@ func NewClassBoundClass(e embind.Engine, ctx context.Context) (*ClassBoundClass,
 	res, err := e.CallPublicSymbol(ctx, "BoundClass")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassBoundClass), nil
@@ -1039,6 +1304,9 @@ func (class *ClassC) Clone(ctx context.Context) (*ClassC, error) {
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassC), nil
 }
@@ -1077,6 +1345,10 @@ func NewClassC(e embind.Engine, ctx context.Context) (*ClassC, error) {
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(*ClassC), nil
 }
 
@@ -1088,6 +1360,9 @@ func (class *ClassCharVector) Clone(ctx context.Context) (*ClassCharVector, erro
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassCharVector), nil
 }
@@ -1126,6 +1401,10 @@ func (class *ClassCharVector) Get(ctx context.Context, arg0 uint32) (any, error)
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 
@@ -1145,6 +1424,10 @@ func (class *ClassCharVector) Set(ctx context.Context, arg0 uint32, arg1 int8) (
 		return bool(false), err
 	}
 
+	if res == nil {
+		return bool(false), nil
+	}
+
 	return res.(bool), nil
 }
 
@@ -1154,6 +1437,10 @@ func (class *ClassCharVector) Size(ctx context.Context) (uint32, error) {
 		return uint32(0), err
 	}
 
+	if res == nil {
+		return uint32(0), nil
+	}
+
 	return res.(uint32), nil
 }
 
@@ -1161,6 +1448,10 @@ func NewClassCharVector(e embind.Engine, ctx context.Context) (*ClassCharVector,
 	res, err := e.CallPublicSymbol(ctx, "CharVector")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassCharVector), nil
@@ -1174,6 +1465,9 @@ func (class *ClassConstAndNonConst) Clone(ctx context.Context) (*ClassConstAndNo
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassConstAndNonConst), nil
 }
@@ -1212,6 +1506,10 @@ func (class *ClassConstAndNonConst) Method(ctx context.Context) (int32, error) {
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 
@@ -1223,6 +1521,9 @@ func (class *ClassConstructFromFunctionObject) Clone(ctx context.Context) (*Clas
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassConstructFromFunctionObject), nil
 }
@@ -1261,6 +1562,10 @@ func (class *ClassConstructFromFunctionObject) GetA(ctx context.Context) (int32,
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 
@@ -1270,6 +1575,10 @@ func (class *ClassConstructFromFunctionObject) GetVal(ctx context.Context) (any,
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 
@@ -1277,6 +1586,10 @@ func NewClassConstructFromFunctionObject(e embind.Engine, ctx context.Context, a
 	res, err := e.CallPublicSymbol(ctx, "ConstructFromFunctionObject", arg0, arg1)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassConstructFromFunctionObject), nil
@@ -1290,6 +1603,9 @@ func (class *ClassConstructFromStdFunction) Clone(ctx context.Context) (*ClassCo
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassConstructFromStdFunction), nil
 }
@@ -1328,6 +1644,10 @@ func (class *ClassConstructFromStdFunction) GetA(ctx context.Context) (int32, er
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 
@@ -1337,6 +1657,10 @@ func (class *ClassConstructFromStdFunction) GetVal(ctx context.Context) (any, er
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 
@@ -1344,6 +1668,10 @@ func NewClassConstructFromStdFunction(e embind.Engine, ctx context.Context, arg0
 	res, err := e.CallPublicSymbol(ctx, "ConstructFromStdFunction", arg0, arg1)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassConstructFromStdFunction), nil
@@ -1357,6 +1685,9 @@ func (class *ClassContainsTemplatedMemberClass) Clone(ctx context.Context) (*Cla
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassContainsTemplatedMemberClass), nil
 }
@@ -1395,6 +1726,10 @@ func (class *ClassContainsTemplatedMemberClass) GetTestTemplate(ctx context.Cont
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(embind.ClassBase), nil
 }
 
@@ -1402,6 +1737,10 @@ func NewClassContainsTemplatedMemberClass(e embind.Engine, ctx context.Context) 
 	res, err := e.CallPublicSymbol(ctx, "ContainsTemplatedMemberClass")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassContainsTemplatedMemberClass), nil
@@ -1415,6 +1754,9 @@ func (class *ClassCustomStruct) Clone(ctx context.Context) (*ClassCustomStruct, 
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassCustomStruct), nil
 }
@@ -1453,6 +1795,10 @@ func (class *ClassCustomStruct) GetPropertyField(ctx context.Context) (int32, er
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 func (class *ClassCustomStruct) SetPropertyField(ctx context.Context, val int32) error {
@@ -1465,6 +1811,10 @@ func (class *ClassCustomStruct) GetField(ctx context.Context) (int32, error) {
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 
@@ -1472,6 +1822,10 @@ func NewClassCustomStruct(e embind.Engine, ctx context.Context) (*ClassCustomStr
 	res, err := e.CallPublicSymbol(ctx, "CustomStruct")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassCustomStruct), nil
@@ -1485,6 +1839,9 @@ func (class *ClassDerived) Clone(ctx context.Context) (*ClassDerived, error) {
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassDerived), nil
 }
@@ -1523,6 +1880,10 @@ func (class *ClassDerived) GetPropertyBaseMember(ctx context.Context) (int32, er
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 func (class *ClassDerived) SetPropertyBaseMember(ctx context.Context, val int32) error {
@@ -1533,6 +1894,10 @@ func (class *ClassDerived) GetPropertyMember(ctx context.Context) (int32, error)
 	res, err := class.GetProperty(ctx, "member")
 	if err != nil {
 		return int32(0), err
+	}
+
+	if res == nil {
+		return int32(0), nil
 	}
 
 	return res.(int32), nil
@@ -1547,6 +1912,10 @@ func (class *ClassDerived) GetBaseMember(ctx context.Context) (int32, error) {
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 
@@ -1554,6 +1923,10 @@ func (class *ClassDerived) GetClassName(ctx context.Context) (string, error) {
 	res, err := class.CallMethod(ctx, "getClassName")
 	if err != nil {
 		return "", err
+	}
+
+	if res == nil {
+		return "", nil
 	}
 
 	return res.(string), nil
@@ -1565,6 +1938,10 @@ func (class *ClassDerived) GetClassNameFromBase(ctx context.Context) (string, er
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -1574,6 +1951,10 @@ func (class *ClassDerived) GetClassNameNotAvailableInDerivedClasses(ctx context.
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -1581,6 +1962,10 @@ func (class *ClassDerived) GetMember(ctx context.Context) (int32, error) {
 	res, err := class.CallMethod(ctx, "getMember")
 	if err != nil {
 		return int32(0), err
+	}
+
+	if res == nil {
+		return int32(0), nil
 	}
 
 	return res.(int32), nil
@@ -1602,12 +1987,20 @@ func (class *ClassDerived) StaticClassFunction(ctx context.Context) (string, err
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 func ClassDerivedStaticClassFunction(e embind.Engine, ctx context.Context) (string, error) {
 	res, err := e.CallStaticClassMethod(ctx, "Derived", "classFunction")
 	if err != nil {
 		return "", err
+	}
+
+	if res == nil {
+		return "", nil
 	}
 
 	return res.(string), nil
@@ -1617,6 +2010,10 @@ func NewClassDerived(e embind.Engine, ctx context.Context) (*ClassDerived, error
 	res, err := e.CallPublicSymbol(ctx, "Derived")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassDerived), nil
@@ -1630,6 +2027,9 @@ func (class *ClassDerivedClass) Clone(ctx context.Context) (*ClassDerivedClass, 
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassDerivedClass), nil
 }
@@ -1673,12 +2073,20 @@ func (class *ClassDerivedClass) StaticExtend(ctx context.Context, arg0 string, a
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 func ClassDerivedClassStaticExtend(e embind.Engine, ctx context.Context, arg0 string, arg1 any) (any, error) {
 	res, err := e.CallStaticClassMethod(ctx, "DerivedClass", "extend", arg0, arg1)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(any), nil
@@ -1690,12 +2098,20 @@ func (class *ClassDerivedClass) StaticImplement(ctx context.Context, arg0 any) (
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(embind.ClassBase), nil
 }
 func ClassDerivedClassStaticImplement(e embind.Engine, ctx context.Context, arg0 any) (embind.ClassBase, error) {
 	res, err := e.CallStaticClassMethod(ctx, "DerivedClass", "implement", arg0)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(embind.ClassBase), nil
@@ -1709,6 +2125,9 @@ func (class *ClassDerivedHolder) Clone(ctx context.Context) (*ClassDerivedHolder
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassDerivedHolder), nil
 }
@@ -1752,6 +2171,10 @@ func (class *ClassDerivedHolder) GetDerived(ctx context.Context) (embind.ClassBa
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(embind.ClassBase), nil
 }
 
@@ -1759,6 +2182,10 @@ func (class *ClassDerivedHolder) GetDerivedClassName(ctx context.Context) (strin
 	res, err := class.CallMethod(ctx, "getDerivedClassName")
 	if err != nil {
 		return "", err
+	}
+
+	if res == nil {
+		return "", nil
 	}
 
 	return res.(string), nil
@@ -1775,6 +2202,10 @@ func NewClassDerivedHolder(e embind.Engine, ctx context.Context) (*ClassDerivedH
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(*ClassDerivedHolder), nil
 }
 
@@ -1786,6 +2217,9 @@ func (class *ClassDerivedThrice) Clone(ctx context.Context) (*ClassDerivedThrice
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassDerivedThrice), nil
 }
@@ -1824,6 +2258,10 @@ func (class *ClassDerivedThrice) GetPropertyBaseMember(ctx context.Context) (int
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 func (class *ClassDerivedThrice) SetPropertyBaseMember(ctx context.Context, val int32) error {
@@ -1834,6 +2272,10 @@ func (class *ClassDerivedThrice) GetPropertyMember(ctx context.Context) (int32, 
 	res, err := class.GetProperty(ctx, "member")
 	if err != nil {
 		return int32(0), err
+	}
+
+	if res == nil {
+		return int32(0), nil
 	}
 
 	return res.(int32), nil
@@ -1848,6 +2290,10 @@ func (class *ClassDerivedThrice) GetBaseMember(ctx context.Context) (int32, erro
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 
@@ -1855,6 +2301,10 @@ func (class *ClassDerivedThrice) GetClassName(ctx context.Context) (string, erro
 	res, err := class.CallMethod(ctx, "getClassName")
 	if err != nil {
 		return "", err
+	}
+
+	if res == nil {
+		return "", nil
 	}
 
 	return res.(string), nil
@@ -1866,6 +2316,10 @@ func (class *ClassDerivedThrice) GetClassNameFromBase(ctx context.Context) (stri
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -1875,6 +2329,10 @@ func (class *ClassDerivedThrice) GetClassNameNotAvailableInDerivedClasses(ctx co
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -1882,6 +2340,10 @@ func (class *ClassDerivedThrice) GetMember(ctx context.Context) (int32, error) {
 	res, err := class.CallMethod(ctx, "getMember")
 	if err != nil {
 		return int32(0), err
+	}
+
+	if res == nil {
+		return int32(0), nil
 	}
 
 	return res.(int32), nil
@@ -1903,12 +2365,20 @@ func (class *ClassDerivedThrice) StaticClassFunction(ctx context.Context) (strin
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 func ClassDerivedThriceStaticClassFunction(e embind.Engine, ctx context.Context) (string, error) {
 	res, err := e.CallStaticClassMethod(ctx, "DerivedThrice", "classFunction")
 	if err != nil {
 		return "", err
+	}
+
+	if res == nil {
+		return "", nil
 	}
 
 	return res.(string), nil
@@ -1918,6 +2388,10 @@ func NewClassDerivedThrice(e embind.Engine, ctx context.Context) (*ClassDerivedT
 	res, err := e.CallPublicSymbol(ctx, "DerivedThrice")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassDerivedThrice), nil
@@ -1931,6 +2405,9 @@ func (class *ClassDerivedTwice) Clone(ctx context.Context) (*ClassDerivedTwice, 
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassDerivedTwice), nil
 }
@@ -1969,6 +2446,10 @@ func (class *ClassDerivedTwice) GetPropertyBaseMember(ctx context.Context) (int3
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 func (class *ClassDerivedTwice) SetPropertyBaseMember(ctx context.Context, val int32) error {
@@ -1979,6 +2460,10 @@ func (class *ClassDerivedTwice) GetPropertyMember(ctx context.Context) (int32, e
 	res, err := class.GetProperty(ctx, "member")
 	if err != nil {
 		return int32(0), err
+	}
+
+	if res == nil {
+		return int32(0), nil
 	}
 
 	return res.(int32), nil
@@ -1993,6 +2478,10 @@ func (class *ClassDerivedTwice) GetBaseMember(ctx context.Context) (int32, error
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 
@@ -2000,6 +2489,10 @@ func (class *ClassDerivedTwice) GetClassName(ctx context.Context) (string, error
 	res, err := class.CallMethod(ctx, "getClassName")
 	if err != nil {
 		return "", err
+	}
+
+	if res == nil {
+		return "", nil
 	}
 
 	return res.(string), nil
@@ -2011,6 +2504,10 @@ func (class *ClassDerivedTwice) GetClassNameFromBase(ctx context.Context) (strin
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -2020,6 +2517,10 @@ func (class *ClassDerivedTwice) GetClassNameNotAvailableInDerivedClasses(ctx con
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -2027,6 +2528,10 @@ func (class *ClassDerivedTwice) GetMember(ctx context.Context) (int32, error) {
 	res, err := class.CallMethod(ctx, "getMember")
 	if err != nil {
 		return int32(0), err
+	}
+
+	if res == nil {
+		return int32(0), nil
 	}
 
 	return res.(int32), nil
@@ -2048,12 +2553,20 @@ func (class *ClassDerivedTwice) StaticClassFunction(ctx context.Context) (string
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 func ClassDerivedTwiceStaticClassFunction(e embind.Engine, ctx context.Context) (string, error) {
 	res, err := e.CallStaticClassMethod(ctx, "DerivedTwice", "classFunction")
 	if err != nil {
 		return "", err
+	}
+
+	if res == nil {
+		return "", nil
 	}
 
 	return res.(string), nil
@@ -2063,6 +2576,10 @@ func NewClassDerivedTwice(e embind.Engine, ctx context.Context) (*ClassDerivedTw
 	res, err := e.CallPublicSymbol(ctx, "DerivedTwice")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassDerivedTwice), nil
@@ -2076,6 +2593,9 @@ func (class *ClassDerivedWithMixin) Clone(ctx context.Context) (*ClassDerivedWit
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassDerivedWithMixin), nil
 }
@@ -2114,6 +2634,10 @@ func (class *ClassDerivedWithMixin) GetPropertyBaseMember(ctx context.Context) (
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 func (class *ClassDerivedWithMixin) SetPropertyBaseMember(ctx context.Context, val int32) error {
@@ -2124,6 +2648,10 @@ func (class *ClassDerivedWithMixin) GetPropertyMember(ctx context.Context) (int3
 	res, err := class.GetProperty(ctx, "member")
 	if err != nil {
 		return int32(0), err
+	}
+
+	if res == nil {
+		return int32(0), nil
 	}
 
 	return res.(int32), nil
@@ -2138,6 +2666,10 @@ func (class *ClassDerivedWithMixin) Get10(ctx context.Context) (int32, error) {
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 
@@ -2145,6 +2677,10 @@ func (class *ClassDerivedWithMixin) GetBaseMember(ctx context.Context) (int32, e
 	res, err := class.CallMethod(ctx, "getBaseMember")
 	if err != nil {
 		return int32(0), err
+	}
+
+	if res == nil {
+		return int32(0), nil
 	}
 
 	return res.(int32), nil
@@ -2156,6 +2692,10 @@ func (class *ClassDerivedWithMixin) GetClassName(ctx context.Context) (string, e
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -2163,6 +2703,10 @@ func (class *ClassDerivedWithMixin) GetClassNameFromBase(ctx context.Context) (s
 	res, err := class.CallMethod(ctx, "getClassNameFromBase")
 	if err != nil {
 		return "", err
+	}
+
+	if res == nil {
+		return "", nil
 	}
 
 	return res.(string), nil
@@ -2174,6 +2718,10 @@ func (class *ClassDerivedWithMixin) GetClassNameNotAvailableInDerivedClasses(ctx
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -2181,6 +2729,10 @@ func (class *ClassDerivedWithMixin) GetMember(ctx context.Context) (int32, error
 	res, err := class.CallMethod(ctx, "getMember")
 	if err != nil {
 		return int32(0), err
+	}
+
+	if res == nil {
+		return int32(0), nil
 	}
 
 	return res.(int32), nil
@@ -2202,12 +2754,20 @@ func (class *ClassDerivedWithMixin) StaticClassFunction(ctx context.Context) (st
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 func ClassDerivedWithMixinStaticClassFunction(e embind.Engine, ctx context.Context) (string, error) {
 	res, err := e.CallStaticClassMethod(ctx, "DerivedWithMixin", "classFunction")
 	if err != nil {
 		return "", err
+	}
+
+	if res == nil {
+		return "", nil
 	}
 
 	return res.(string), nil
@@ -2217,6 +2777,10 @@ func NewClassDerivedWithMixin(e embind.Engine, ctx context.Context) (*ClassDeriv
 	res, err := e.CallPublicSymbol(ctx, "DerivedWithMixin")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassDerivedWithMixin), nil
@@ -2230,6 +2794,9 @@ func (class *ClassDerivedWithOffset) Clone(ctx context.Context) (*ClassDerivedWi
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassDerivedWithOffset), nil
 }
@@ -2268,6 +2835,10 @@ func (class *ClassDerivedWithOffset) GetPropertyBaseMember(ctx context.Context) 
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 func (class *ClassDerivedWithOffset) SetPropertyBaseMember(ctx context.Context, val int32) error {
@@ -2278,6 +2849,10 @@ func (class *ClassDerivedWithOffset) GetPropertyMember(ctx context.Context) (int
 	res, err := class.GetProperty(ctx, "member")
 	if err != nil {
 		return int32(0), err
+	}
+
+	if res == nil {
+		return int32(0), nil
 	}
 
 	return res.(int32), nil
@@ -2292,6 +2867,10 @@ func (class *ClassDerivedWithOffset) GetBaseMember(ctx context.Context) (int32, 
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 
@@ -2299,6 +2878,10 @@ func (class *ClassDerivedWithOffset) GetClassName(ctx context.Context) (string, 
 	res, err := class.CallMethod(ctx, "getClassName")
 	if err != nil {
 		return "", err
+	}
+
+	if res == nil {
+		return "", nil
 	}
 
 	return res.(string), nil
@@ -2310,6 +2893,10 @@ func (class *ClassDerivedWithOffset) GetClassNameFromBase(ctx context.Context) (
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -2319,6 +2906,10 @@ func (class *ClassDerivedWithOffset) GetClassNameNotAvailableInDerivedClasses(ct
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -2326,6 +2917,10 @@ func (class *ClassDerivedWithOffset) GetMember(ctx context.Context) (int32, erro
 	res, err := class.CallMethod(ctx, "getMember")
 	if err != nil {
 		return int32(0), err
+	}
+
+	if res == nil {
+		return int32(0), nil
 	}
 
 	return res.(int32), nil
@@ -2347,12 +2942,20 @@ func (class *ClassDerivedWithOffset) StaticClassFunction(ctx context.Context) (s
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 func ClassDerivedWithOffsetStaticClassFunction(e embind.Engine, ctx context.Context) (string, error) {
 	res, err := e.CallStaticClassMethod(ctx, "DerivedWithOffset", "classFunction")
 	if err != nil {
 		return "", err
+	}
+
+	if res == nil {
+		return "", nil
 	}
 
 	return res.(string), nil
@@ -2362,6 +2965,10 @@ func NewClassDerivedWithOffset(e embind.Engine, ctx context.Context) (*ClassDeri
 	res, err := e.CallPublicSymbol(ctx, "DerivedWithOffset")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassDerivedWithOffset), nil
@@ -2375,6 +2982,9 @@ func (class *ClassDummyForOverloads) Clone(ctx context.Context) (*ClassDummyForO
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassDummyForOverloads), nil
 }
@@ -2413,6 +3023,10 @@ func NewClassDummyForOverloads(e embind.Engine, ctx context.Context) (*ClassDumm
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(*ClassDummyForOverloads), nil
 }
 
@@ -2424,6 +3038,9 @@ func (class *ClassDummyForPointer) Clone(ctx context.Context) (*ClassDummyForPoi
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassDummyForPointer), nil
 }
@@ -2465,6 +3082,9 @@ func (class *ClassEmValVector) Clone(ctx context.Context) (*ClassEmValVector, er
 	if err != nil {
 		return nil, err
 	}
+	if res == nil {
+		return nil, nil
+	}
 	return res.(*ClassEmValVector), nil
 }
 
@@ -2502,6 +3122,10 @@ func (class *ClassEmValVector) Get(ctx context.Context, arg0 uint32) (any, error
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 
@@ -2521,6 +3145,10 @@ func (class *ClassEmValVector) Set(ctx context.Context, arg0 uint32, arg1 any) (
 		return bool(false), err
 	}
 
+	if res == nil {
+		return bool(false), nil
+	}
+
 	return res.(bool), nil
 }
 
@@ -2530,6 +3158,10 @@ func (class *ClassEmValVector) Size(ctx context.Context) (uint32, error) {
 		return uint32(0), err
 	}
 
+	if res == nil {
+		return uint32(0), nil
+	}
+
 	return res.(uint32), nil
 }
 
@@ -2537,6 +3169,10 @@ func NewClassEmValVector(e embind.Engine, ctx context.Context) (*ClassEmValVecto
 	res, err := e.CallPublicSymbol(ctx, "EmValVector")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassEmValVector), nil
@@ -2550,6 +3186,9 @@ func (class *ClassFirstElement) Clone(ctx context.Context) (*ClassFirstElement, 
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassFirstElement), nil
 }
@@ -2591,6 +3230,9 @@ func (class *ClassFloatVector) Clone(ctx context.Context) (*ClassFloatVector, er
 	if err != nil {
 		return nil, err
 	}
+	if res == nil {
+		return nil, nil
+	}
 	return res.(*ClassFloatVector), nil
 }
 
@@ -2628,6 +3270,10 @@ func (class *ClassFloatVector) Get(ctx context.Context, arg0 uint32) (any, error
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 
@@ -2647,6 +3293,10 @@ func (class *ClassFloatVector) Set(ctx context.Context, arg0 uint32, arg1 float3
 		return bool(false), err
 	}
 
+	if res == nil {
+		return bool(false), nil
+	}
+
 	return res.(bool), nil
 }
 
@@ -2656,6 +3306,10 @@ func (class *ClassFloatVector) Size(ctx context.Context) (uint32, error) {
 		return uint32(0), err
 	}
 
+	if res == nil {
+		return uint32(0), nil
+	}
+
 	return res.(uint32), nil
 }
 
@@ -2663,6 +3317,10 @@ func NewClassFloatVector(e embind.Engine, ctx context.Context) (*ClassFloatVecto
 	res, err := e.CallPublicSymbol(ctx, "FloatVector")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassFloatVector), nil
@@ -2676,6 +3334,9 @@ func (class *ClassFoo) Clone(ctx context.Context) (*ClassFoo, error) {
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassFoo), nil
 }
@@ -2714,6 +3375,10 @@ func NewClassFoo(e embind.Engine, ctx context.Context, arg0 string) (*ClassFoo, 
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(*ClassFoo), nil
 }
 
@@ -2725,6 +3390,9 @@ func (class *ClassHasConstructorUsingUnboundArgument) Clone(ctx context.Context)
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassHasConstructorUsingUnboundArgument), nil
 }
@@ -2763,6 +3431,10 @@ func NewClassHasConstructorUsingUnboundArgument(e embind.Engine, ctx context.Con
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(*ClassHasConstructorUsingUnboundArgument), nil
 }
 
@@ -2774,6 +3446,9 @@ func (class *ClassHasExternalConstructor) Clone(ctx context.Context) (*ClassHasE
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassHasExternalConstructor), nil
 }
@@ -2812,6 +3487,10 @@ func (class *ClassHasExternalConstructor) GetString(ctx context.Context) (string
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -2819,6 +3498,10 @@ func NewClassHasExternalConstructor(e embind.Engine, ctx context.Context, arg0 s
 	res, err := e.CallPublicSymbol(ctx, "HasExternalConstructor", arg0)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassHasExternalConstructor), nil
@@ -2832,6 +3515,9 @@ func (class *ClassHasReadOnlyProperty) Clone(ctx context.Context) (*ClassHasRead
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassHasReadOnlyProperty), nil
 }
@@ -2870,6 +3556,10 @@ func (class *ClassHasReadOnlyProperty) GetPropertyI(ctx context.Context) (int32,
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 
@@ -2877,6 +3567,10 @@ func NewClassHasReadOnlyProperty(e embind.Engine, ctx context.Context, arg0 int3
 	res, err := e.CallPublicSymbol(ctx, "HasReadOnlyProperty", arg0)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassHasReadOnlyProperty), nil
@@ -2890,6 +3584,9 @@ func (class *ClassHasStaticMember) Clone(ctx context.Context) (*ClassHasStaticMe
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassHasStaticMember), nil
 }
@@ -2928,12 +3625,20 @@ func (class *ClassHasStaticMember) GetStaticPropertyC(ctx context.Context) (int3
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 func ClassHasStaticMemberGetStaticPropertyC(e embind.Engine, ctx context.Context) (int32, error) {
 	res, err := e.GetStaticClassProperty(ctx, "HasStaticMember", "c")
 	if err != nil {
 		return int32(0), err
+	}
+
+	if res == nil {
+		return int32(0), nil
 	}
 
 	return res.(int32), nil
@@ -2945,12 +3650,20 @@ func (class *ClassHasStaticMember) GetStaticPropertyV(ctx context.Context) (int3
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 func ClassHasStaticMemberGetStaticPropertyV(e embind.Engine, ctx context.Context) (int32, error) {
 	res, err := e.GetStaticClassProperty(ctx, "HasStaticMember", "v")
 	if err != nil {
 		return int32(0), err
+	}
+
+	if res == nil {
+		return int32(0), nil
 	}
 
 	return res.(int32), nil
@@ -2970,6 +3683,9 @@ func (class *ClassHasTwoBases) Clone(ctx context.Context) (*ClassHasTwoBases, er
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassHasTwoBases), nil
 }
@@ -3008,6 +3724,10 @@ func (class *ClassHasTwoBases) GetPropertyField(ctx context.Context) (string, er
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 func (class *ClassHasTwoBases) SetPropertyField(ctx context.Context, val string) error {
@@ -3020,6 +3740,10 @@ func (class *ClassHasTwoBases) GetField(ctx context.Context) (string, error) {
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -3027,6 +3751,10 @@ func NewClassHasTwoBases(e embind.Engine, ctx context.Context) (*ClassHasTwoBase
 	res, err := e.CallPublicSymbol(ctx, "HasTwoBases")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassHasTwoBases), nil
@@ -3040,6 +3768,9 @@ func (class *ClassHeldAbstractClass) Clone(ctx context.Context) (*ClassHeldAbstr
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassHeldAbstractClass), nil
 }
@@ -3078,6 +3809,10 @@ func (class *ClassHeldAbstractClass) GetClassName(ctx context.Context) (string, 
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -3092,12 +3827,20 @@ func (class *ClassHeldAbstractClass) StaticExtend(ctx context.Context, arg0 stri
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 func ClassHeldAbstractClassStaticExtend(e embind.Engine, ctx context.Context, arg0 string, arg1 any) (any, error) {
 	res, err := e.CallStaticClassMethod(ctx, "HeldAbstractClass", "extend", arg0, arg1)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(any), nil
@@ -3109,12 +3852,20 @@ func (class *ClassHeldAbstractClass) StaticImplement(ctx context.Context, arg0 a
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(embind.ClassBase), nil
 }
 func ClassHeldAbstractClassStaticImplement(e embind.Engine, ctx context.Context, arg0 any) (embind.ClassBase, error) {
 	res, err := e.CallStaticClassMethod(ctx, "HeldAbstractClass", "implement", arg0)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(embind.ClassBase), nil
@@ -3128,6 +3879,9 @@ func (class *ClassHeldAbstractClassWrapper) Clone(ctx context.Context) (*ClassHe
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassHeldAbstractClassWrapper), nil
 }
@@ -3166,6 +3920,10 @@ func (class *ClassHeldAbstractClassWrapper) GetClassName(ctx context.Context) (s
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -3185,12 +3943,20 @@ func (class *ClassHeldAbstractClassWrapper) StaticExtend(ctx context.Context, ar
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 func ClassHeldAbstractClassWrapperStaticExtend(e embind.Engine, ctx context.Context, arg0 string, arg1 any) (any, error) {
 	res, err := e.CallStaticClassMethod(ctx, "HeldAbstractClassWrapper", "extend", arg0, arg1)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(any), nil
@@ -3202,12 +3968,20 @@ func (class *ClassHeldAbstractClassWrapper) StaticImplement(ctx context.Context,
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(embind.ClassBase), nil
 }
 func ClassHeldAbstractClassWrapperStaticImplement(e embind.Engine, ctx context.Context, arg0 any) (embind.ClassBase, error) {
 	res, err := e.CallStaticClassMethod(ctx, "HeldAbstractClassWrapper", "implement", arg0)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(embind.ClassBase), nil
@@ -3221,6 +3995,9 @@ func (class *ClassHeldByCustomSmartPtr) Clone(ctx context.Context) (*ClassHeldBy
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassHeldByCustomSmartPtr), nil
 }
@@ -3259,6 +4036,10 @@ func (class *ClassHeldByCustomSmartPtr) GetPropertyI(ctx context.Context) (int32
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 func (class *ClassHeldByCustomSmartPtr) SetPropertyI(ctx context.Context, val int32) error {
@@ -3269,6 +4050,10 @@ func (class *ClassHeldByCustomSmartPtr) GetPropertyS(ctx context.Context) (strin
 	res, err := class.GetProperty(ctx, "s")
 	if err != nil {
 		return "", err
+	}
+
+	if res == nil {
+		return "", nil
 	}
 
 	return res.(string), nil
@@ -3283,12 +4068,20 @@ func (class *ClassHeldByCustomSmartPtr) StaticCreateSharedPtr(ctx context.Contex
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(embind.ClassBase), nil
 }
 func ClassHeldByCustomSmartPtrStaticCreateSharedPtr(e embind.Engine, ctx context.Context, arg0 int32, arg1 string) (embind.ClassBase, error) {
 	res, err := e.CallStaticClassMethod(ctx, "HeldByCustomSmartPtr", "createSharedPtr", arg0, arg1)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(embind.ClassBase), nil
@@ -3298,6 +4091,10 @@ func NewClassHeldByCustomSmartPtr(e embind.Engine, ctx context.Context, arg0 int
 	res, err := e.CallPublicSymbol(ctx, "HeldByCustomSmartPtr", arg0, arg1)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassHeldByCustomSmartPtr), nil
@@ -3311,6 +4108,9 @@ func (class *ClassHeldBySmartPtr) Clone(ctx context.Context) (*ClassHeldBySmartP
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassHeldBySmartPtr), nil
 }
@@ -3349,6 +4149,10 @@ func (class *ClassHeldBySmartPtr) GetPropertyI(ctx context.Context) (int32, erro
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 func (class *ClassHeldBySmartPtr) SetPropertyI(ctx context.Context, val int32) error {
@@ -3359,6 +4163,10 @@ func (class *ClassHeldBySmartPtr) GetPropertyS(ctx context.Context) (string, err
 	res, err := class.GetProperty(ctx, "s")
 	if err != nil {
 		return "", err
+	}
+
+	if res == nil {
+		return "", nil
 	}
 
 	return res.(string), nil
@@ -3373,6 +4181,10 @@ func (class *ClassHeldBySmartPtr) ReturnThis(ctx context.Context) (embind.ClassB
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(embind.ClassBase), nil
 }
 
@@ -3380,6 +4192,10 @@ func (class *ClassHeldBySmartPtr) StaticNewCustomPtr(ctx context.Context, arg0 i
 	res, err := class.CallInstanceMethod(ctx, nil, "newCustomPtr", arg0, arg1)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(embind.ClassBase), nil
@@ -3390,6 +4206,10 @@ func ClassHeldBySmartPtrStaticNewCustomPtr(e embind.Engine, ctx context.Context,
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(embind.ClassBase), nil
 }
 
@@ -3397,6 +4217,10 @@ func NewClassHeldBySmartPtr(e embind.Engine, ctx context.Context, arg0 int32, ar
 	res, err := e.CallPublicSymbol(ctx, "HeldBySmartPtr", arg0, arg1)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassHeldBySmartPtr), nil
@@ -3410,6 +4234,9 @@ func (class *ClassIntTemplateClass) Clone(ctx context.Context) (*ClassIntTemplat
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassIntTemplateClass), nil
 }
@@ -3448,6 +4275,10 @@ func (class *ClassIntTemplateClass) GetMember(ctx context.Context, arg0 int32) (
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 
@@ -3455,6 +4286,10 @@ func NewClassIntTemplateClass(e embind.Engine, ctx context.Context, arg0 int32, 
 	res, err := e.CallPublicSymbol(ctx, "IntTemplateClass", arg0, arg1, arg2)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassIntTemplateClass), nil
@@ -3468,6 +4303,9 @@ func (class *ClassIntegerVector) Clone(ctx context.Context) (*ClassIntegerVector
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassIntegerVector), nil
 }
@@ -3506,6 +4344,10 @@ func (class *ClassIntegerVector) Get(ctx context.Context, arg0 uint32) (any, err
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 
@@ -3525,6 +4367,10 @@ func (class *ClassIntegerVector) Set(ctx context.Context, arg0 uint32, arg1 int3
 		return bool(false), err
 	}
 
+	if res == nil {
+		return bool(false), nil
+	}
+
 	return res.(bool), nil
 }
 
@@ -3534,6 +4380,10 @@ func (class *ClassIntegerVector) Size(ctx context.Context) (uint32, error) {
 		return uint32(0), err
 	}
 
+	if res == nil {
+		return uint32(0), nil
+	}
+
 	return res.(uint32), nil
 }
 
@@ -3541,6 +4391,10 @@ func NewClassIntegerVector(e embind.Engine, ctx context.Context) (*ClassIntegerV
 	res, err := e.CallPublicSymbol(ctx, "IntegerVector")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassIntegerVector), nil
@@ -3554,6 +4408,9 @@ func (class *ClassIntegerVectorVector) Clone(ctx context.Context) (*ClassInteger
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassIntegerVectorVector), nil
 }
@@ -3592,6 +4449,10 @@ func (class *ClassIntegerVectorVector) Get(ctx context.Context, arg0 uint32) (an
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 
@@ -3611,6 +4472,10 @@ func (class *ClassIntegerVectorVector) Set(ctx context.Context, arg0 uint32, arg
 		return bool(false), err
 	}
 
+	if res == nil {
+		return bool(false), nil
+	}
+
 	return res.(bool), nil
 }
 
@@ -3620,6 +4485,10 @@ func (class *ClassIntegerVectorVector) Size(ctx context.Context) (uint32, error)
 		return uint32(0), err
 	}
 
+	if res == nil {
+		return uint32(0), nil
+	}
+
 	return res.(uint32), nil
 }
 
@@ -3627,6 +4496,10 @@ func NewClassIntegerVectorVector(e embind.Engine, ctx context.Context) (*ClassIn
 	res, err := e.CallPublicSymbol(ctx, "IntegerVectorVector")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassIntegerVectorVector), nil
@@ -3640,6 +4513,9 @@ func (class *ClassInterface) Clone(ctx context.Context) (*ClassInterface, error)
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassInterface), nil
 }
@@ -3683,12 +4559,20 @@ func (class *ClassInterface) StaticExtend(ctx context.Context, arg0 string, arg1
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 func ClassInterfaceStaticExtend(e embind.Engine, ctx context.Context, arg0 string, arg1 any) (any, error) {
 	res, err := e.CallStaticClassMethod(ctx, "Interface", "extend", arg0, arg1)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(any), nil
@@ -3700,12 +4584,20 @@ func (class *ClassInterface) StaticImplement(ctx context.Context, arg0 any) (emb
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(embind.ClassBase), nil
 }
 func ClassInterfaceStaticImplement(e embind.Engine, ctx context.Context, arg0 any) (embind.ClassBase, error) {
 	res, err := e.CallStaticClassMethod(ctx, "Interface", "implement", arg0)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(embind.ClassBase), nil
@@ -3719,6 +4611,9 @@ func (class *ClassInterfaceWrapper) Clone(ctx context.Context) (*ClassInterfaceW
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassInterfaceWrapper), nil
 }
@@ -3767,12 +4662,20 @@ func (class *ClassInterfaceWrapper) StaticExtend(ctx context.Context, arg0 strin
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 func ClassInterfaceWrapperStaticExtend(e embind.Engine, ctx context.Context, arg0 string, arg1 any) (any, error) {
 	res, err := e.CallStaticClassMethod(ctx, "InterfaceWrapper", "extend", arg0, arg1)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(any), nil
@@ -3784,12 +4687,20 @@ func (class *ClassInterfaceWrapper) StaticImplement(ctx context.Context, arg0 an
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(embind.ClassBase), nil
 }
 func ClassInterfaceWrapperStaticImplement(e embind.Engine, ctx context.Context, arg0 any) (embind.ClassBase, error) {
 	res, err := e.CallStaticClassMethod(ctx, "InterfaceWrapper", "implement", arg0)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(embind.ClassBase), nil
@@ -3803,6 +4714,9 @@ func (class *ClassIntrusiveClass) Clone(ctx context.Context) (*ClassIntrusiveCla
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassIntrusiveClass), nil
 }
@@ -3841,12 +4755,20 @@ func (class *ClassIntrusiveClass) StaticExtend(ctx context.Context, arg0 string,
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 func ClassIntrusiveClassStaticExtend(e embind.Engine, ctx context.Context, arg0 string, arg1 any) (any, error) {
 	res, err := e.CallStaticClassMethod(ctx, "IntrusiveClass", "extend", arg0, arg1)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(any), nil
@@ -3858,12 +4780,20 @@ func (class *ClassIntrusiveClass) StaticImplement(ctx context.Context, arg0 any)
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(embind.ClassBase), nil
 }
 func ClassIntrusiveClassStaticImplement(e embind.Engine, ctx context.Context, arg0 any) (embind.ClassBase, error) {
 	res, err := e.CallStaticClassMethod(ctx, "IntrusiveClass", "implement", arg0)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(embind.ClassBase), nil
@@ -3873,6 +4803,10 @@ func NewClassIntrusiveClass(e embind.Engine, ctx context.Context) (*ClassIntrusi
 	res, err := e.CallPublicSymbol(ctx, "IntrusiveClass")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassIntrusiveClass), nil
@@ -3886,6 +4820,9 @@ func (class *ClassIntrusiveClassHolder) Clone(ctx context.Context) (*ClassIntrus
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassIntrusiveClassHolder), nil
 }
@@ -3924,6 +4861,10 @@ func (class *ClassIntrusiveClassHolder) Get(ctx context.Context) (embind.ClassBa
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(embind.ClassBase), nil
 }
 
@@ -3938,6 +4879,10 @@ func NewClassIntrusiveClassHolder(e embind.Engine, ctx context.Context) (*ClassI
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(*ClassIntrusiveClassHolder), nil
 }
 
@@ -3949,6 +4894,9 @@ func (class *ClassIntrusiveClassWrapper) Clone(ctx context.Context) (*ClassIntru
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassIntrusiveClassWrapper), nil
 }
@@ -3992,12 +4940,20 @@ func (class *ClassIntrusiveClassWrapper) StaticExtend(ctx context.Context, arg0 
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 func ClassIntrusiveClassWrapperStaticExtend(e embind.Engine, ctx context.Context, arg0 string, arg1 any) (any, error) {
 	res, err := e.CallStaticClassMethod(ctx, "IntrusiveClassWrapper", "extend", arg0, arg1)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(any), nil
@@ -4009,12 +4965,20 @@ func (class *ClassIntrusiveClassWrapper) StaticImplement(ctx context.Context, ar
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(embind.ClassBase), nil
 }
 func ClassIntrusiveClassWrapperStaticImplement(e embind.Engine, ctx context.Context, arg0 any) (embind.ClassBase, error) {
 	res, err := e.CallStaticClassMethod(ctx, "IntrusiveClassWrapper", "implement", arg0)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(embind.ClassBase), nil
@@ -4028,6 +4992,9 @@ func (class *ClassMap_int__string_) Clone(ctx context.Context) (*ClassMap_int__s
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassMap_int__string_), nil
 }
@@ -4066,6 +5033,10 @@ func (class *ClassMap_int__string_) Get(ctx context.Context, arg0 int32) (any, e
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 
@@ -4073,6 +5044,10 @@ func (class *ClassMap_int__string_) Keys(ctx context.Context) (embind.ClassBase,
 	res, err := class.CallMethod(ctx, "keys")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(embind.ClassBase), nil
@@ -4089,6 +5064,10 @@ func (class *ClassMap_int__string_) Size(ctx context.Context) (uint32, error) {
 		return uint32(0), err
 	}
 
+	if res == nil {
+		return uint32(0), nil
+	}
+
 	return res.(uint32), nil
 }
 
@@ -4096,6 +5075,10 @@ func NewClassMap_int__string_(e embind.Engine, ctx context.Context) (*ClassMap_i
 	res, err := e.CallPublicSymbol(ctx, "map_int__string_")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassMap_int__string_), nil
@@ -4109,6 +5092,9 @@ func (class *ClassMultipleAccessors) Clone(ctx context.Context) (*ClassMultipleA
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassMultipleAccessors), nil
 }
@@ -4147,6 +5133,10 @@ func (class *ClassMultipleAccessors) GetConst(ctx context.Context, arg0 int32) (
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 
@@ -4158,6 +5148,9 @@ func (class *ClassMultipleCtors) Clone(ctx context.Context) (*ClassMultipleCtors
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassMultipleCtors), nil
 }
@@ -4196,6 +5189,10 @@ func (class *ClassMultipleCtors) WhichCtorCalled(ctx context.Context) (int32, er
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 
@@ -4203,6 +5200,10 @@ func NewClassMultipleCtors1(e embind.Engine, ctx context.Context, arg0 int32) (*
 	res, err := e.CallPublicSymbol(ctx, "MultipleCtors", arg0)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassMultipleCtors), nil
@@ -4214,6 +5215,10 @@ func NewClassMultipleCtors2(e embind.Engine, ctx context.Context, arg0 int32, ar
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(*ClassMultipleCtors), nil
 }
 
@@ -4221,6 +5226,10 @@ func NewClassMultipleCtors3(e embind.Engine, ctx context.Context, arg0 int32, ar
 	res, err := e.CallPublicSymbol(ctx, "MultipleCtors", arg0, arg1, arg2)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassMultipleCtors), nil
@@ -4234,6 +5243,9 @@ func (class *ClassMultipleOverloads) Clone(ctx context.Context) (*ClassMultipleO
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassMultipleOverloads), nil
 }
@@ -4272,6 +5284,10 @@ func (class *ClassMultipleOverloads) Func1(ctx context.Context, arg0 int32) (int
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 
@@ -4279,6 +5295,10 @@ func (class *ClassMultipleOverloads) Func2(ctx context.Context, arg0 int32, arg1
 	res, err := class.CallMethod(ctx, "Func", arg0, arg1)
 	if err != nil {
 		return int32(0), err
+	}
+
+	if res == nil {
+		return int32(0), nil
 	}
 
 	return res.(int32), nil
@@ -4290,6 +5310,10 @@ func (class *ClassMultipleOverloads) WhichFuncCalled(ctx context.Context) (int32
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 
@@ -4299,12 +5323,20 @@ func (class *ClassMultipleOverloads) StaticStaticFunc1(ctx context.Context, arg0
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 func ClassMultipleOverloadsStaticStaticFunc1(e embind.Engine, ctx context.Context, arg0 int32) (int32, error) {
 	res, err := e.CallStaticClassMethod(ctx, "MultipleOverloads", "StaticFunc", arg0)
 	if err != nil {
 		return int32(0), err
+	}
+
+	if res == nil {
+		return int32(0), nil
 	}
 
 	return res.(int32), nil
@@ -4316,12 +5348,20 @@ func (class *ClassMultipleOverloads) StaticStaticFunc2(ctx context.Context, arg0
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 func ClassMultipleOverloadsStaticStaticFunc2(e embind.Engine, ctx context.Context, arg0 int32, arg1 int32) (int32, error) {
 	res, err := e.CallStaticClassMethod(ctx, "MultipleOverloads", "StaticFunc", arg0, arg1)
 	if err != nil {
 		return int32(0), err
+	}
+
+	if res == nil {
+		return int32(0), nil
 	}
 
 	return res.(int32), nil
@@ -4333,12 +5373,20 @@ func (class *ClassMultipleOverloads) StaticWhichStaticFuncCalled(ctx context.Con
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 func ClassMultipleOverloadsStaticWhichStaticFuncCalled(e embind.Engine, ctx context.Context) (int32, error) {
 	res, err := e.CallStaticClassMethod(ctx, "MultipleOverloads", "WhichStaticFuncCalled")
 	if err != nil {
 		return int32(0), err
+	}
+
+	if res == nil {
+		return int32(0), nil
 	}
 
 	return res.(int32), nil
@@ -4348,6 +5396,10 @@ func NewClassMultipleOverloads(e embind.Engine, ctx context.Context) (*ClassMult
 	res, err := e.CallPublicSymbol(ctx, "MultipleOverloads")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassMultipleOverloads), nil
@@ -4361,6 +5413,9 @@ func (class *ClassMultipleOverloadsDependingOnDummy) Clone(ctx context.Context) 
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassMultipleOverloadsDependingOnDummy), nil
 }
@@ -4399,6 +5454,10 @@ func (class *ClassMultipleOverloadsDependingOnDummy) Dummy0(ctx context.Context)
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(embind.ClassBase), nil
 }
 
@@ -4406,6 +5465,10 @@ func (class *ClassMultipleOverloadsDependingOnDummy) Dummy1(ctx context.Context,
 	res, err := class.CallMethod(ctx, "dummy", arg0)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(embind.ClassBase), nil
@@ -4417,12 +5480,20 @@ func (class *ClassMultipleOverloadsDependingOnDummy) StaticStaticDummy0(ctx cont
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(embind.ClassBase), nil
 }
 func ClassMultipleOverloadsDependingOnDummyStaticStaticDummy0(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallStaticClassMethod(ctx, "MultipleOverloadsDependingOnDummy", "staticDummy")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(embind.ClassBase), nil
@@ -4434,12 +5505,20 @@ func (class *ClassMultipleOverloadsDependingOnDummy) StaticStaticDummy1(ctx cont
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(embind.ClassBase), nil
 }
 func ClassMultipleOverloadsDependingOnDummyStaticStaticDummy1(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) (embind.ClassBase, error) {
 	res, err := e.CallStaticClassMethod(ctx, "MultipleOverloadsDependingOnDummy", "staticDummy", arg0)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(embind.ClassBase), nil
@@ -4449,6 +5528,10 @@ func NewClassMultipleOverloadsDependingOnDummy(e embind.Engine, ctx context.Cont
 	res, err := e.CallPublicSymbol(ctx, "MultipleOverloadsDependingOnDummy")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassMultipleOverloadsDependingOnDummy), nil
@@ -4462,6 +5545,9 @@ func (class *ClassMultipleOverloadsDerived) Clone(ctx context.Context) (*ClassMu
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassMultipleOverloadsDerived), nil
 }
@@ -4500,6 +5586,10 @@ func (class *ClassMultipleOverloadsDerived) Func1(ctx context.Context, arg0 int3
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 
@@ -4507,6 +5597,10 @@ func (class *ClassMultipleOverloadsDerived) Func2(ctx context.Context, arg0 int3
 	res, err := class.CallMethod(ctx, "Func", arg0, arg1)
 	if err != nil {
 		return int32(0), err
+	}
+
+	if res == nil {
+		return int32(0), nil
 	}
 
 	return res.(int32), nil
@@ -4518,6 +5612,10 @@ func (class *ClassMultipleOverloadsDerived) Func3(ctx context.Context, arg0 int3
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 
@@ -4525,6 +5623,10 @@ func (class *ClassMultipleOverloadsDerived) Func4(ctx context.Context, arg0 int3
 	res, err := class.CallMethod(ctx, "Func", arg0, arg1, arg2, arg3)
 	if err != nil {
 		return int32(0), err
+	}
+
+	if res == nil {
+		return int32(0), nil
 	}
 
 	return res.(int32), nil
@@ -4536,6 +5638,10 @@ func (class *ClassMultipleOverloadsDerived) WhichFuncCalled(ctx context.Context)
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 
@@ -4545,12 +5651,20 @@ func (class *ClassMultipleOverloadsDerived) StaticStaticFunc1(ctx context.Contex
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 func ClassMultipleOverloadsDerivedStaticStaticFunc1(e embind.Engine, ctx context.Context, arg0 int32) (int32, error) {
 	res, err := e.CallStaticClassMethod(ctx, "MultipleOverloadsDerived", "StaticFunc", arg0)
 	if err != nil {
 		return int32(0), err
+	}
+
+	if res == nil {
+		return int32(0), nil
 	}
 
 	return res.(int32), nil
@@ -4562,12 +5676,20 @@ func (class *ClassMultipleOverloadsDerived) StaticStaticFunc2(ctx context.Contex
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 func ClassMultipleOverloadsDerivedStaticStaticFunc2(e embind.Engine, ctx context.Context, arg0 int32, arg1 int32) (int32, error) {
 	res, err := e.CallStaticClassMethod(ctx, "MultipleOverloadsDerived", "StaticFunc", arg0, arg1)
 	if err != nil {
 		return int32(0), err
+	}
+
+	if res == nil {
+		return int32(0), nil
 	}
 
 	return res.(int32), nil
@@ -4579,12 +5701,20 @@ func (class *ClassMultipleOverloadsDerived) StaticStaticFunc3(ctx context.Contex
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 func ClassMultipleOverloadsDerivedStaticStaticFunc3(e embind.Engine, ctx context.Context, arg0 int32, arg1 int32, arg2 int32) (int32, error) {
 	res, err := e.CallStaticClassMethod(ctx, "MultipleOverloadsDerived", "StaticFunc", arg0, arg1, arg2)
 	if err != nil {
 		return int32(0), err
+	}
+
+	if res == nil {
+		return int32(0), nil
 	}
 
 	return res.(int32), nil
@@ -4596,12 +5726,20 @@ func (class *ClassMultipleOverloadsDerived) StaticStaticFunc4(ctx context.Contex
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 func ClassMultipleOverloadsDerivedStaticStaticFunc4(e embind.Engine, ctx context.Context, arg0 int32, arg1 int32, arg2 int32, arg3 int32) (int32, error) {
 	res, err := e.CallStaticClassMethod(ctx, "MultipleOverloadsDerived", "StaticFunc", arg0, arg1, arg2, arg3)
 	if err != nil {
 		return int32(0), err
+	}
+
+	if res == nil {
+		return int32(0), nil
 	}
 
 	return res.(int32), nil
@@ -4613,12 +5751,20 @@ func (class *ClassMultipleOverloadsDerived) StaticWhichStaticFuncCalled(ctx cont
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 func ClassMultipleOverloadsDerivedStaticWhichStaticFuncCalled(e embind.Engine, ctx context.Context) (int32, error) {
 	res, err := e.CallStaticClassMethod(ctx, "MultipleOverloadsDerived", "WhichStaticFuncCalled")
 	if err != nil {
 		return int32(0), err
+	}
+
+	if res == nil {
+		return int32(0), nil
 	}
 
 	return res.(int32), nil
@@ -4628,6 +5774,10 @@ func NewClassMultipleOverloadsDerived(e embind.Engine, ctx context.Context) (*Cl
 	res, err := e.CallPublicSymbol(ctx, "MultipleOverloadsDerived")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassMultipleOverloadsDerived), nil
@@ -4641,6 +5791,9 @@ func (class *ClassMultipleSmartCtors) Clone(ctx context.Context) (*ClassMultiple
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassMultipleSmartCtors), nil
 }
@@ -4679,6 +5832,10 @@ func (class *ClassMultipleSmartCtors) WhichCtorCalled(ctx context.Context) (int3
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 
@@ -4688,6 +5845,10 @@ func NewClassMultipleSmartCtors1(e embind.Engine, ctx context.Context, arg0 int3
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(*ClassMultipleSmartCtors), nil
 }
 
@@ -4695,6 +5856,10 @@ func NewClassMultipleSmartCtors2(e embind.Engine, ctx context.Context, arg0 int3
 	res, err := e.CallPublicSymbol(ctx, "MultipleSmartCtors", arg0, arg1)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassMultipleSmartCtors), nil
@@ -4708,6 +5873,9 @@ func (class *ClassMultiplyDerived) Clone(ctx context.Context) (*ClassMultiplyDer
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassMultiplyDerived), nil
 }
@@ -4746,6 +5914,10 @@ func (class *ClassMultiplyDerived) GetPropertyBaseMember(ctx context.Context) (i
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 func (class *ClassMultiplyDerived) SetPropertyBaseMember(ctx context.Context, val int32) error {
@@ -4756,6 +5928,10 @@ func (class *ClassMultiplyDerived) GetPropertyMember(ctx context.Context) (int32
 	res, err := class.GetProperty(ctx, "member")
 	if err != nil {
 		return int32(0), err
+	}
+
+	if res == nil {
+		return int32(0), nil
 	}
 
 	return res.(int32), nil
@@ -4770,6 +5946,10 @@ func (class *ClassMultiplyDerived) GetBaseMember(ctx context.Context) (int32, er
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 
@@ -4777,6 +5957,10 @@ func (class *ClassMultiplyDerived) GetClassName(ctx context.Context) (string, er
 	res, err := class.CallMethod(ctx, "getClassName")
 	if err != nil {
 		return "", err
+	}
+
+	if res == nil {
+		return "", nil
 	}
 
 	return res.(string), nil
@@ -4788,6 +5972,10 @@ func (class *ClassMultiplyDerived) GetClassNameFromBase(ctx context.Context) (st
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -4797,6 +5985,10 @@ func (class *ClassMultiplyDerived) GetClassNameNotAvailableInDerivedClasses(ctx 
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -4804,6 +5996,10 @@ func (class *ClassMultiplyDerived) GetMember(ctx context.Context) (int32, error)
 	res, err := class.CallMethod(ctx, "getMember")
 	if err != nil {
 		return int32(0), err
+	}
+
+	if res == nil {
+		return int32(0), nil
 	}
 
 	return res.(int32), nil
@@ -4825,12 +6021,20 @@ func (class *ClassMultiplyDerived) StaticClassFunction(ctx context.Context) (str
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 func ClassMultiplyDerivedStaticClassFunction(e embind.Engine, ctx context.Context) (string, error) {
 	res, err := e.CallStaticClassMethod(ctx, "MultiplyDerived", "classFunction")
 	if err != nil {
 		return "", err
+	}
+
+	if res == nil {
+		return "", nil
 	}
 
 	return res.(string), nil
@@ -4842,12 +6046,20 @@ func (class *ClassMultiplyDerived) StaticGetInstanceCount(ctx context.Context) (
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 func ClassMultiplyDerivedStaticGetInstanceCount(e embind.Engine, ctx context.Context) (int32, error) {
 	res, err := e.CallStaticClassMethod(ctx, "MultiplyDerived", "getInstanceCount")
 	if err != nil {
 		return int32(0), err
+	}
+
+	if res == nil {
+		return int32(0), nil
 	}
 
 	return res.(int32), nil
@@ -4857,6 +6069,10 @@ func NewClassMultiplyDerived(e embind.Engine, ctx context.Context) (*ClassMultip
 	res, err := e.CallPublicSymbol(ctx, "MultiplyDerived")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassMultiplyDerived), nil
@@ -4870,6 +6086,9 @@ func (class *ClassMyClass) Clone(ctx context.Context) (*ClassMyClass, error) {
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassMyClass), nil
 }
@@ -4908,6 +6127,10 @@ func (class *ClassMyClass) GetPropertyX(ctx context.Context) (int32, error) {
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 func (class *ClassMyClass) SetPropertyX(ctx context.Context, val int32) error {
@@ -4920,6 +6143,10 @@ func (class *ClassMyClass) GetPropertyY(ctx context.Context) (string, error) {
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -4927,6 +6154,10 @@ func (class *ClassMyClass) CombineY(ctx context.Context, arg0 string) (string, e
 	res, err := class.CallMethod(ctx, "combineY", arg0)
 	if err != nil {
 		return "", err
+	}
+
+	if res == nil {
+		return "", nil
 	}
 
 	return res.(string), nil
@@ -4948,12 +6179,20 @@ func (class *ClassMyClass) StaticGetStringFromInstance(ctx context.Context, arg0
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 func ClassMyClassStaticGetStringFromInstance(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) (string, error) {
 	res, err := e.CallStaticClassMethod(ctx, "MyClass", "getStringFromInstance", arg0)
 	if err != nil {
 		return "", err
+	}
+
+	if res == nil {
+		return "", nil
 	}
 
 	return res.(string), nil
@@ -4965,6 +6204,10 @@ func NewClassMyClass1(e embind.Engine, ctx context.Context, arg0 int32) (*ClassM
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(*ClassMyClass), nil
 }
 
@@ -4972,6 +6215,10 @@ func NewClassMyClass2(e embind.Engine, ctx context.Context, arg0 int32, arg1 str
 	res, err := e.CallPublicSymbol(ctx, "MyClass", arg0, arg1)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassMyClass), nil
@@ -4985,6 +6232,9 @@ func (class *ClassNoExceptClass) Clone(ctx context.Context) (*ClassNoExceptClass
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassNoExceptClass), nil
 }
@@ -5023,6 +6273,10 @@ func (class *ClassNoExceptClass) GetPropertyX(ctx context.Context) (int32, error
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 func (class *ClassNoExceptClass) SetPropertyX(ctx context.Context, val int32) error {
@@ -5040,6 +6294,10 @@ func (class *ClassNoExceptClass) GetValue(ctx context.Context) (int32, error) {
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 
@@ -5047,6 +6305,10 @@ func (class *ClassNoExceptClass) GetValueConst(ctx context.Context) (int32, erro
 	res, err := class.CallMethod(ctx, "getValueConst")
 	if err != nil {
 		return int32(0), err
+	}
+
+	if res == nil {
+		return int32(0), nil
 	}
 
 	return res.(int32), nil
@@ -5060,6 +6322,9 @@ func (class *ClassNoncopyable) Clone(ctx context.Context) (*ClassNoncopyable, er
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassNoncopyable), nil
 }
@@ -5098,6 +6363,10 @@ func (class *ClassNoncopyable) Method(ctx context.Context) (string, error) {
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -5105,6 +6374,10 @@ func NewClassNoncopyable(e embind.Engine, ctx context.Context) (*ClassNoncopyabl
 	res, err := e.CallPublicSymbol(ctx, "Noncopyable")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassNoncopyable), nil
@@ -5118,6 +6391,9 @@ func (class *ClassParentClass) Clone(ctx context.Context) (*ClassParentClass, er
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassParentClass), nil
 }
@@ -5156,6 +6432,10 @@ func (class *ClassParentClass) GetBigClass(ctx context.Context) (embind.ClassBas
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(embind.ClassBase), nil
 }
 
@@ -5163,6 +6443,10 @@ func NewClassParentClass(e embind.Engine, ctx context.Context) (*ClassParentClas
 	res, err := e.CallPublicSymbol(ctx, "ParentClass")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassParentClass), nil
@@ -5176,6 +6460,9 @@ func (class *ClassPolyBase) Clone(ctx context.Context) (*ClassPolyBase, error) {
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassPolyBase), nil
 }
@@ -5214,6 +6501,10 @@ func (class *ClassPolyBase) GetClassName(ctx context.Context) (string, error) {
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -5223,6 +6514,10 @@ func (class *ClassPolyBase) VirtualGetClassName(ctx context.Context) (string, er
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -5230,6 +6525,10 @@ func NewClassPolyBase(e embind.Engine, ctx context.Context) (*ClassPolyBase, err
 	res, err := e.CallPublicSymbol(ctx, "PolyBase")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassPolyBase), nil
@@ -5243,6 +6542,9 @@ func (class *ClassPolyDerived) Clone(ctx context.Context) (*ClassPolyDerived, er
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassPolyDerived), nil
 }
@@ -5281,6 +6583,10 @@ func (class *ClassPolyDerived) GetClassName(ctx context.Context) (string, error)
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -5288,6 +6594,10 @@ func (class *ClassPolyDerived) VirtualGetClassName(ctx context.Context) (string,
 	res, err := class.CallMethod(ctx, "virtualGetClassName")
 	if err != nil {
 		return "", err
+	}
+
+	if res == nil {
+		return "", nil
 	}
 
 	return res.(string), nil
@@ -5299,12 +6609,20 @@ func (class *ClassPolyDerived) StaticGetPtr(ctx context.Context) (embind.ClassBa
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(embind.ClassBase), nil
 }
 func ClassPolyDerivedStaticGetPtr(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 	res, err := e.CallStaticClassMethod(ctx, "PolyDerived", "getPtr")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(embind.ClassBase), nil
@@ -5316,12 +6634,20 @@ func (class *ClassPolyDerived) StaticGetPtrClassName(ctx context.Context) (strin
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 func ClassPolyDerivedStaticGetPtrClassName(e embind.Engine, ctx context.Context) (string, error) {
 	res, err := e.CallStaticClassMethod(ctx, "PolyDerived", "getPtrClassName")
 	if err != nil {
 		return "", err
+	}
+
+	if res == nil {
+		return "", nil
 	}
 
 	return res.(string), nil
@@ -5351,6 +6677,10 @@ func NewClassPolyDerived(e embind.Engine, ctx context.Context) (*ClassPolyDerive
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(*ClassPolyDerived), nil
 }
 
@@ -5362,6 +6692,9 @@ func (class *ClassPolyDerivedThrice) Clone(ctx context.Context) (*ClassPolyDeriv
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassPolyDerivedThrice), nil
 }
@@ -5400,6 +6733,10 @@ func (class *ClassPolyDerivedThrice) GetClassName(ctx context.Context) (string, 
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -5407,6 +6744,10 @@ func (class *ClassPolyDerivedThrice) VirtualGetClassName(ctx context.Context) (s
 	res, err := class.CallMethod(ctx, "virtualGetClassName")
 	if err != nil {
 		return "", err
+	}
+
+	if res == nil {
+		return "", nil
 	}
 
 	return res.(string), nil
@@ -5418,12 +6759,20 @@ func (class *ClassPolyDerivedThrice) StaticGetPtrClassName(ctx context.Context) 
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 func ClassPolyDerivedThriceStaticGetPtrClassName(e embind.Engine, ctx context.Context) (string, error) {
 	res, err := e.CallStaticClassMethod(ctx, "PolyDerivedThrice", "getPtrClassName")
 	if err != nil {
 		return "", err
+	}
+
+	if res == nil {
+		return "", nil
 	}
 
 	return res.(string), nil
@@ -5453,6 +6802,10 @@ func NewClassPolyDerivedThrice(e embind.Engine, ctx context.Context) (*ClassPoly
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(*ClassPolyDerivedThrice), nil
 }
 
@@ -5464,6 +6817,9 @@ func (class *ClassPolyDiamondBase) Clone(ctx context.Context) (*ClassPolyDiamond
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassPolyDiamondBase), nil
 }
@@ -5502,6 +6858,10 @@ func (class *ClassPolyDiamondBase) GetClassName(ctx context.Context) (string, er
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -5509,6 +6869,10 @@ func NewClassPolyDiamondBase(e embind.Engine, ctx context.Context) (*ClassPolyDi
 	res, err := e.CallPublicSymbol(ctx, "PolyDiamondBase")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassPolyDiamondBase), nil
@@ -5522,6 +6886,9 @@ func (class *ClassPolyDiamondDerived) Clone(ctx context.Context) (*ClassPolyDiam
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassPolyDiamondDerived), nil
 }
@@ -5560,6 +6927,10 @@ func (class *ClassPolyDiamondDerived) GetClassName(ctx context.Context) (string,
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -5567,6 +6938,10 @@ func NewClassPolyDiamondDerived(e embind.Engine, ctx context.Context) (*ClassPol
 	res, err := e.CallPublicSymbol(ctx, "PolyDiamondDerived")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassPolyDiamondDerived), nil
@@ -5580,6 +6955,9 @@ func (class *ClassPolyDiamondMultiplyDerived) Clone(ctx context.Context) (*Class
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassPolyDiamondMultiplyDerived), nil
 }
@@ -5618,6 +6996,10 @@ func (class *ClassPolyDiamondMultiplyDerived) GetClassName(ctx context.Context) 
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -5625,6 +7007,10 @@ func NewClassPolyDiamondMultiplyDerived(e embind.Engine, ctx context.Context) (*
 	res, err := e.CallPublicSymbol(ctx, "PolyDiamondMultiplyDerived")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassPolyDiamondMultiplyDerived), nil
@@ -5638,6 +7024,9 @@ func (class *ClassPolyDiamondSiblingDerived) Clone(ctx context.Context) (*ClassP
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassPolyDiamondSiblingDerived), nil
 }
@@ -5676,6 +7065,10 @@ func (class *ClassPolyDiamondSiblingDerived) GetClassName(ctx context.Context) (
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -5683,6 +7076,10 @@ func NewClassPolyDiamondSiblingDerived(e embind.Engine, ctx context.Context) (*C
 	res, err := e.CallPublicSymbol(ctx, "PolyDiamondSiblingDerived")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassPolyDiamondSiblingDerived), nil
@@ -5696,6 +7093,9 @@ func (class *ClassPolyMultiplyDerived) Clone(ctx context.Context) (*ClassPolyMul
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassPolyMultiplyDerived), nil
 }
@@ -5734,6 +7134,10 @@ func (class *ClassPolyMultiplyDerived) GetClassName(ctx context.Context) (string
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -5743,6 +7147,10 @@ func (class *ClassPolyMultiplyDerived) VirtualGetClassName(ctx context.Context) 
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -5750,6 +7158,10 @@ func NewClassPolyMultiplyDerived(e embind.Engine, ctx context.Context) (*ClassPo
 	res, err := e.CallPublicSymbol(ctx, "PolyMultiplyDerived")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassPolyMultiplyDerived), nil
@@ -5763,6 +7175,9 @@ func (class *ClassPolySecondBase) Clone(ctx context.Context) (*ClassPolySecondBa
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassPolySecondBase), nil
 }
@@ -5801,6 +7216,10 @@ func (class *ClassPolySecondBase) GetClassName(ctx context.Context) (string, err
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -5808,6 +7227,10 @@ func NewClassPolySecondBase(e embind.Engine, ctx context.Context) (*ClassPolySec
 	res, err := e.CallPublicSymbol(ctx, "PolySecondBase")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassPolySecondBase), nil
@@ -5821,6 +7244,9 @@ func (class *ClassPolySiblingDerived) Clone(ctx context.Context) (*ClassPolySibl
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassPolySiblingDerived), nil
 }
@@ -5859,6 +7285,10 @@ func (class *ClassPolySiblingDerived) GetClassName(ctx context.Context) (string,
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -5868,6 +7298,10 @@ func (class *ClassPolySiblingDerived) VirtualGetClassName(ctx context.Context) (
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -5875,6 +7309,10 @@ func NewClassPolySiblingDerived(e embind.Engine, ctx context.Context) (*ClassPol
 	res, err := e.CallPublicSymbol(ctx, "PolySiblingDerived")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassPolySiblingDerived), nil
@@ -5888,6 +7326,9 @@ func (class *ClassSecondBase) Clone(ctx context.Context) (*ClassSecondBase, erro
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassSecondBase), nil
 }
@@ -5926,6 +7367,10 @@ func (class *ClassSecondBase) GetPropertyMember(ctx context.Context) (int32, err
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 func (class *ClassSecondBase) SetPropertyMember(ctx context.Context, val int32) error {
@@ -5936,6 +7381,10 @@ func (class *ClassSecondBase) GetPropertySecondBaseMember(ctx context.Context) (
 	res, err := class.GetProperty(ctx, "secondBaseMember")
 	if err != nil {
 		return int32(0), err
+	}
+
+	if res == nil {
+		return int32(0), nil
 	}
 
 	return res.(int32), nil
@@ -5950,6 +7399,10 @@ func (class *ClassSecondBase) GetClassName(ctx context.Context) (string, error) 
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -5957,6 +7410,10 @@ func (class *ClassSecondBase) GetClassNameFromSecondBase(ctx context.Context) (s
 	res, err := class.CallMethod(ctx, "getClassNameFromSecondBase")
 	if err != nil {
 		return "", err
+	}
+
+	if res == nil {
+		return "", nil
 	}
 
 	return res.(string), nil
@@ -5968,6 +7425,10 @@ func (class *ClassSecondBase) GetClassNameNotAvailableInDerivedClasses(ctx conte
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -5977,6 +7438,10 @@ func (class *ClassSecondBase) GetMember(ctx context.Context) (int32, error) {
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 
@@ -5984,6 +7449,10 @@ func (class *ClassSecondBase) GetSecondBaseMember(ctx context.Context) (int32, e
 	res, err := class.CallMethod(ctx, "getSecondBaseMember")
 	if err != nil {
 		return int32(0), err
+	}
+
+	if res == nil {
+		return int32(0), nil
 	}
 
 	return res.(int32), nil
@@ -6005,6 +7474,10 @@ func NewClassSecondBase(e embind.Engine, ctx context.Context) (*ClassSecondBase,
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(*ClassSecondBase), nil
 }
 
@@ -6016,6 +7489,9 @@ func (class *ClassSecondElement) Clone(ctx context.Context) (*ClassSecondElement
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassSecondElement), nil
 }
@@ -6057,6 +7533,9 @@ func (class *ClassSharedPtrHolder) Clone(ctx context.Context) (*ClassSharedPtrHo
 	if err != nil {
 		return nil, err
 	}
+	if res == nil {
+		return nil, nil
+	}
 	return res.(*ClassSharedPtrHolder), nil
 }
 
@@ -6094,6 +7573,10 @@ func (class *ClassSharedPtrHolder) Get(ctx context.Context) (embind.ClassBase, e
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(embind.ClassBase), nil
 }
 
@@ -6108,6 +7591,10 @@ func NewClassSharedPtrHolder(e embind.Engine, ctx context.Context) (*ClassShared
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(*ClassSharedPtrHolder), nil
 }
 
@@ -6119,6 +7606,9 @@ func (class *ClassSharedPtrVector) Clone(ctx context.Context) (*ClassSharedPtrVe
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassSharedPtrVector), nil
 }
@@ -6157,6 +7647,10 @@ func (class *ClassSharedPtrVector) Get(ctx context.Context, arg0 uint32) (any, e
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 
@@ -6176,6 +7670,10 @@ func (class *ClassSharedPtrVector) Set(ctx context.Context, arg0 uint32, arg1 em
 		return bool(false), err
 	}
 
+	if res == nil {
+		return bool(false), nil
+	}
+
 	return res.(bool), nil
 }
 
@@ -6185,6 +7683,10 @@ func (class *ClassSharedPtrVector) Size(ctx context.Context) (uint32, error) {
 		return uint32(0), err
 	}
 
+	if res == nil {
+		return uint32(0), nil
+	}
+
 	return res.(uint32), nil
 }
 
@@ -6192,6 +7694,10 @@ func NewClassSharedPtrVector(e embind.Engine, ctx context.Context) (*ClassShared
 	res, err := e.CallPublicSymbol(ctx, "SharedPtrVector")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassSharedPtrVector), nil
@@ -6205,6 +7711,9 @@ func (class *ClassSiblingDerived) Clone(ctx context.Context) (*ClassSiblingDeriv
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassSiblingDerived), nil
 }
@@ -6243,6 +7752,10 @@ func (class *ClassSiblingDerived) GetClassName(ctx context.Context) (string, err
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -6250,6 +7763,10 @@ func NewClassSiblingDerived(e embind.Engine, ctx context.Context) (*ClassSibling
 	res, err := e.CallPublicSymbol(ctx, "SiblingDerived")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassSiblingDerived), nil
@@ -6263,6 +7780,9 @@ func (class *ClassSmallClass) Clone(ctx context.Context) (*ClassSmallClass, erro
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassSmallClass), nil
 }
@@ -6301,6 +7821,10 @@ func (class *ClassSmallClass) GetPropertyMember(ctx context.Context) (int32, err
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 func (class *ClassSmallClass) SetPropertyMember(ctx context.Context, val int32) error {
@@ -6311,6 +7835,10 @@ func NewClassSmallClass(e embind.Engine, ctx context.Context) (*ClassSmallClass,
 	res, err := e.CallPublicSymbol(ctx, "SmallClass")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassSmallClass), nil
@@ -6324,6 +7852,9 @@ func (class *ClassStringFunctorString) Clone(ctx context.Context) (*ClassStringF
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassStringFunctorString), nil
 }
@@ -6362,6 +7893,10 @@ func (class *ClassStringFunctorString) Opcall(ctx context.Context, arg0 string) 
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -6369,6 +7904,10 @@ func NewClassStringFunctorString(e embind.Engine, ctx context.Context) (*ClassSt
 	res, err := e.CallPublicSymbol(ctx, "StringFunctorString")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassStringFunctorString), nil
@@ -6382,6 +7921,9 @@ func (class *ClassStringHolder) Clone(ctx context.Context) (*ClassStringHolder, 
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassStringHolder), nil
 }
@@ -6420,6 +7962,10 @@ func (class *ClassStringHolder) Get(ctx context.Context) (string, error) {
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
@@ -6427,6 +7973,10 @@ func (class *ClassStringHolder) Get_const_ref(ctx context.Context) (string, erro
 	res, err := class.CallMethod(ctx, "get_const_ref")
 	if err != nil {
 		return "", err
+	}
+
+	if res == nil {
+		return "", nil
 	}
 
 	return res.(string), nil
@@ -6443,6 +7993,10 @@ func NewClassStringHolder(e embind.Engine, ctx context.Context, arg0 string) (*C
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(*ClassStringHolder), nil
 }
 
@@ -6454,6 +8008,9 @@ func (class *ClassStringHolderVector) Clone(ctx context.Context) (*ClassStringHo
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassStringHolderVector), nil
 }
@@ -6492,6 +8049,10 @@ func (class *ClassStringHolderVector) Get(ctx context.Context, arg0 uint32) (any
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 
@@ -6511,6 +8072,10 @@ func (class *ClassStringHolderVector) Set(ctx context.Context, arg0 uint32, arg1
 		return bool(false), err
 	}
 
+	if res == nil {
+		return bool(false), nil
+	}
+
 	return res.(bool), nil
 }
 
@@ -6520,6 +8085,10 @@ func (class *ClassStringHolderVector) Size(ctx context.Context) (uint32, error) 
 		return uint32(0), err
 	}
 
+	if res == nil {
+		return uint32(0), nil
+	}
+
 	return res.(uint32), nil
 }
 
@@ -6527,6 +8096,10 @@ func NewClassStringHolderVector(e embind.Engine, ctx context.Context) (*ClassStr
 	res, err := e.CallPublicSymbol(ctx, "StringHolderVector")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassStringHolderVector), nil
@@ -6540,6 +8113,9 @@ func (class *ClassStringIntMap) Clone(ctx context.Context) (*ClassStringIntMap, 
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassStringIntMap), nil
 }
@@ -6578,6 +8154,10 @@ func (class *ClassStringIntMap) Get(ctx context.Context, arg0 string) (any, erro
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 
@@ -6585,6 +8165,10 @@ func (class *ClassStringIntMap) Keys(ctx context.Context) (embind.ClassBase, err
 	res, err := class.CallMethod(ctx, "keys")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(embind.ClassBase), nil
@@ -6601,6 +8185,10 @@ func (class *ClassStringIntMap) Size(ctx context.Context) (uint32, error) {
 		return uint32(0), err
 	}
 
+	if res == nil {
+		return uint32(0), nil
+	}
+
 	return res.(uint32), nil
 }
 
@@ -6608,6 +8196,10 @@ func NewClassStringIntMap(e embind.Engine, ctx context.Context) (*ClassStringInt
 	res, err := e.CallPublicSymbol(ctx, "StringIntMap")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassStringIntMap), nil
@@ -6621,6 +8213,9 @@ func (class *ClassStringVector) Clone(ctx context.Context) (*ClassStringVector, 
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassStringVector), nil
 }
@@ -6659,6 +8254,10 @@ func (class *ClassStringVector) Get(ctx context.Context, arg0 uint32) (any, erro
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 
@@ -6678,6 +8277,10 @@ func (class *ClassStringVector) Set(ctx context.Context, arg0 uint32, arg1 strin
 		return bool(false), err
 	}
 
+	if res == nil {
+		return bool(false), nil
+	}
+
 	return res.(bool), nil
 }
 
@@ -6687,6 +8290,10 @@ func (class *ClassStringVector) Size(ctx context.Context) (uint32, error) {
 		return uint32(0), err
 	}
 
+	if res == nil {
+		return uint32(0), nil
+	}
+
 	return res.(uint32), nil
 }
 
@@ -6694,6 +8301,10 @@ func NewClassStringVector(e embind.Engine, ctx context.Context) (*ClassStringVec
 	res, err := e.CallPublicSymbol(ctx, "StringVector")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassStringVector), nil
@@ -6707,6 +8318,9 @@ func (class *ClassUniquePtrLifetimeMock) Clone(ctx context.Context) (*ClassUniqu
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassUniquePtrLifetimeMock), nil
 }
@@ -6748,6 +8362,9 @@ func (class *ClassUniquePtrToConstructor) Clone(ctx context.Context) (*ClassUniq
 	if err != nil {
 		return nil, err
 	}
+	if res == nil {
+		return nil, nil
+	}
 	return res.(*ClassUniquePtrToConstructor), nil
 }
 
@@ -6785,6 +8402,10 @@ func (class *ClassUniquePtrToConstructor) GetValue(ctx context.Context) (int32, 
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 
@@ -6796,6 +8417,9 @@ func (class *ClassValHolder) Clone(ctx context.Context) (*ClassValHolder, error)
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassValHolder), nil
 }
@@ -6834,6 +8458,10 @@ func (class *ClassValHolder) GetPropertyFunction_val(ctx context.Context) (any, 
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 func (class *ClassValHolder) SetPropertyFunction_val(ctx context.Context, val any) error {
@@ -6844,6 +8472,10 @@ func (class *ClassValHolder) GetPropertyFunctor_val(ctx context.Context) (any, e
 	res, err := class.GetProperty(ctx, "functor_val")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(any), nil
@@ -6858,6 +8490,10 @@ func (class *ClassValHolder) GetPropertyReadonly_function_val(ctx context.Contex
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 
@@ -6867,6 +8503,10 @@ func (class *ClassValHolder) GetPropertyReadonly_functor_val(ctx context.Context
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 
@@ -6874,6 +8514,10 @@ func (class *ClassValHolder) GetPropertyVal(ctx context.Context) (any, error) {
 	res, err := class.GetProperty(ctx, "val")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(any), nil
@@ -6888,6 +8532,10 @@ func (class *ClassValHolder) GetPropertyVal_readonly(ctx context.Context) (any, 
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 
@@ -6895,6 +8543,10 @@ func (class *ClassValHolder) GetConstVal(ctx context.Context) (any, error) {
 	res, err := class.CallMethod(ctx, "getConstVal")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(any), nil
@@ -6906,6 +8558,10 @@ func (class *ClassValHolder) GetVal(ctx context.Context) (any, error) {
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 
@@ -6913,6 +8569,10 @@ func (class *ClassValHolder) GetValConstRef(ctx context.Context) (any, error) {
 	res, err := class.CallMethod(ctx, "getValConstRef")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(any), nil
@@ -6924,6 +8584,10 @@ func (class *ClassValHolder) GetValFunction(ctx context.Context) (any, error) {
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 
@@ -6931,6 +8595,10 @@ func (class *ClassValHolder) GetValFunctor(ctx context.Context) (any, error) {
 	res, err := class.CallMethod(ctx, "getValFunctor")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(any), nil
@@ -6942,6 +8610,10 @@ func (class *ClassValHolder) GetValNonConst(ctx context.Context) (any, error) {
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 
@@ -6949,6 +8621,10 @@ func (class *ClassValHolder) GetValNonMember(ctx context.Context) (any, error) {
 	res, err := class.CallMethod(ctx, "getValNonMember")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(any), nil
@@ -6980,12 +8656,20 @@ func (class *ClassValHolder) StaticGet_via_raw_pointer(ctx context.Context, arg0
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 func ClassValHolderStaticGet_via_raw_pointer(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) (any, error) {
 	res, err := e.CallStaticClassMethod(ctx, "ValHolder", "get_via_raw_pointer", arg0)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(any), nil
@@ -6997,12 +8681,20 @@ func (class *ClassValHolder) StaticMakeConst(ctx context.Context, arg0 any) (emb
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(embind.ClassBase), nil
 }
 func ClassValHolderStaticMakeConst(e embind.Engine, ctx context.Context, arg0 any) (embind.ClassBase, error) {
 	res, err := e.CallStaticClassMethod(ctx, "ValHolder", "makeConst", arg0)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(embind.ClassBase), nil
@@ -7014,12 +8706,20 @@ func (class *ClassValHolder) StaticMakeValHolder(ctx context.Context, arg0 any) 
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(embind.ClassBase), nil
 }
 func ClassValHolderStaticMakeValHolder(e embind.Engine, ctx context.Context, arg0 any) (embind.ClassBase, error) {
 	res, err := e.CallStaticClassMethod(ctx, "ValHolder", "makeValHolder", arg0)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(embind.ClassBase), nil
@@ -7040,12 +8740,20 @@ func (class *ClassValHolder) StaticSome_class_method(ctx context.Context, arg0 i
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
 func ClassValHolderStaticSome_class_method(e embind.Engine, ctx context.Context, arg0 int32) (int32, error) {
 	res, err := e.CallStaticClassMethod(ctx, "ValHolder", "some_class_method", arg0)
 	if err != nil {
 		return int32(0), err
+	}
+
+	if res == nil {
+		return int32(0), nil
 	}
 
 	return res.(int32), nil
@@ -7066,6 +8774,10 @@ func NewClassValHolder(e embind.Engine, ctx context.Context, arg0 any) (*ClassVa
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(*ClassValHolder), nil
 }
 
@@ -7077,6 +8789,9 @@ func (class *ClassVectorHolder) Clone(ctx context.Context) (*ClassVectorHolder, 
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassVectorHolder), nil
 }
@@ -7115,6 +8830,10 @@ func (class *ClassVectorHolder) Get(ctx context.Context) (embind.ClassBase, erro
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(embind.ClassBase), nil
 }
 
@@ -7129,6 +8848,10 @@ func NewClassVectorHolder(e embind.Engine, ctx context.Context) (*ClassVectorHol
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(*ClassVectorHolder), nil
 }
 
@@ -7140,6 +8863,9 @@ func (class *ClassVectorUnsigned) Clone(ctx context.Context) (*ClassVectorUnsign
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassVectorUnsigned), nil
 }
@@ -7178,6 +8904,10 @@ func (class *ClassVectorUnsigned) Get(ctx context.Context, arg0 uint32) (any, er
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 
@@ -7197,6 +8927,10 @@ func (class *ClassVectorUnsigned) Set(ctx context.Context, arg0 uint32, arg1 uin
 		return bool(false), err
 	}
 
+	if res == nil {
+		return bool(false), nil
+	}
+
 	return res.(bool), nil
 }
 
@@ -7206,6 +8940,10 @@ func (class *ClassVectorUnsigned) Size(ctx context.Context) (uint32, error) {
 		return uint32(0), err
 	}
 
+	if res == nil {
+		return uint32(0), nil
+	}
+
 	return res.(uint32), nil
 }
 
@@ -7213,6 +8951,10 @@ func NewClassVectorUnsigned(e embind.Engine, ctx context.Context) (*ClassVectorU
 	res, err := e.CallPublicSymbol(ctx, "VectorUnsigned")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassVectorUnsigned), nil
@@ -7226,6 +8968,9 @@ func (class *ClassVectorUnsignedChar) Clone(ctx context.Context) (*ClassVectorUn
 	res, err := class.CloneInstance(ctx, class)
 	if err != nil {
 		return nil, err
+	}
+	if res == nil {
+		return nil, nil
 	}
 	return res.(*ClassVectorUnsignedChar), nil
 }
@@ -7264,6 +9009,10 @@ func (class *ClassVectorUnsignedChar) Get(ctx context.Context, arg0 uint32) (any
 		return nil, err
 	}
 
+	if res == nil {
+		return nil, nil
+	}
+
 	return res.(any), nil
 }
 
@@ -7283,6 +9032,10 @@ func (class *ClassVectorUnsignedChar) Set(ctx context.Context, arg0 uint32, arg1
 		return bool(false), err
 	}
 
+	if res == nil {
+		return bool(false), nil
+	}
+
 	return res.(bool), nil
 }
 
@@ -7292,6 +9045,10 @@ func (class *ClassVectorUnsignedChar) Size(ctx context.Context) (uint32, error) 
 		return uint32(0), err
 	}
 
+	if res == nil {
+		return uint32(0), nil
+	}
+
 	return res.(uint32), nil
 }
 
@@ -7299,6 +9056,10 @@ func NewClassVectorUnsignedChar(e embind.Engine, ctx context.Context) (*ClassVec
 	res, err := e.CallPublicSymbol(ctx, "VectorUnsignedChar")
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassVectorUnsignedChar), nil

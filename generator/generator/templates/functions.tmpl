@@ -13,6 +13,9 @@ func {{ $symbol.GoName }}(e embind.Engine, ctx context.Context{{ range $index, $
     if err != nil {
         return {{ $symbol.ErrorValue }}, err
     }
+    if res == nil {
+        return {{ $symbol.ErrorValue }}, nil
+    }
     return res.({{ $symbol.ReturnType }}), nil
 }
 {{- else }}

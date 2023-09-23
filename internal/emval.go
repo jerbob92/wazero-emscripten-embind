@@ -1027,8 +1027,8 @@ var EmvalNewArrayFromMemoryView = api.GoModuleFunc(func(ctx context.Context, mod
 })
 
 var EmvalNewObject = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
-	// @todo: implement me.
-	panic("EmvalNewObject call unimplemented")
+	e := MustGetEngineFromContext(ctx, mod).(*engine)
+	stack[0] = api.EncodeI32(e.emvalEngine.toHandle(map[string]any{}))
 })
 
 var EmvalNewU16string = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
