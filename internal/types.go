@@ -25,12 +25,12 @@ func (bt *baseType) ArgPackAdvance() int32 {
 	return bt.argPackAdvance
 }
 
-func (bt *baseType) HasDestructorFunction() bool {
-	return false
+func (bt *baseType) DestructorFunctionUndefined() bool {
+	return true
 }
 
-func (bt *baseType) DestructorFunction(ctx context.Context, mod api.Module, pointer uint32) (*destructorFunc, error) {
-	return nil, nil
+func (bt *baseType) DestructorFunction(ctx context.Context, mod api.Module, pointer uint32) *destructorFunc {
+	return nil
 }
 
 func (bt *baseType) ReadValueFromPointer(ctx context.Context, mod api.Module, pointer uint32) (any, error) {
@@ -61,8 +61,8 @@ type registeredType interface {
 	RawType() int32
 	Name() string
 	ArgPackAdvance() int32
-	HasDestructorFunction() bool
-	DestructorFunction(ctx context.Context, mod api.Module, pointer uint32) (*destructorFunc, error)
+	DestructorFunctionUndefined() bool
+	DestructorFunction(ctx context.Context, mod api.Module, pointer uint32) *destructorFunc
 	FromWireType(ctx context.Context, mod api.Module, wt uint64) (any, error)
 	ToWireType(ctx context.Context, mod api.Module, destructors *[]*destructorFunc, o any) (uint64, error)
 	ReadValueFromPointer(ctx context.Context, mod api.Module, pointer uint32) (any, error)

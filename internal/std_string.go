@@ -73,12 +73,7 @@ func (sst *stdStringType) ToWireType(ctx context.Context, mod api.Module, destru
 
 	if destructors != nil {
 		destructorsRef := *destructors
-		destructorsRef = append(destructorsRef, &destructorFunc{
-			function: "free",
-			args: []uint64{
-				api.EncodeU32(base),
-			},
-		})
+		destructorsRef = append(destructorsRef, sst.DestructorFunction(ctx, mod, base))
 		*destructors = destructorsRef
 	}
 
@@ -93,15 +88,15 @@ func (sst *stdStringType) ReadValueFromPointer(ctx context.Context, mod api.Modu
 	return sst.FromWireType(ctx, mod, api.EncodeU32(ptr))
 }
 
-func (sst *stdStringType) HasDestructorFunction() bool {
-	return true
+func (sst *stdStringType) DestructorFunctionUndefined() bool {
+	return false
 }
 
-func (sst *stdStringType) DestructorFunction(ctx context.Context, mod api.Module, pointer uint32) (*destructorFunc, error) {
+func (sst *stdStringType) DestructorFunction(ctx context.Context, mod api.Module, pointer uint32) *destructorFunc {
 	return &destructorFunc{
 		apiFunction: mod.ExportedFunction("free"),
 		args:        []uint64{api.EncodeU32(pointer)},
-	}, nil
+	}
 }
 
 func (sst *stdStringType) GoType() string {

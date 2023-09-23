@@ -1328,9 +1328,14 @@ var RegisterSmartPtr = api.GoModuleFunc(func(ctx context.Context, mod api.Module
 	}
 
 	rawShareFunc, err := engine.newInvokeFunc(shareSignature, rawShare, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32})
+	specialShare := false
 	if err != nil {
-		// @todo: figure out why this fails for some types. Why would some have a different signature?
-		//panic(fmt.Errorf("could not read rawShare: %w", err))
+		// Some classes have a different share signature for some reason.
+		rawShareFunc, err = engine.newInvokeFunc(shareSignature, rawShare, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{})
+		if err != nil {
+			panic(fmt.Errorf("could not read rawShare: %w", err))
+		}
+		specialShare = true
 	}
 
 	rawDestructorFunc, err := engine.newInvokeFunc(destructorSignature, rawDestructor, []api.ValueType{api.ValueTypeI32}, []api.ValueType{})
@@ -1356,6 +1361,7 @@ var RegisterSmartPtr = api.GoModuleFunc(func(ctx context.Context, mod api.Module
 			rawConstructor:  rawConstructorFunc,
 			rawShare:        rawShareFunc,
 			rawDestructor:   rawDestructorFunc,
+			specialShare:    specialShare,
 		}
 
 		return []registeredType{smartPointerType}, nil

@@ -22,6 +22,8 @@ type registeredPointerType struct {
 	rawConstructor api.Function
 	rawShare       api.Function
 	rawDestructor  api.Function
+
+	specialShare bool // Whether the rawShare is special for this class (no return param)
 }
 
 type registeredPointerTypeRecordCount struct {
@@ -85,15 +87,9 @@ func (rpt *registeredPointerType) FromWireType(ctx context.Context, mod api.Modu
 	}
 
 	if rawPointer == 0 {
-		destrFun, err := rpt.DestructorFunction(ctx, mod, ptr)
+		err = rpt.Destructor(ctx, ptr)
 		if err != nil {
 			return nil, err
-		}
-		if destrFun != nil {
-			err = destrFun.run(ctx, mod)
-			if err != nil {
-				return nil, err
-			}
 		}
 
 		return nil, nil
@@ -116,11 +112,8 @@ func (rpt *registeredPointerType) FromWireType(ctx context.Context, mod api.Modu
 			if err != nil {
 				return nil, err
 			}
-			destructor, err := rpt.DestructorFunction(ctx, mod, ptr)
-			if err != nil {
-				return nil, err
-			}
-			err = destructor.run(ctx, mod)
+
+			err = rpt.Destructor(ctx, ptr)
 			if err != nil {
 				return nil, err
 			}
@@ -318,16 +311,17 @@ func (rpt *registeredPointerType) genericPointerToWireType(ctx context.Context, 
 				return 0, err
 			}
 
+			ptr = api.DecodeU32(res[0])
 			if destructors != nil {
 				destructorsRef := *destructors
 				destructorsRef = append(destructorsRef, &destructorFunc{
 					apiFunction: rpt.rawDestructor,
-					args:        []uint64{res[0]},
+					args:        []uint64{api.EncodeU32(ptr)},
 				})
 				*destructors = destructorsRef
 			}
 
-			return res[0], nil
+			return api.EncodeU32(ptr), nil
 		} else {
 			return 0, nil
 		}
@@ -410,6 +404,7 @@ func (rpt *registeredPointerType) genericPointerToWireType(ctx context.Context, 
 					_ = clonedHandle.getClassType().delete(ctx, clonedHandle)
 				})
 
+				// @todo: what to do with rpt.specialShare?
 				res, err := rpt.rawShare.Call(ctx, api.EncodeU32(ptr), api.EncodeI32(deleteCallbackHandle))
 				if err != nil {
 					return 0, err
@@ -441,26 +436,29 @@ func (rpt *registeredPointerType) ReadValueFromPointer(ctx context.Context, mod 
 	return rpt.FromWireType(ctx, mod, api.EncodeU32(value))
 }
 
-func (rpt *registeredPointerType) HasDestructorFunction() bool {
+func (rpt *registeredPointerType) DestructorFunctionUndefined() bool {
 	if !rpt.isSmartPointer && rpt.registeredClass.baseClass == nil {
 		return false
 	}
 	return true
 }
 
-func (rpt *registeredPointerType) DestructorFunction(ctx context.Context, mod api.Module, pointer uint32) (*destructorFunc, error) {
-	if rpt.rawDestructor != nil {
-		return &destructorFunc{
-			apiFunction: rpt.rawDestructor,
-			args:        []uint64{api.EncodeU32(pointer)},
-		}, nil
-	}
-
-	return nil, nil
+func (rpt *registeredPointerType) DestructorFunction(ctx context.Context, mod api.Module, pointer uint32) *destructorFunc {
+	return nil
 }
 
 func (rpt *registeredPointerType) HasDeleteObject() bool {
 	return true
+}
+
+func (rpt *registeredPointerType) Destructor(ctx context.Context, pointer uint32) error {
+	if rpt.rawDestructor != nil {
+		_, err := rpt.rawDestructor.Call(ctx, api.EncodeU32(pointer))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (rpt *registeredPointerType) DeleteObject(ctx context.Context, mod api.Module, handle any) error {

@@ -97,6 +97,10 @@ func (et *enumType) mapToGoEnum(value any) (any, error) {
 	return val.goValue, nil
 }
 
+func (et *enumType) DestructorFunctionUndefined() bool {
+	return false
+}
+
 func (et *enumType) GoType() string {
 	return et.name
 }

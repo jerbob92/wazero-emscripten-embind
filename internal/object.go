@@ -49,10 +49,10 @@ func (ot *objectType) ToWireType(ctx context.Context, mod api.Module, destructor
 		return 0, err
 	}
 
-	ptr := res[0]
+	ptr := api.DecodeU32(res[0])
 
 	for i := range ot.reg.fields {
-		err = ot.reg.fields[i].write(ctx, mod, api.DecodeI32(ptr), obj[ot.reg.fields[i].fieldName])
+		err = ot.reg.fields[i].write(ctx, mod, int32(ptr), obj[ot.reg.fields[i].fieldName])
 		if err != nil {
 			return 0, err
 		}
@@ -60,13 +60,11 @@ func (ot *objectType) ToWireType(ctx context.Context, mod api.Module, destructor
 
 	if destructors != nil {
 		destructorsRef := *destructors
-		destructorsRef = append(destructorsRef, &destructorFunc{
-			apiFunction: ot.reg.rawDestructor,
-			args:        []uint64{ptr},
-		})
+		destructorsRef = append(destructorsRef, ot.DestructorFunction(ctx, mod, ptr))
 		*destructors = destructorsRef
 	}
-	return ptr, nil
+
+	return api.EncodeU32(ptr), nil
 }
 
 func (ot *objectType) ReadValueFromPointer(ctx context.Context, mod api.Module, pointer uint32) (any, error) {
@@ -77,15 +75,15 @@ func (ot *objectType) ReadValueFromPointer(ctx context.Context, mod api.Module, 
 	return ot.FromWireType(ctx, mod, api.EncodeU32(ptr))
 }
 
-func (ot *objectType) HasDestructorFunction() bool {
-	return true
+func (ot *objectType) DestructorFunctionUndefined() bool {
+	return false
 }
 
-func (ot *objectType) DestructorFunction(ctx context.Context, mod api.Module, pointer uint32) (*destructorFunc, error) {
+func (ot *objectType) DestructorFunction(ctx context.Context, mod api.Module, pointer uint32) *destructorFunc {
 	return &destructorFunc{
 		apiFunction: ot.reg.rawDestructor,
 		args:        []uint64{api.EncodeU32(pointer)},
-	}, nil
+	}
 }
 
 func (ot *objectType) GoType() string {

@@ -45,10 +45,10 @@ func (at *arrayType) ToWireType(ctx context.Context, mod api.Module, destructors
 		return 0, err
 	}
 
-	ptr := res[0]
+	ptr := api.DecodeU32(res[0])
 
 	for i := 0; i < at.elementsLength; i++ {
-		err = at.reg.elements[i].write(ctx, mod, api.DecodeI32(ptr), arr[i])
+		err = at.reg.elements[i].write(ctx, mod, int32(ptr), arr[i])
 		if err != nil {
 			return 0, err
 		}
@@ -56,13 +56,11 @@ func (at *arrayType) ToWireType(ctx context.Context, mod api.Module, destructors
 
 	if destructors != nil {
 		destructorsRef := *destructors
-		destructorsRef = append(destructorsRef, &destructorFunc{
-			apiFunction: at.reg.rawDestructor,
-			args:        []uint64{ptr},
-		})
+		destructorsRef = append(destructorsRef, at.DestructorFunction(ctx, mod, ptr))
 		*destructors = destructorsRef
 	}
-	return ptr, nil
+
+	return api.EncodeU32(ptr), nil
 }
 
 func (at *arrayType) ReadValueFromPointer(ctx context.Context, mod api.Module, pointer uint32) (any, error) {
@@ -73,15 +71,15 @@ func (at *arrayType) ReadValueFromPointer(ctx context.Context, mod api.Module, p
 	return at.FromWireType(ctx, mod, api.EncodeU32(ptr))
 }
 
-func (at *arrayType) HasDestructorFunction() bool {
-	return true
+func (at *arrayType) DestructorFunctionUndefined() bool {
+	return false
 }
 
-func (at *arrayType) DestructorFunction(ctx context.Context, mod api.Module, pointer uint32) (*destructorFunc, error) {
+func (at *arrayType) DestructorFunction(ctx context.Context, mod api.Module, pointer uint32) *destructorFunc {
 	return &destructorFunc{
 		apiFunction: at.reg.rawDestructor,
 		args:        []uint64{api.EncodeU32(pointer)},
-	}, nil
+	}
 }
 
 func (at *arrayType) GoType() string {

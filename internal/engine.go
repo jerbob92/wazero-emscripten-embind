@@ -438,7 +438,7 @@ func (e *engine) craftInvokerFunction(humanName string, argTypes []registeredTyp
 	// TODO: Remove this completely once all function invokers are being dynamically generated.
 	needsDestructorStack := false
 	for i := 1; i < len(argTypes); i++ { // Skip return value at index 0 - it's not deleted here.
-		if argTypes[i] != nil && argTypes[i].HasDestructorFunction() { // The type does not define a destructor function - must use dynamic stack
+		if argTypes[i] != nil && argTypes[i].DestructorFunctionUndefined() { // The type does not define a destructor function - must use dynamic stack
 			needsDestructorStack = true
 			break
 		}
@@ -491,6 +491,14 @@ func (e *engine) craftInvokerFunction(humanName string, argTypes []registeredTyp
 			return nil, err
 		}
 
+		var returnVal any
+		if returns {
+			returnVal, err = retType.FromWireType(ctx, e.mod, res[0])
+			if err != nil {
+				return nil, fmt.Errorf("could not get wire type of return value (%s) on %T: %w", retType.Name(), retType, err)
+			}
+		}
+
 		if needsDestructorStack {
 			err = e.runDestructors(ctx, *destructors)
 			if err != nil {
@@ -502,29 +510,24 @@ func (e *engine) craftInvokerFunction(humanName string, argTypes []registeredTyp
 			if isClassMethodFunc {
 				startArg = 1
 			}
+
 			for i := startArg; i < len(argTypes); i++ {
-				if argTypes[i].HasDestructorFunction() {
-					destructorsRef := *destructors
-					destructor, err := argTypes[i].DestructorFunction(ctx, e.mod, api.DecodeU32(callArgs[i]))
+				ptrIndex := i
+				if !isClassMethodFunc {
+					ptrIndex -= 1
+				}
+
+				argDestructorFunc := argTypes[i].DestructorFunction(ctx, e.mod, api.DecodeU32(callArgs[ptrIndex]))
+				if argDestructorFunc != nil {
+					err = argDestructorFunc.run(ctx, e.mod)
 					if err != nil {
 						return nil, err
 					}
-					destructorsRef = append(destructorsRef, destructor)
-					*destructors = destructorsRef
 				}
 			}
 		}
 
-		if returns {
-			returnVal, err := retType.FromWireType(ctx, e.mod, res[0])
-			if err != nil {
-				return nil, fmt.Errorf("could not get wire type of return value (%s) on %T: %w", retType.Name(), retType, err)
-			}
-
-			return returnVal, nil
-		}
-
-		return nil, nil
+		return returnVal, nil
 	}
 }
 

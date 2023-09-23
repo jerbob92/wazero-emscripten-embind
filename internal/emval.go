@@ -54,6 +54,10 @@ func (et *emvalType) ReadValueFromPointer(ctx context.Context, mod api.Module, p
 	return et.FromWireType(ctx, mod, api.EncodeU32(value))
 }
 
+func (et *emvalType) DestructorFunctionUndefined() bool {
+	return false
+}
+
 func (et *emvalType) GoType() string {
 	return "any"
 }

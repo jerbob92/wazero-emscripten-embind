@@ -117,6 +117,10 @@ func (bt *boolType) GoType() string {
 	return "bool"
 }
 
+func (bt *boolType) DestructorFunctionUndefined() bool {
+	return false
+}
+
 var RegisterBool = func(hasSize bool) api.GoModuleFunc {
 	return api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
 		engine := MustGetEngineFromContext(ctx, mod).(*engine)

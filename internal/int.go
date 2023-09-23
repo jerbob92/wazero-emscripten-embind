@@ -137,6 +137,10 @@ func (it *intType) GoType() string {
 	return "int32"
 }
 
+func (it *intType) DestructorFunctionUndefined() bool {
+	return false
+}
+
 func (it *intType) FromF64(o float64) uint64 {
 	if it.size == 1 {
 		if !it.signed {

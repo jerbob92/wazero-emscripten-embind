@@ -2591,7 +2591,8 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 				Expect(s).To(Equal("bar"))
 
 				err = e.Delete(ctx)
-				Expect(err).To(BeNil())*/
+				Expect(err).To(BeNil())
+			*/
 		})
 
 		It("custom smart pointer passed through wiretype", func() {
