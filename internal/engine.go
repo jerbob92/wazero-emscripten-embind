@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"reflect"
 	"regexp"
+	"sort"
 	"strconv"
 	"strings"
 
@@ -24,9 +25,12 @@ type engine struct {
 	registeredEnums      map[string]*enumType
 	registeredPointers   map[int32]*registeredPointer
 	registeredClasses    map[string]*classType
+	registeredClassTypes map[reflect.Type]*classType
 	registeredTuples     map[int32]*registeredTuple
 	registeredObjects    map[int32]*registeredObject
 	registeredInstances  map[uint32]IClassBase
+	deletionQueue        []IClassBase
+	delayFunction        DelayFunction
 	emvalEngine          *emvalEngine
 }
 
@@ -106,7 +110,8 @@ func (e *engine) RegisterClass(name string, class any) error {
 		return fmt.Errorf("could not register class %s with type %T, it does not embed embind.ClassBase", name, class)
 	}
 
-	if reflect.TypeOf(class).Kind() != reflect.Ptr {
+	reflectClassType := reflect.TypeOf(class)
+	if reflectClassType.Kind() != reflect.Ptr {
 		return fmt.Errorf("could not register class %s with type %T, given value should be a pointer type", name, class)
 	}
 
@@ -131,6 +136,8 @@ func (e *engine) RegisterClass(name string, class any) error {
 		e.registeredClasses[name].goStruct = nil
 		e.registeredClasses[name].hasGoStruct = false
 	}
+
+	e.registeredClassTypes[reflectClassType] = e.registeredClasses[name]
 
 	return err
 }
@@ -161,9 +168,9 @@ func (e *engine) newInvokeFunc(signaturePtr, rawInvoker int32, expectedParamType
 			if recoverErr := recover(); recoverErr != nil {
 				realError, ok := recoverErr.(error)
 				if ok {
-					lookupErr = fmt.Errorf("could not crate invoke func for signature %s on invoker %d: %w", signature, rawInvoker, realError)
+					lookupErr = fmt.Errorf("could not create invoke func for signature %s on invoker %d: %w", signature, rawInvoker, realError)
 				}
-				lookupErr = fmt.Errorf("could not crate invoke func for signature %s on invoker %d: %v", signature, rawInvoker, recoverErr)
+				lookupErr = fmt.Errorf("could not create invoke func for signature %s on invoker %d: %v", signature, rawInvoker, recoverErr)
 			}
 		}()
 
@@ -227,14 +234,17 @@ func (e *engine) ensureOverloadTable(registry map[string]*publicSymbol, methodNa
 		prevFunc := registry[methodName].fn
 		prevArgCount := registry[methodName].argCount
 
+		registry[methodName].isOverload = true
+
 		// Inject an overload resolver function that routes to the appropriate overload based on the number of arguments.
 		registry[methodName].fn = func(ctx context.Context, this any, arguments ...any) (any, error) {
 			_, ok := registry[methodName].overloadTable[int32(len(arguments))]
 			if !ok {
 				possibleOverloads := make([]string, len(registry[methodName].overloadTable))
 				for i := range registry[methodName].overloadTable {
-					possibleOverloads = append(possibleOverloads, strconv.Itoa(int(i)))
+					possibleOverloads[i] = strconv.Itoa(int(i))
 				}
+				sort.Strings(possibleOverloads)
 				return nil, fmt.Errorf("function '%s' called with an invalid number of arguments (%d) - expects one of (%s)", humanName, len(arguments), strings.Join(possibleOverloads, ", "))
 			}
 
@@ -250,6 +260,7 @@ func (e *engine) ensureOverloadTable(registry map[string]*publicSymbol, methodNa
 			argCount:      prevArgCount,
 			fn:            prevFunc,
 			isStatic:      registry[methodName].isStatic,
+			isOverload:    true,
 		}
 	}
 }
@@ -275,18 +286,23 @@ func (e *engine) exposePublicSymbol(name string, value publicSymbolFn, numArgume
 
 		// Add the new function into the overload table.
 		e.publicSymbols[name].overloadTable[*numArguments] = &publicSymbol{
-			name:     name,
-			argCount: numArguments,
-			fn:       value,
+			name:          name,
+			argCount:      numArguments,
+			fn:            value,
+			isOverload:    true,
+			argumentTypes: createAnyTypeArray(*numArguments),
+			resultType:    &anyType{},
 		}
 	} else {
 		e.publicSymbols[name] = &publicSymbol{
-			name: name,
-			fn:   value,
+			name:       name,
+			fn:         value,
+			resultType: &anyType{},
 		}
 
 		if numArguments != nil {
 			e.publicSymbols[name].argCount = numArguments
+			e.publicSymbols[name].argumentTypes = createAnyTypeArray(*numArguments)
 		}
 	}
 
@@ -307,6 +323,7 @@ func (e *engine) replacePublicSymbol(name string, value func(ctx context.Context
 			fn:            value,
 			argumentTypes: argumentTypes,
 			resultType:    resultType,
+			isOverload:    true,
 		}
 	} else {
 		e.publicSymbols[name] = &publicSymbol{
@@ -421,7 +438,7 @@ func (e *engine) craftInvokerFunction(humanName string, argTypes []registeredTyp
 	// TODO: Remove this completely once all function invokers are being dynamically generated.
 	needsDestructorStack := false
 	for i := 1; i < len(argTypes); i++ { // Skip return value at index 0 - it's not deleted here.
-		if argTypes[i] != nil && argTypes[i].HasDestructorFunction() { // The type does not define a destructor function - must use dynamic stack
+		if argTypes[i] != nil && argTypes[i].DestructorFunctionUndefined() { // The type does not define a destructor function - must use dynamic stack
 			needsDestructorStack = true
 			break
 		}
@@ -474,6 +491,14 @@ func (e *engine) craftInvokerFunction(humanName string, argTypes []registeredTyp
 			return nil, err
 		}
 
+		var returnVal any
+		if returns {
+			returnVal, err = retType.FromWireType(ctx, e.mod, res[0])
+			if err != nil {
+				return nil, fmt.Errorf("could not get wire type of return value (%s) on %T: %w", retType.Name(), retType, err)
+			}
+		}
+
 		if needsDestructorStack {
 			err = e.runDestructors(ctx, *destructors)
 			if err != nil {
@@ -485,29 +510,24 @@ func (e *engine) craftInvokerFunction(humanName string, argTypes []registeredTyp
 			if isClassMethodFunc {
 				startArg = 1
 			}
+
 			for i := startArg; i < len(argTypes); i++ {
-				if argTypes[i].HasDestructorFunction() {
-					destructorsRef := *destructors
-					destructor, err := argTypes[i].DestructorFunction(ctx, e.mod, api.DecodeU32(callArgs[i]))
+				ptrIndex := i
+				if !isClassMethodFunc {
+					ptrIndex -= 1
+				}
+
+				argDestructorFunc := argTypes[i].DestructorFunction(ctx, e.mod, api.DecodeU32(callArgs[ptrIndex]))
+				if argDestructorFunc != nil {
+					err = argDestructorFunc.run(ctx, e.mod)
 					if err != nil {
 						return nil, err
 					}
-					destructorsRef = append(destructorsRef, destructor)
-					*destructors = destructorsRef
 				}
 			}
 		}
 
-		if returns {
-			returnVal, err := retType.FromWireType(ctx, e.mod, res[0])
-			if err != nil {
-				return nil, fmt.Errorf("could not get wire type of return value (%s) on %T: %w", retType.Name(), retType, err)
-			}
-
-			return returnVal, nil
-		}
-
-		return nil, nil
+		return returnVal, nil
 	}
 }
 
@@ -594,7 +614,7 @@ func (e *engine) checkRegisteredTypeDependencies(typeToVisit int32, seen *map[in
 				unboundTypes = append(unboundTypes, newUnboundTypes...)
 			}
 		}
-		return nil
+		return unboundTypes
 	}
 
 	unboundTypes = append(unboundTypes, typeToVisit)
@@ -678,6 +698,26 @@ func (e *engine) requireRegisteredType(ctx context.Context, rawType int32, human
 	return registeredType, nil
 }
 
+func (e *engine) lookupTypes(ctx context.Context, argCount int32, argTypes int32) ([]registeredType, error) {
+	types := make([]registeredType, argCount)
+
+	for i := 0; i < int(argCount); i++ {
+		rawType, ok := e.mod.Memory().ReadUint32Le(uint32((argTypes) + (int32(i) * 4)))
+		if !ok {
+			return nil, fmt.Errorf("could not read memory for the argument type")
+		}
+
+		requiredType, err := e.requireRegisteredType(ctx, int32(rawType), fmt.Sprintf("parameter %d", i))
+		if err != nil {
+			return nil, err
+		}
+
+		types[i] = requiredType
+	}
+
+	return types, nil
+}
+
 var illegalCharsRegex = regexp.MustCompile(`[^a-zA-Z0-9_]`)
 
 func (e *engine) makeLegalFunctionName(name string) string {
@@ -726,6 +766,53 @@ func (e *engine) validateThis(ctx context.Context, this any, classType *register
 
 	// @todo: check if based.ptrType.registeredClass is or extends classType.registeredClass
 
-	// todo: kill this
+	// todo: kill this (comment from Emscripten)
 	return e.upcastPointer(ctx, based.getPtr(), based.getPtrType().registeredClass, classType.registeredClass)
+}
+
+func (e *engine) CountEmvalHandles() int {
+	return len(e.emvalEngine.allocator.allocated) - len(e.emvalEngine.allocator.freelist) - e.emvalEngine.allocator.reserved
+}
+
+func (e *engine) GetInheritedInstanceCount() int {
+	return len(e.registeredInstances)
+}
+
+func (e *engine) GetLiveInheritedInstances() []IClassBase {
+	instances := make([]IClassBase, len(e.registeredInstances))
+	i := 0
+	for id := range e.registeredInstances {
+		instances[i] = e.registeredInstances[id]
+		i++
+	}
+	return instances
+}
+
+func (e *engine) FlushPendingDeletes(ctx context.Context) error {
+	for len(e.deletionQueue) > 0 {
+		obj := e.deletionQueue[len(e.deletionQueue)-1]
+		e.deletionQueue = e.deletionQueue[:len(e.deletionQueue)-1]
+
+		obj.getRegisteredPtrTypeRecord().deleteScheduled = false
+		err := obj.DeleteInstance(ctx, obj)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
+func (e *engine) SetDelayFunction(fn DelayFunction) error {
+	e.delayFunction = fn
+
+	if len(e.deletionQueue) > 0 && fn != nil {
+		err := fn(func(ctx context.Context) error {
+			return e.FlushPendingDeletes(ctx)
+		})
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
 }

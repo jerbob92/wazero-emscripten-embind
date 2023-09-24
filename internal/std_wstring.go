@@ -81,40 +81,34 @@ func (swst *stdWStringType) ToWireType(ctx context.Context, mod api.Module, dest
 		return 0, err
 	}
 
-	mallocRes, err := mod.ExportedFunction("malloc").Call(ctx, api.EncodeI32(4+int32(output.Len())+1))
+	mallocRes, err := mod.ExportedFunction("malloc").Call(ctx, api.EncodeI32(4+int32(output.Len())+swst.charSize))
 	if err != nil {
 		return 0, err
 	}
 	base := api.DecodeU32(mallocRes[0])
-	ptr := base + 4
 
-	ok = mod.Memory().WriteUint32Le(base, uint32(output.Len()))
+	ok = mod.Memory().WriteUint32Le(base, uint32(len(stringVal)))
 	if !ok {
 		return 0, fmt.Errorf("could not write length to memory")
 	}
 
-	ok = mod.Memory().Write(ptr, output.Bytes())
+	ok = mod.Memory().Write(base+4, output.Bytes())
 	if !ok {
 		return 0, fmt.Errorf("could not write string to memory")
 	}
 
-	ok = mod.Memory().Write(ptr+uint32(output.Len())+1, make([]byte, swst.charSize))
+	ok = mod.Memory().Write(base+4+uint32(output.Len()), make([]byte, swst.charSize))
 	if !ok {
 		return 0, fmt.Errorf("could not write NULL terminator to memory")
 	}
 
 	if destructors != nil {
 		destructorsRef := *destructors
-		destructorsRef = append(destructorsRef, &destructorFunc{
-			function: "free",
-			args: []uint64{
-				api.EncodeU32(base),
-			},
-		})
+		destructorsRef = append(destructorsRef, swst.DestructorFunction(ctx, mod, base))
 		*destructors = destructorsRef
 	}
 
-	return 0, nil
+	return api.EncodeU32(base), nil
 }
 
 func (swst *stdWStringType) ReadValueFromPointer(ctx context.Context, mod api.Module, pointer uint32) (any, error) {
@@ -125,15 +119,15 @@ func (swst *stdWStringType) ReadValueFromPointer(ctx context.Context, mod api.Mo
 	return swst.FromWireType(ctx, mod, api.EncodeU32(ptr))
 }
 
-func (swst *stdWStringType) HasDestructorFunction() bool {
-	return true
+func (swst *stdWStringType) DestructorFunctionUndefined() bool {
+	return false
 }
 
-func (swst *stdWStringType) DestructorFunction(ctx context.Context, mod api.Module, pointer uint32) (*destructorFunc, error) {
+func (swst *stdWStringType) DestructorFunction(ctx context.Context, mod api.Module, pointer uint32) *destructorFunc {
 	return &destructorFunc{
 		apiFunction: mod.ExportedFunction("free"),
 		args:        []uint64{api.EncodeU32(pointer)},
-	}, nil
+	}
 }
 
 func (swst *stdWStringType) GoType() string {
@@ -143,3 +137,25 @@ func (swst *stdWStringType) GoType() string {
 func (swst *stdWStringType) FromF64(o float64) uint64 {
 	return api.EncodeU32(uint32(o))
 }
+
+var RegisterStdWString = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
+	engine := MustGetEngineFromContext(ctx, mod).(*engine)
+
+	rawType := api.DecodeI32(stack[0])
+	name, err := engine.readCString(uint32(api.DecodeI32(stack[2])))
+	if err != nil {
+		panic(fmt.Errorf("could not read name: %w", err))
+	}
+
+	err = engine.registerType(rawType, &stdWStringType{
+		baseType: baseType{
+			rawType:        rawType,
+			name:           name,
+			argPackAdvance: 8,
+		},
+		charSize: api.DecodeI32(stack[1]),
+	}, nil)
+	if err != nil {
+		panic(fmt.Errorf("could not register: %w", err))
+	}
+})

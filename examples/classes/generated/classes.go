@@ -11,36 +11,117 @@ type ClassMyClass struct {
 	embind.ClassBase
 }
 
-func (class *ClassMyClass) GetX(ctx context.Context) (int32, error) {
-	res, err := class.GetProperty(ctx, class, "x")
+func (class *ClassMyClass) Clone(ctx context.Context) (*ClassMyClass, error) {
+	res, err := class.CloneInstance(ctx, class)
+	if err != nil {
+		return nil, err
+	}
+	if res == nil {
+		return nil, nil
+	}
+	return res.(*ClassMyClass), nil
+}
+
+func (class *ClassMyClass) Delete(ctx context.Context) error {
+	return class.DeleteInstance(ctx, class)
+}
+
+func (class *ClassMyClass) DeleteLater(ctx context.Context) (embind.ClassBase, error) {
+	return class.DeleteInstanceLater(ctx, class)
+}
+
+func (class *ClassMyClass) IsDeleted(ctx context.Context) bool {
+	return class.IsInstanceDeleted(ctx, class)
+}
+
+func (class *ClassMyClass) IsAliasOf(ctx context.Context, second embind.ClassBase) (bool, error) {
+	return class.IsAliasOfInstance(ctx, class, second)
+}
+
+func (class *ClassMyClass) CallMethod(ctx context.Context, name string, arguments ...any) (any, error) {
+	return class.CallInstanceMethod(ctx, class, name, arguments...)
+}
+
+func (class *ClassMyClass) SetProperty(ctx context.Context, name string, value any) error {
+	return class.SetInstanceProperty(ctx, class, name, value)
+}
+
+func (class *ClassMyClass) GetProperty(ctx context.Context, name string) (any, error) {
+	return class.GetInstanceProperty(ctx, class, name)
+}
+
+func (class *ClassMyClass) GetPropertyX(ctx context.Context) (int32, error) {
+	res, err := class.GetProperty(ctx, "x")
 	if err != nil {
 		return int32(0), err
 	}
 
+	if res == nil {
+		return int32(0), nil
+	}
+
 	return res.(int32), nil
 }
-func (class *ClassMyClass) SetX(ctx context.Context, val int32) error {
-	return class.SetProperty(ctx, class, "x", val)
+func (class *ClassMyClass) SetPropertyX(ctx context.Context, val int32) error {
+	return class.SetProperty(ctx, "x", val)
 }
 
-func (class *ClassMyClass) IncrementX(ctx context.Context) error {
-	_, err := class.CallMethod(ctx, class, "incrementX")
+func (class *ClassMyClass) IncrementX0(ctx context.Context) error {
+	_, err := class.CallMethod(ctx, "incrementX")
 	return err
 }
 
-func ClassMyClassStaticGetStringFromInstance(e embind.Engine, ctx context.Context, arg0 *ClassMyClass) (string, error) {
+func (class *ClassMyClass) IncrementX1(ctx context.Context, arg0 int32) error {
+	_, err := class.CallMethod(ctx, "incrementX", arg0)
+	return err
+}
+
+func (class *ClassMyClass) StaticGetStringFromInstance(ctx context.Context, arg0 embind.ClassBase) (string, error) {
+	res, err := class.CallInstanceMethod(ctx, nil, "getStringFromInstance", arg0)
+	if err != nil {
+		return "", err
+	}
+
+	if res == nil {
+		return "", nil
+	}
+
+	return res.(string), nil
+}
+func ClassMyClassStaticGetStringFromInstance(e embind.Engine, ctx context.Context, arg0 embind.ClassBase) (string, error) {
 	res, err := e.CallStaticClassMethod(ctx, "MyClass", "getStringFromInstance", arg0)
 	if err != nil {
 		return "", err
 	}
 
+	if res == nil {
+		return "", nil
+	}
+
 	return res.(string), nil
 }
 
-func NewClassMyClass(e embind.Engine, ctx context.Context, arg0 int32, arg1 string) (*ClassMyClass, error) {
+func NewClassMyClass1(e embind.Engine, ctx context.Context, arg0 int32) (*ClassMyClass, error) {
+	res, err := e.CallPublicSymbol(ctx, "MyClass", arg0)
+	if err != nil {
+		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
+	}
+
+	return res.(*ClassMyClass), nil
+}
+
+func NewClassMyClass2(e embind.Engine, ctx context.Context, arg0 int32, arg1 string) (*ClassMyClass, error) {
 	res, err := e.CallPublicSymbol(ctx, "MyClass", arg0, arg1)
 	if err != nil {
 		return nil, err
+	}
+
+	if res == nil {
+		return nil, nil
 	}
 
 	return res.(*ClassMyClass), nil

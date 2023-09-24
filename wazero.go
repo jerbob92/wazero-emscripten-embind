@@ -40,6 +40,17 @@ func (e unexportedFunctionError) Error() string {
 	return fmt.Sprintf("you need to export the \"%s\" function to make embind work, you can do this using the \"EXPORTED_FUNCTIONS\" option in Emscripten during compilation, you will need to prepend exports with an underscore, so you have to add \"_%s\" to the list", e.name, e.name)
 }
 
+func (e functionExporter) GetImportedFunction(name string) api.FunctionDefinition {
+	importedFunctions := e.guest.ImportedFunctions()
+	for i := range importedFunctions {
+		if importedFunctions[i].Name() == name {
+			return importedFunctions[i]
+		}
+	}
+
+	return nil
+}
+
 // ExportFunctions implements FunctionExporter.ExportFunctions
 func (e functionExporter) ExportFunctions(b wazero.HostModuleBuilder) error {
 	// First validate whether required functions are available.
@@ -66,11 +77,25 @@ func (e functionExporter) ExportFunctions(b wazero.HostModuleBuilder) error {
 		WithGoModuleFunction(internal.RegisterVoid, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{}).
 		Export("_embind_register_void")
 
-	b.NewFunctionBuilder().
-		WithName("_embind_register_bool").
-		WithParameterNames("rawType", "name", "size", "trueValue", "falseValue").
-		WithGoModuleFunction(internal.RegisterBool, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{}).
-		Export("_embind_register_bool")
+	importedEmbindRegisterBool := e.GetImportedFunction("_embind_register_bool")
+	if importedEmbindRegisterBool != nil {
+		// Since Emscripten 3.1.45, the size of the boolean is put to 1, while
+		// before the size was part of the registration.
+		boolHasSizeArgument := len(importedEmbindRegisterBool.ParamTypes()) == 5
+		if boolHasSizeArgument {
+			b.NewFunctionBuilder().
+				WithName("_embind_register_bool").
+				WithParameterNames("rawType", "name", "size", "trueValue", "falseValue").
+				WithGoModuleFunction(internal.RegisterBool(true), []api.ValueType{api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{}).
+				Export("_embind_register_bool")
+		} else {
+			b.NewFunctionBuilder().
+				WithName("_embind_register_bool").
+				WithParameterNames("rawType", "name", "trueValue", "falseValue").
+				WithGoModuleFunction(internal.RegisterBool(false), []api.ValueType{api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{}).
+				Export("_embind_register_bool")
+		}
+	}
 
 	b.NewFunctionBuilder().
 		WithName("_embind_register_integer").
@@ -210,6 +235,13 @@ func (e functionExporter) ExportFunctions(b wazero.HostModuleBuilder) error {
 		WithResultNames("id").
 		WithGoModuleFunction(internal.EmvalGetMethodCaller, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32}).
 		Export("_emval_get_method_caller")
+
+	b.NewFunctionBuilder().
+		WithName("_emval_call").
+		WithParameterNames("handle", "argCount", "argTypes", "argv").
+		WithResultNames("handle").
+		WithGoModuleFunction(internal.EmvalCall, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32}).
+		Export("_emval_call")
 
 	b.NewFunctionBuilder().
 		WithName("_emval_call_method").
@@ -354,6 +386,192 @@ func (e functionExporter) ExportFunctions(b wazero.HostModuleBuilder) error {
 		WithParameterNames("structType").
 		WithGoModuleFunction(internal.FinalizeValueObject, []api.ValueType{api.ValueTypeI32}, []api.ValueType{}).
 		Export("_embind_finalize_value_object")
+
+	b.NewFunctionBuilder().
+		WithName("_embind_register_smart_ptr").
+		WithParameterNames(
+			"rawType",
+			"rawPointeeType",
+			"name",
+			"sharingPolicy",
+			"getPointeeSignature",
+			"rawGetPointee",
+			"constructorSignature",
+			"rawConstructor",
+			"shareSignature",
+			"rawShare",
+			"destructorSignature",
+			"rawDestructor",
+		).
+		WithGoModuleFunction(internal.RegisterSmartPtr, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{}).
+		Export("_embind_register_smart_ptr")
+
+	b.NewFunctionBuilder().
+		WithName("_embind_create_inheriting_constructor").
+		WithParameterNames("constructorName", "wrapperType", "properties").
+		WithResultNames("handle").
+		WithGoModuleFunction(internal.CreateInheritingConstructor, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32}).
+		Export("_embind_create_inheriting_constructor")
+
+	b.NewFunctionBuilder().
+		WithName("_embind_register_class_class_property").
+		WithParameterNames(
+			"rawClassType",
+			"fieldName",
+			"rawFieldType",
+			"rawFieldPtr",
+			"getterSignature",
+			"getter",
+			"setterSignature",
+			"setter",
+		).
+		WithGoModuleFunction(internal.RegisterClassClassProperty, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{}).
+		Export("_embind_register_class_class_property")
+
+	b.NewFunctionBuilder().
+		WithName("_emval_as_int64").
+		WithParameterNames("handle", "returnType").
+		WithResultNames("value").
+		WithGoModuleFunction(internal.EmvalAsInt64, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{api.ValueTypeI64}).
+		Export("_emval_as_int64")
+
+	b.NewFunctionBuilder().
+		WithName("_emval_as_uint64").
+		WithParameterNames("handle", "returnType").
+		WithResultNames("value").
+		WithGoModuleFunction(internal.EmvalAsUint64, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{api.ValueTypeI64}).
+		Export("_emval_as_uint64")
+
+	b.NewFunctionBuilder().
+		WithName("_emval_await").
+		WithParameterNames("handle").
+		WithResultNames("value").
+		WithGoModuleFunction(internal.EmvalAwait, []api.ValueType{api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32}).
+		Export("_emval_await")
+
+	b.NewFunctionBuilder().
+		WithName("_emval_delete").
+		WithParameterNames("object", "property").
+		WithResultNames("result").
+		WithGoModuleFunction(internal.EmvalDelete, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32}).
+		Export("_emval_delete")
+
+	b.NewFunctionBuilder().
+		WithName("_emval_equals").
+		WithParameterNames("handle", "handle2").
+		WithResultNames("result").
+		WithGoModuleFunction(internal.EmvalEquals, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32}).
+		Export("_emval_equals")
+
+	b.NewFunctionBuilder().
+		WithName("_emval_get_module_property").
+		WithParameterNames("name").
+		WithResultNames("handle").
+		WithGoModuleFunction(internal.EmvalGetModuleProperty, []api.ValueType{api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32}).
+		Export("_emval_get_module_property")
+
+	b.NewFunctionBuilder().
+		WithName("_emval_greater_than").
+		WithParameterNames("handle", "handle2").
+		WithResultNames("result").
+		WithGoModuleFunction(internal.EmvalGreaterThan, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32}).
+		Export("_emval_greater_than")
+
+	b.NewFunctionBuilder().
+		WithName("_emval_in").
+		WithParameterNames("handle", "handle2").
+		WithResultNames("result").
+		WithGoModuleFunction(internal.EmvalIn, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32}).
+		Export("_emval_in")
+
+	b.NewFunctionBuilder().
+		WithName("_emval_instanceof").
+		WithParameterNames("handle", "handle2").
+		WithResultNames("result").
+		WithGoModuleFunction(internal.EmvalInstanceof, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32}).
+		Export("_emval_instanceof")
+
+	b.NewFunctionBuilder().
+		WithName("_emval_is_number").
+		WithParameterNames("handle").
+		WithResultNames("result").
+		WithGoModuleFunction(internal.EmvalIsNumber, []api.ValueType{api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32}).
+		Export("_emval_is_number")
+
+	b.NewFunctionBuilder().
+		WithName("_emval_is_string").
+		WithParameterNames("handle").
+		WithResultNames("result").
+		WithGoModuleFunction(internal.EmvalIsString, []api.ValueType{api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32}).
+		Export("_emval_is_string")
+
+	b.NewFunctionBuilder().
+		WithName("_emval_less_than").
+		WithParameterNames("handle", "handle2").
+		WithResultNames("result").
+		WithGoModuleFunction(internal.EmvalLessThan, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32}).
+		Export("_emval_less_than")
+
+	b.NewFunctionBuilder().
+		WithName("_emval_new_array").
+		WithResultNames("array").
+		WithGoModuleFunction(internal.EmvalNewArray, []api.ValueType{}, []api.ValueType{api.ValueTypeI32}).
+		Export("_emval_new_array")
+
+	b.NewFunctionBuilder().
+		WithName("_emval_new_array_from_memory_view").
+		WithParameterNames("view").
+		WithResultNames("array").
+		WithGoModuleFunction(internal.EmvalNewArrayFromMemoryView, []api.ValueType{api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32}).
+		Export("_emval_new_array_from_memory_view")
+
+	b.NewFunctionBuilder().
+		WithName("_emval_new_object").
+		WithResultNames("object").
+		WithGoModuleFunction(internal.EmvalNewObject, []api.ValueType{}, []api.ValueType{api.ValueTypeI32}).
+		Export("_emval_new_object")
+
+	b.NewFunctionBuilder().
+		WithName("_emval_new_u16string").
+		WithParameterNames("in").
+		WithResultNames("out").
+		WithGoModuleFunction(internal.EmvalNewU16string, []api.ValueType{api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32}).
+		Export("_emval_new_u16string")
+
+	b.NewFunctionBuilder().
+		WithName("_emval_new_u8string").
+		WithParameterNames("in").
+		WithResultNames("out").
+		WithGoModuleFunction(internal.EmvalNewU8string, []api.ValueType{api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32}).
+		Export("_emval_new_u8string")
+
+	b.NewFunctionBuilder().
+		WithName("_emval_not").
+		WithParameterNames("handle").
+		WithResultNames("result").
+		WithGoModuleFunction(internal.EmvalNot, []api.ValueType{api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32}).
+		Export("_emval_not")
+
+	b.NewFunctionBuilder().
+		WithName("_emval_strictly_equals").
+		WithParameterNames("handle1", "handle2").
+		WithResultNames("result").
+		WithGoModuleFunction(internal.EmvalStrictlyEquals, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32}).
+		Export("_emval_strictly_equals")
+
+	b.NewFunctionBuilder().
+		WithName("_emval_throw").
+		WithParameterNames("handle").
+		WithResultNames("object").
+		WithGoModuleFunction(internal.EmvalThrow, []api.ValueType{api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32}).
+		Export("_emval_throw")
+
+	b.NewFunctionBuilder().
+		WithName("_emval_typeof").
+		WithParameterNames("handle").
+		WithResultNames("type").
+		WithGoModuleFunction(internal.EmvalTypeof, []api.ValueType{api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32}).
+		Export("_emval_typeof")
 
 	return nil
 }

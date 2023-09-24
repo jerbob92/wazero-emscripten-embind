@@ -11,6 +11,8 @@ type Engine interface {
 	NewFunctionExporterForModule(guest wazero.CompiledModule) FunctionExporter
 }
 
+type DelayFunction internal.DelayFunction
+
 type EngineKey = internal.EngineKey
 
 func CreateEngine(config internal.IEngineConfig) Engine {

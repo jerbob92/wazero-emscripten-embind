@@ -72,7 +72,7 @@ func main() {
 	}
 
 	// Create a new class.
-	newClassInstance, err := generated.NewClassMyClass(engine, ctx, 23, "test123")
+	newClassInstance, err := generated.NewClassMyClass2(engine, ctx, 23, "test123")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -82,7 +82,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = newClassInstance.SetX(ctx, 42)
+	err = newClassInstance.SetPropertyX(ctx, 42)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -92,7 +92,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	err = newClassInstance.IncrementX(ctx)
+	err = newClassInstance.IncrementX0(ctx)
 	if err != nil {
 		log.Fatal(err)
 	}

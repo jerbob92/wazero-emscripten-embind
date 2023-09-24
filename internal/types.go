@@ -25,12 +25,12 @@ func (bt *baseType) ArgPackAdvance() int32 {
 	return bt.argPackAdvance
 }
 
-func (bt *baseType) HasDestructorFunction() bool {
-	return false
+func (bt *baseType) DestructorFunctionUndefined() bool {
+	return true
 }
 
-func (bt *baseType) DestructorFunction(ctx context.Context, mod api.Module, pointer uint32) (*destructorFunc, error) {
-	return nil, nil
+func (bt *baseType) DestructorFunction(ctx context.Context, mod api.Module, pointer uint32) *destructorFunc {
+	return nil
 }
 
 func (bt *baseType) ReadValueFromPointer(ctx context.Context, mod api.Module, pointer uint32) (any, error) {
@@ -53,12 +53,16 @@ func (bt *baseType) FromF64(o float64) uint64 {
 	return api.EncodeF64(o)
 }
 
+func (bt *baseType) ToF64(o uint64) float64 {
+	return float64(o)
+}
+
 type registeredType interface {
 	RawType() int32
 	Name() string
 	ArgPackAdvance() int32
-	HasDestructorFunction() bool
-	DestructorFunction(ctx context.Context, mod api.Module, pointer uint32) (*destructorFunc, error)
+	DestructorFunctionUndefined() bool
+	DestructorFunction(ctx context.Context, mod api.Module, pointer uint32) *destructorFunc
 	FromWireType(ctx context.Context, mod api.Module, wt uint64) (any, error)
 	ToWireType(ctx context.Context, mod api.Module, destructors *[]*destructorFunc, o any) (uint64, error)
 	ReadValueFromPointer(ctx context.Context, mod api.Module, pointer uint32) (any, error)
@@ -67,6 +71,7 @@ type registeredType interface {
 	NativeType() api.ValueType
 	GoType() string
 	FromF64(o float64) uint64
+	ToF64(o uint64) float64
 }
 
 type IType interface {
@@ -151,7 +156,3 @@ type registeredObjectField struct {
 	read               func(ctx context.Context, mod api.Module, ptr int32) (any, error)
 	write              func(ctx context.Context, mod api.Module, ptr int32, o any) error
 }
-
-type undefinedType int8
-
-var undefined = undefinedType(0)

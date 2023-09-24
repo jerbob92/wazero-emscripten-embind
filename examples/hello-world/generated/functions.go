@@ -7,6 +7,16 @@ import (
 	"github.com/jerbob92/wazero-emscripten-embind"
 )
 
+func Function_overload0(e embind.Engine, ctx context.Context) error {
+	_, err := e.CallPublicSymbol(ctx, "function_overload")
+	return err
+}
+
+func Function_overload1(e embind.Engine, ctx context.Context, arg0 int32) error {
+	_, err := e.CallPublicSymbol(ctx, "function_overload", arg0)
+	return err
+}
+
 func Hello_world(e embind.Engine, ctx context.Context, arg0 string) error {
 	_, err := e.CallPublicSymbol(ctx, "hello_world", arg0)
 	return err

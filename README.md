@@ -2,7 +2,7 @@
 
 [![Go Reference](https://pkg.go.dev/badge/github.com/jerbob92/wazero-emscripten-embind.svg)](https://pkg.go.dev/github.com/jerbob92/wazero-emscripten-embind)
 [![Build Status][build-status]][build-url]
-<!--[![codecov](https://codecov.io/gh/jerbob92/wazero-emscripten-embind/graph/badge.svg?token=4SC2SOJNZK)](https://codecov.io/gh/jerbob92/wazero-emscripten-embind)-->
+[![codecov](https://codecov.io/gh/jerbob92/wazero-emscripten-embind/graph/badge.svg?token=4SC2SOJNZK)](https://codecov.io/gh/jerbob92/wazero-emscripten-embind)
 
 [build-status]:https://github.com/jerbob92/wazero-emscripten-embind/workflows/Go/badge.svg
 [build-url]:https://github.com/jerbob92/wazero-emscripten-embind/actions
@@ -11,7 +11,7 @@
 
 ## Features
 
-* Support for all [Embind](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html) features
+* Support for almost all [Embind](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html) features
 * Code generator for all Embind bindings:
     * [Functions](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html#a-quick-example)
     * [Classes](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html#classes)
@@ -23,6 +23,14 @@
 * Communicate between guest and host without worrying about data encoding/decoding
 * Direct access to memory
   through [memory views](https://emscripten.org/docs/porting/connecting_cpp_and_javascript/embind.html#memory-views)
+* Tested with custom test C++ and standard tests from Emscripten
+
+But not everything is supported:
+
+* ASYNCIFY: does not make a lot of sense in Go, might come later to allow Async C++ implementations to work
+* EM_ASM/EM_JS (and related methods): naturally, you can't run JS in Go/Wazero. Since Go is not an interpreted language,
+  I don't see much sense to add support for Go code in it, as that would require a Go interpreter.
+* Binding class method names to well-known symbols (which is something JS specific).
 
 ## What does Embind do?
 

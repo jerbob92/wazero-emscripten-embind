@@ -39,7 +39,7 @@ jobs:
       - name: Test implementation for coverage
         if: matrix.os == 'ubuntu-latest' && matrix.go == env.COVERAGE_GO_VERSION
         run: |
-          go test -timeout 30m `go list ./... | grep -v examples` -coverprofile=coverage.out -covermode=atomic -v
+          go test -timeout 30m `go list ./... | grep -v examples | grep -v generated` -coverpkg=-coverpkg=`go list ./... | grep -v examples | grep -v generated | tr '\n' ','` -coverprofile=coverage.out -covermode=atomic -v
       - name: Archive code coverage results
         if: matrix.os == 'ubuntu-latest' && matrix.go == env.COVERAGE_GO_VERSION
         uses: actions/upload-artifact@v3

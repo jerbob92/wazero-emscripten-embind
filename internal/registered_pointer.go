@@ -17,11 +17,13 @@ type registeredPointerType struct {
 	// smart pointer properties
 	isSmartPointer bool
 	pointeeType    *registeredPointerType
-	sharingPolicy  any
+	sharingPolicy  int32
 	rawGetPointee  api.Function
 	rawConstructor api.Function
 	rawShare       api.Function
 	rawDestructor  api.Function
+
+	specialShare bool // Whether the rawShare is special for this class (no return param)
 }
 
 type registeredPointerTypeRecordCount struct {
@@ -85,15 +87,9 @@ func (rpt *registeredPointerType) FromWireType(ctx context.Context, mod api.Modu
 	}
 
 	if rawPointer == 0 {
-		destrFun, err := rpt.DestructorFunction(ctx, mod, ptr)
+		err = rpt.Destructor(ctx, ptr)
 		if err != nil {
 			return nil, err
-		}
-		if destrFun != nil {
-			err = destrFun.run(ctx, mod)
-			if err != nil {
-				return nil, err
-			}
 		}
 
 		return nil, nil
@@ -108,19 +104,16 @@ func (rpt *registeredPointerType) FromWireType(ctx context.Context, mod api.Modu
 		if registeredInstance.getRegisteredPtrTypeRecord().count.value == 0 {
 			registeredInstance.getRegisteredPtrTypeRecord().ptr = rawPointer
 			registeredInstance.getRegisteredPtrTypeRecord().smartPtr = ptr
-			return registeredInstance.getClassType().clone(registeredInstance)
+			return registeredInstance.getClassType().clone(ctx, registeredInstance)
 		} else {
 			// else, just increment reference count on existing object
 			// it already has a reference to the smart pointer
-			rv, err := registeredInstance.getClassType().clone(registeredInstance)
+			rv, err := registeredInstance.getClassType().clone(ctx, registeredInstance)
 			if err != nil {
 				return nil, err
 			}
-			destructor, err := rpt.DestructorFunction(ctx, mod, ptr)
-			if err != nil {
-				return nil, err
-			}
-			err = destructor.run(ctx, mod)
+
+			err = rpt.Destructor(ctx, ptr)
 			if err != nil {
 				return nil, err
 			}
@@ -131,14 +124,14 @@ func (rpt *registeredPointerType) FromWireType(ctx context.Context, mod api.Modu
 
 	makeDefaultHandle := func() (any, error) {
 		if rpt.isSmartPointer {
-			return rpt.makeClassHandle(rpt.registeredClass, &registeredPointerTypeRecord{
+			return rpt.makeClassHandle(ctx, rpt.registeredClass, &registeredPointerTypeRecord{
 				ptrType:      rpt.pointeeType,
 				ptr:          rawPointer,
 				smartPtrType: rpt,
 				smartPtr:     ptr,
 			})
 		} else {
-			return rpt.makeClassHandle(rpt.registeredClass, &registeredPointerTypeRecord{
+			return rpt.makeClassHandle(ctx, rpt.registeredClass, &registeredPointerTypeRecord{
 				ptrType: rpt,
 				ptr:     ptr,
 			})
@@ -185,14 +178,14 @@ func (rpt *registeredPointerType) FromWireType(ctx context.Context, mod api.Modu
 	}
 
 	if rpt.isSmartPointer {
-		return rpt.makeClassHandle(toType.registeredClass, &registeredPointerTypeRecord{
+		return rpt.makeClassHandle(ctx, toType.registeredClass, &registeredPointerTypeRecord{
 			ptrType:      toType,
 			ptr:          dp,
 			smartPtrType: rpt,
 			smartPtr:     ptr,
 		})
 	} else {
-		return rpt.makeClassHandle(toType.registeredClass, &registeredPointerTypeRecord{
+		return rpt.makeClassHandle(ctx, toType.registeredClass, &registeredPointerTypeRecord{
 			ptrType: toType,
 			ptr:     dp,
 		})
@@ -229,7 +222,11 @@ func (rpt *registeredPointerType) constNoSmartPtrRawPointerToWireType(ctx contex
 		return 0, nil
 	}
 
-	handle := o.(IClassBase)
+	handle, ok := o.(IClassBase)
+	if !ok {
+		return 0, fmt.Errorf("invalid %s, check whether you constructed it properly through embind, the given value is a %T", rpt.name, o)
+	}
+
 	_, isBaseClass := o.(*ClassBase)
 	if !isBaseClass {
 		// @todo: can we do this without reflection?
@@ -266,7 +263,11 @@ func (rpt *registeredPointerType) nonConstNoSmartPtrRawPointerToWireType(ctx con
 		return 0, nil
 	}
 
-	handle := o.(IClassBase)
+	handle, ok := o.(IClassBase)
+	if !ok {
+		return 0, fmt.Errorf("invalid %s, check whether you constructed it properly through embind, the given value is a %T", rpt.name, o)
+	}
+
 	_, isBaseClass := o.(*ClassBase)
 	if !isBaseClass {
 		// @todo: can we do this without reflection?
@@ -307,22 +308,30 @@ func (rpt *registeredPointerType) genericPointerToWireType(ctx context.Context, 
 		if rpt.isSmartPointer {
 			res, err := rpt.rawConstructor.Call(ctx)
 			if err != nil {
-				ptr = api.DecodeU32(res[0])
+				return 0, err
 			}
+
+			ptr = api.DecodeU32(res[0])
 			if destructors != nil {
 				destructorsRef := *destructors
 				destructorsRef = append(destructorsRef, &destructorFunc{
 					apiFunction: rpt.rawDestructor,
 					args:        []uint64{api.EncodeU32(ptr)},
 				})
+				*destructors = destructorsRef
 			}
+
 			return api.EncodeU32(ptr), nil
 		} else {
 			return 0, nil
 		}
 	}
 
-	handle := o.(IClassBase)
+	handle, ok := o.(IClassBase)
+	if !ok {
+		return 0, fmt.Errorf("invalid %s, check whether you constructed it properly through embind, the given value is a %T", rpt.name, o)
+	}
+
 	_, isBaseClass := o.(*ClassBase)
 	if !isBaseClass {
 		// @todo: can we do this without reflection?
@@ -385,7 +394,7 @@ func (rpt *registeredPointerType) genericPointerToWireType(ctx context.Context, 
 				ptr = registeredPtrTypeRecord.smartPtr
 			} else {
 				e := MustGetEngineFromContext(ctx, nil)
-				clonedHandle, err := handle.getClassType().clone(handle)
+				clonedHandle, err := handle.getClassType().clone(ctx, handle)
 				if err != nil {
 					return 0, err
 				}
@@ -395,6 +404,7 @@ func (rpt *registeredPointerType) genericPointerToWireType(ctx context.Context, 
 					_ = clonedHandle.getClassType().delete(ctx, clonedHandle)
 				})
 
+				// @todo: what to do with rpt.specialShare?
 				res, err := rpt.rawShare.Call(ctx, api.EncodeU32(ptr), api.EncodeI32(deleteCallbackHandle))
 				if err != nil {
 					return 0, err
@@ -426,26 +436,29 @@ func (rpt *registeredPointerType) ReadValueFromPointer(ctx context.Context, mod 
 	return rpt.FromWireType(ctx, mod, api.EncodeU32(value))
 }
 
-func (rpt *registeredPointerType) HasDestructorFunction() bool {
+func (rpt *registeredPointerType) DestructorFunctionUndefined() bool {
 	if !rpt.isSmartPointer && rpt.registeredClass.baseClass == nil {
 		return false
 	}
 	return true
 }
 
-func (rpt *registeredPointerType) DestructorFunction(ctx context.Context, mod api.Module, pointer uint32) (*destructorFunc, error) {
-	if rpt.rawDestructor != nil {
-		return &destructorFunc{
-			apiFunction: rpt.rawDestructor,
-			args:        []uint64{api.EncodeU32(pointer)},
-		}, nil
-	}
-
-	return nil, nil
+func (rpt *registeredPointerType) DestructorFunction(ctx context.Context, mod api.Module, pointer uint32) *destructorFunc {
+	return nil
 }
 
 func (rpt *registeredPointerType) HasDeleteObject() bool {
 	return true
+}
+
+func (rpt *registeredPointerType) Destructor(ctx context.Context, pointer uint32) error {
+	if rpt.rawDestructor != nil {
+		_, err := rpt.rawDestructor.Call(ctx, api.EncodeU32(pointer))
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }
 
 func (rpt *registeredPointerType) DeleteObject(ctx context.Context, mod api.Module, handle any) error {
@@ -523,7 +536,7 @@ func (rpt *registeredPointerType) downcastPointer(ctx context.Context, ptr uint3
 	return api.DecodeU32(downcastRes[0]), nil
 }
 
-func (rpt *registeredPointerType) makeClassHandle(class *classType, record *registeredPointerTypeRecord) (IClassBase, error) {
+func (rpt *registeredPointerType) makeClassHandle(ctx context.Context, class *classType, record *registeredPointerTypeRecord) (IClassBase, error) {
 	if record.ptrType == nil || record.ptr == 0 {
 		return nil, fmt.Errorf("makeClassHandle requires ptr and ptrType")
 	}
@@ -536,7 +549,7 @@ func (rpt *registeredPointerType) makeClassHandle(class *classType, record *regi
 		value: 1,
 	}
 
-	classHandle, err := class.getNewInstance(record)
+	classHandle, err := class.getNewInstance(ctx, record)
 	if err != nil {
 		return nil, err
 	}

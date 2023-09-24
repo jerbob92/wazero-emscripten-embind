@@ -3,6 +3,7 @@ package embind
 import (
 	"context"
 	"fmt"
+	"strings"
 
 	"github.com/tetratelabs/wazero/api"
 )
@@ -136,6 +137,10 @@ func (it *intType) GoType() string {
 	return "int32"
 }
 
+func (it *intType) DestructorFunctionUndefined() bool {
+	return false
+}
+
 func (it *intType) FromF64(o float64) uint64 {
 	if it.size == 1 {
 		if !it.signed {
@@ -154,3 +159,26 @@ func (it *intType) FromF64(o float64) uint64 {
 	}
 	return api.EncodeI32(int32(o))
 }
+
+var RegisterInteger = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
+	engine := MustGetEngineFromContext(ctx, mod).(*engine)
+
+	rawType := api.DecodeI32(stack[0])
+	name, err := engine.readCString(uint32(api.DecodeI32(stack[1])))
+	if err != nil {
+		panic(fmt.Errorf("could not read name: %w", err))
+	}
+
+	err = engine.registerType(rawType, &intType{
+		baseType: baseType{
+			rawType:        rawType,
+			name:           name,
+			argPackAdvance: 8,
+		},
+		size:   api.DecodeI32(stack[2]),
+		signed: !strings.Contains(name, "unsigned"),
+	}, nil)
+	if err != nil {
+		panic(fmt.Errorf("could not register: %w", err))
+	}
+})

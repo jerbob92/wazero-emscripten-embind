@@ -3,7 +3,6 @@ package embind
 import (
 	"context"
 	"fmt"
-
 	"github.com/tetratelabs/wazero/api"
 )
 
@@ -53,6 +52,7 @@ func (sst *stdStringType) ToWireType(ctx context.Context, mod api.Module, destru
 	if err != nil {
 		return 0, err
 	}
+
 	base := api.DecodeU32(mallocRes[0])
 	ptr := base + 4
 
@@ -73,12 +73,7 @@ func (sst *stdStringType) ToWireType(ctx context.Context, mod api.Module, destru
 
 	if destructors != nil {
 		destructorsRef := *destructors
-		destructorsRef = append(destructorsRef, &destructorFunc{
-			function: "free",
-			args: []uint64{
-				api.EncodeU32(base),
-			},
-		})
+		destructorsRef = append(destructorsRef, sst.DestructorFunction(ctx, mod, base))
 		*destructors = destructorsRef
 	}
 
@@ -93,15 +88,15 @@ func (sst *stdStringType) ReadValueFromPointer(ctx context.Context, mod api.Modu
 	return sst.FromWireType(ctx, mod, api.EncodeU32(ptr))
 }
 
-func (sst *stdStringType) HasDestructorFunction() bool {
-	return true
+func (sst *stdStringType) DestructorFunctionUndefined() bool {
+	return false
 }
 
-func (sst *stdStringType) DestructorFunction(ctx context.Context, mod api.Module, pointer uint32) (*destructorFunc, error) {
+func (sst *stdStringType) DestructorFunction(ctx context.Context, mod api.Module, pointer uint32) *destructorFunc {
 	return &destructorFunc{
 		apiFunction: mod.ExportedFunction("free"),
 		args:        []uint64{api.EncodeU32(pointer)},
-	}, nil
+	}
 }
 
 func (sst *stdStringType) GoType() string {
@@ -111,3 +106,25 @@ func (sst *stdStringType) GoType() string {
 func (sst *stdStringType) FromF64(o float64) uint64 {
 	return api.EncodeU32(uint32(o))
 }
+
+var RegisterStdString = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
+	engine := MustGetEngineFromContext(ctx, mod).(*engine)
+
+	rawType := api.DecodeI32(stack[0])
+	name, err := engine.readCString(uint32(api.DecodeI32(stack[1])))
+	if err != nil {
+		panic(fmt.Errorf("could not read name: %w", err))
+	}
+
+	err = engine.registerType(rawType, &stdStringType{
+		baseType: baseType{
+			rawType:        rawType,
+			name:           name,
+			argPackAdvance: 8,
+		},
+		stdStringIsUTF8: name == "std::string",
+	}, nil)
+	if err != nil {
+		panic(fmt.Errorf("could not register: %w", err))
+	}
+})
