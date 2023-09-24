@@ -207,7 +207,7 @@ func (e *emvalEngine) toHandle(value any) int32 {
 		return 2
 	} else if value == true {
 		return 3
-	} else if value == true {
+	} else if value == false {
 		return 4
 	}
 	return e.allocator.allocate(&emvalHandle{refCount: 1, value: value})
