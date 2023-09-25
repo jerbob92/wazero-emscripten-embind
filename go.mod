@@ -3,7 +3,7 @@ module github.com/jerbob92/wazero-emscripten-embind
 go 1.19
 
 require (
-	github.com/onsi/ginkgo/v2 v2.12.0
+	github.com/onsi/ginkgo/v2 v2.12.1
 	github.com/onsi/gomega v1.27.10
 	github.com/tetratelabs/wazero v1.5.0
 	golang.org/x/text v0.13.0
