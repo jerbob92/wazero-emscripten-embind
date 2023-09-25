@@ -2577,46 +2577,41 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 		})
 
 		It("custom smart pointer", func() {
-			// @todo: fix me.
-			/*
-				e, err := generated.NewClassHeldByCustomSmartPtr(engine, ctx, 20, "bar")
-				Expect(err).To(BeNil())
+			e, err := generated.NewClassHeldByCustomSmartPtr(engine, ctx, 20, "bar")
+			Expect(err).To(BeNil())
 
-				i, err := e.GetPropertyI(ctx)
-				Expect(err).To(BeNil())
-				Expect(i).To(Equal(int32(20)))
+			i, err := e.GetPropertyI(ctx)
+			Expect(err).To(BeNil())
+			Expect(i).To(Equal(int32(20)))
 
-				s, err := e.GetPropertyS(ctx)
-				Expect(err).To(BeNil())
-				Expect(s).To(Equal("bar"))
+			s, err := e.GetPropertyS(ctx)
+			Expect(err).To(BeNil())
+			Expect(s).To(Equal("bar"))
 
-				err = e.Delete(ctx)
-				Expect(err).To(BeNil())
-			*/
+			err = e.Delete(ctx)
+			Expect(err).To(BeNil())
 		})
 
 		It("custom smart pointer passed through wiretype", func() {
-			// @todo: fix me.
-			/*
-				e, err := generated.NewClassHeldByCustomSmartPtr(engine, ctx, 20, "bar")
-				Expect(err).To(BeNil())
+			e, err := generated.NewClassHeldByCustomSmartPtr(engine, ctx, 20, "bar")
+			Expect(err).To(BeNil())
 
-				f, err := generated.PassThroughCustomSmartPtr(engine, ctx, e)
-				Expect(err).To(BeNil())
+			f, err := generated.PassThroughCustomSmartPtr(engine, ctx, e)
+			Expect(err).To(BeNil())
 
-				err = e.Delete(ctx)
-				Expect(err).To(BeNil())
+			err = e.Delete(ctx)
+			Expect(err).To(BeNil())
 
-				i, err := f.GetInstanceProperty(ctx, f, "i")
-				Expect(err).To(BeNil())
-				Expect(i).To(Equal(int32(20)))
+			i, err := f.GetInstanceProperty(ctx, f, "i")
+			Expect(err).To(BeNil())
+			Expect(i).To(Equal(int32(20)))
 
-				s, err := f.GetInstanceProperty(ctx, f, "s")
-				Expect(err).To(BeNil())
-				Expect(s).To(Equal("bar"))
+			s, err := f.GetInstanceProperty(ctx, f, "s")
+			Expect(err).To(BeNil())
+			Expect(s).To(Equal("bar"))
 
-				err = f.DeleteInstance(ctx, f)
-				Expect(err).To(BeNil())*/
+			err = f.DeleteInstance(ctx, f)
+			Expect(err).To(BeNil())
 		})
 
 		It("cannot give null to by-value argument", func() {
@@ -2633,12 +2628,9 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 		})
 
 		It("custom smart pointer can take and give null", func() {
-			// @todo: fix me
-			/*
-				e, err := generated.PassThroughCustomSmartPtr(engine, ctx, nil)
-				Expect(err).To(BeNil())
-				Expect(e).To(BeNil())
-			*/
+			e, err := generated.PassThroughCustomSmartPtr(engine, ctx, nil)
+			Expect(err).To(BeNil())
+			Expect(e).To(BeNil())
 		})
 
 		It("cannot pass shared_ptr to CustomSmartPtr", func() {
@@ -2655,28 +2647,25 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 		})
 
 		It("custom smart pointers can be passed to shared_ptr parameter", func() {
-			// @todo: fix me
-			/*
-				e, err := generated.ClassHeldBySmartPtrStaticNewCustomPtr(engine, ctx, 10, "abc")
-				Expect(err).To(BeNil())
+			e, err := generated.ClassHeldBySmartPtrStaticNewCustomPtr(engine, ctx, 10, "abc")
+			Expect(err).To(BeNil())
 
-				i, err := e.GetInstanceProperty(ctx, e, "i")
-				Expect(err).To(BeNil())
-				Expect(i, 10)
+			i, err := e.GetInstanceProperty(ctx, e, "i")
+			Expect(err).To(BeNil())
+			Expect(i, 10)
 
-				s, err := e.GetInstanceProperty(ctx, e, "s")
-				Expect(err).To(BeNil())
-				Expect(s, "abc")
+			s, err := e.GetInstanceProperty(ctx, e, "s")
+			Expect(err).To(BeNil())
+			Expect(s, "abc")
 
-				tmp, err := generated.TakesHeldBySmartPtrSharedPtr(engine, ctx, e)
-				Expect(err).To(BeNil())
+			tmp, err := generated.TakesHeldBySmartPtrSharedPtr(engine, ctx, e)
+			Expect(err).To(BeNil())
 
-				err = tmp.DeleteInstance(ctx, tmp)
-				Expect(err).To(BeNil())
+			err = tmp.DeleteInstance(ctx, tmp)
+			Expect(err).To(BeNil())
 
-				err = e.DeleteInstance(ctx, e)
-				Expect(err).To(BeNil())
-			*/
+			err = e.DeleteInstance(ctx, e)
+			Expect(err).To(BeNil())
 		})
 
 		It("can call non-member functions as methods", func() {

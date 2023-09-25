@@ -1,1 +1,1 @@
-emcc -sERROR_ON_UNDEFINED_SYMBOLS=0 -sEXPORTED_FUNCTIONS="_free,_malloc" -g classes.cpp functions.cpp constants.cpp enums.cpp structs.cpp emval.cpp embind_test.cpp test_custom_marshal.cpp test_finalization.cpp test_unsigned.cpp -o tests.wasm -lembind --no-entry
+emcc -sERROR_ON_UNDEFINED_SYMBOLS=0 -sEXPORTED_FUNCTIONS="_free,_malloc" -sSTACK_SIZE=2MB -g classes.cpp functions.cpp constants.cpp enums.cpp structs.cpp emval.cpp embind_test.cpp test_custom_marshal.cpp test_finalization.cpp test_unsigned.cpp -o tests.wasm -lembind --no-entry
