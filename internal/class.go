@@ -523,6 +523,15 @@ func (ecb *ClassBase) GetInstanceProperty(ctx context.Context, this any, name st
 	return property.get(ctx, this)
 }
 
+func (ecb *ClassBase) DeleteInheritedInstance(ctx context.Context) error {
+	// detachFinalizer(ecb);
+	err := ecb.engine.unregisterInheritedInstance(ctx, ecb.classType, ecb.ptr, ecb)
+	if err != nil {
+		return fmt.Errorf("could not unregister instance: %w", err)
+	}
+	return nil
+}
+
 type IClassBase interface {
 	getClassType() *classType
 	getPtr() uint32
@@ -1372,70 +1381,105 @@ var RegisterSmartPtr = api.GoModuleFunc(func(ctx context.Context, mod api.Module
 })
 
 var CreateInheritingConstructor = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
-	panic(fmt.Errorf("CreateInheritingConstructor is not implemented (correctly)"))
-	/*
-		engine := MustGetEngineFromContext(ctx, mod).(*engine)
-		constructorNamePtr := api.DecodeI32(stack[0])
-		wrapperTypePtr := api.DecodeI32(stack[1])
-		propertiesId := api.DecodeI32(stack[2])
+	engine := MustGetEngineFromContext(ctx, mod).(*engine)
+	constructorNamePtr := api.DecodeI32(stack[0])
+	wrapperTypePtr := api.DecodeI32(stack[1])
+	propertiesId := api.DecodeI32(stack[2])
 
-		constructorName, err := engine.readCString(uint32(constructorNamePtr))
+	constructorName, err := engine.readCString(uint32(constructorNamePtr))
+	if err != nil {
+		panic(fmt.Errorf("could not read name: %w", err))
+	}
+
+	wrapperType, err := engine.requireRegisteredType(ctx, wrapperTypePtr, "wrapper")
+	if err != nil {
+		panic(fmt.Errorf("could not require registered type: %w", err))
+	}
+
+	properties, err := engine.emvalEngine.toValue(propertiesId)
+	if err != nil {
+		panic(fmt.Errorf("could not get properties val: %w", err))
+	}
+
+	if _, ok := properties.(IClassBase); !ok {
+		panic(fmt.Errorf("could not register class %s with type %T, it does not embed embind.ClassBase", constructorName, properties))
+	}
+
+	reflectClassType := reflect.TypeOf(properties)
+	if reflectClassType.Kind() != reflect.Ptr {
+		panic(fmt.Errorf("could not register class %s with type %T, given value should be a pointer type", constructorName, properties))
+	}
+
+	registeredPointerType := wrapperType.(*registeredPointerType)
+	registeredClass := registeredPointerType.registeredClass
+
+	legalFunctionName := engine.makeLegalFunctionName(constructorName)
+	err = engine.exposePublicSymbol(legalFunctionName, func(ctx context.Context, this any, arguments ...any) (any, error) {
+		innerClass := registeredClass.baseClass
+		implement, ok := innerClass.methods["implement"]
+		if !ok {
+			return nil, fmt.Errorf("base class %s does not have implement method", innerClass.name)
+		}
+
+		// Create a new class base to hold this instance.
+		classBase := &ClassBase{}
+
+		args := append([]any{classBase}, arguments...)
+		inner, err := implement.fn(ctx, nil, args...)
+
 		if err != nil {
-			panic(fmt.Errorf("could not read name: %w", err))
+			return nil, err
 		}
 
-		wrapperType, err := engine.requireRegisteredType(ctx, wrapperTypePtr, "wrapper")
+		// @todo: do something with finalizer?
+		// detachFinalizer(inner);
+
+		innerTyped := inner.(IClassBase)
+		ptrTypeRecord := innerTyped.getRegisteredPtrTypeRecord()
+
+		_, err = innerTyped.CallInstanceMethod(ctx, inner, "notifyOnDestruction")
 		if err != nil {
-			panic(fmt.Errorf("could not require registered type: %w", err))
+			return nil, err
 		}
 
-		properties, err := engine.emvalEngine.toValue(propertiesId)
+		ptrTypeRecord.preservePointerOnDelete = true
+
+		classBase.classType = registeredClass
+		classBase.ptr = ptrTypeRecord.ptr
+		classBase.ptrType = ptrTypeRecord.ptrType
+		classBase.registeredPtrTypeRecord = ptrTypeRecord
+		classBase.engine = engine
+
+		typeElem := reflectClassType.Elem()
+		newElem := reflect.New(typeElem)
+		f := newElem.Elem().FieldByName("ClassBase")
+		if f.IsValid() && f.CanSet() {
+			f.Set(reflect.ValueOf(classBase))
+		}
+
+		result := newElem.Interface()
+
+		resultClassBase := result.(IClassBase)
+
+		// @todo: do something with finalizer?
+		// attachFinalizer(result);
+
+		err = engine.registerInheritedInstance(ctx, registeredClass, ptrTypeRecord.ptr, resultClassBase)
 		if err != nil {
-			panic(fmt.Errorf("could not get properties val: %w", err))
+			return nil, err
 		}
 
-		if _, ok := properties.(IClassBase); !ok {
-			panic(fmt.Errorf("could not register class %s with type %T, it does not embed embind.ClassBase", constructorName, properties))
-		}
+		return result, nil
+	}, nil)
+	if err != nil {
+		panic(fmt.Errorf("could not expose public symbol: %w", err))
+	}
 
-		reflectClassType := reflect.TypeOf(properties)
-		if reflectClassType.Kind() != reflect.Ptr {
-			panic(fmt.Errorf("could not register class %s with type %T, given value should be a pointer type", constructorName, properties))
-		}
+	newFn := func(ctx context.Context, arguments ...any) (any, error) {
+		return engine.publicSymbols[legalFunctionName].fn(ctx, nil, arguments...)
+	}
 
-		registeredPointerType := wrapperType.(*registeredPointerType)
-		legalFunctionName := engine.makeLegalFunctionName(constructorName)
-		err = engine.exposePublicSymbol(legalFunctionName, func(ctx context.Context, this any, arguments ...any) (any, error) {
-			log.Println(registeredPointerType.name)
-			log.Println(registeredPointerType.registeredClass.name)
-			if registeredPointerType.registeredClass.constructors == nil {
-				return nil, fmt.Errorf("%s has no accessible constructor", constructorName)
-			}
-
-			// @todo: create an actual instance of properties here.
-
-			constructor, ok := registeredPointerType.registeredClass.constructors[int32(len(arguments))]
-			if !ok {
-				availableLengths := make([]string, 0)
-				for i := range registeredPointerType.registeredClass.constructors {
-					availableLengths = append(availableLengths, strconv.Itoa(int(i)))
-				}
-				sort.Strings(availableLengths)
-				return nil, fmt.Errorf("tried to invoke ctor of %s with invalid number of parameters (%d) - expected (%s) parameters instead", constructorName, len(arguments), strings.Join(availableLengths, " or "))
-			}
-
-			return constructor.fn(ctx, nil, arguments...)
-		}, nil)
-		if err != nil {
-			panic(fmt.Errorf("could not expose public symbol: %w", err))
-		}
-
-		newFn := func(ctx context.Context, arguments ...any) (any, error) {
-			return engine.publicSymbols[legalFunctionName].fn(ctx, nil, arguments...)
-		}
-
-		stack[0] = api.EncodeI32(engine.emvalEngine.toHandle(newFn))
-	*/
+	stack[0] = api.EncodeI32(engine.emvalEngine.toHandle(newFn))
 })
 
 func (e *engine) CallStaticClassMethod(ctx context.Context, className, name string, arguments ...any) (any, error) {

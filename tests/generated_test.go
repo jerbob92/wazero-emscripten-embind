@@ -3850,15 +3850,6 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 				C: 65538,
 			}))
 		})
-
-		It("before and after memory growth", func() {
-			// @todo: implement EmvalNewArray.
-			// @todo: implement some globals that we can also have on our side (like Uint8Array).
-			//array, err := generated.Construct_with_arguments_before_and_after_memory_growth(engine, ctx)
-			//Expect(err).To(BeNil())
-			//Expect(array.([]uint8)[0]).To(HaveLen(5))
-			//Expect(array.([]uint8)[0]).To(HaveLen(len(array.([]uint8)[1])))
-		})
 	})
 
 	When("intrusive pointers", func() {
@@ -3903,26 +3894,37 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 			Expect(err).To(BeNil())
 		})
 
-		// @todo: implement me
-		// We don't support this in Go right now. Needs CreateInheritingConstructor.
 		It("can extend from intrusive pointer class and still preserve reference in JavaScript", func() {
-			//type newStructTypeToExtend struct {
-			//	embind.ClassBase
-			//}
-			//C, err := generated.ClassIntrusiveClassStaticExtend(engine, ctx, "C2", &newStructTypeToExtend{})
-			//Expect(err).To(BeNil())
-			//log.Println(C)
-			//log.Println(C.(func(context.Context, ...any) (any, error))(ctx))
+			type newStructTypeToExtend struct {
+				embind_external.ClassBase
+			}
+			C, err := generated.ClassIntrusiveClassStaticExtend(engine, ctx, "C2", &newStructTypeToExtend{})
+			Expect(err).To(BeNil())
 
-			//var instance = new C;
-			//var holder = new cm.IntrusiveClassHolder;
-			//holder.set(instance);
-			//instance.delete();
+			instance, err := C.(func(context.Context, ...any) (any, error))(ctx)
+			Expect(err).To(BeNil())
 
-			//var back = holder.get();
-			//assert.equal(back, instance);
-			//holder.delete();
-			//back.delete();
+			typedInstance := instance.(embind_external.ClassBase)
+
+			holder, err := generated.NewClassIntrusiveClassHolder(engine, ctx)
+			Expect(err).To(BeNil())
+
+			err = holder.Set(ctx, typedInstance)
+			Expect(err).To(BeNil())
+
+			err = typedInstance.DeleteInstance(ctx, typedInstance)
+			Expect(err).To(BeNil())
+
+			back, err := holder.Get(ctx)
+			Expect(err).To(BeNil())
+
+			Expect(back).To(Equal(instance))
+
+			err = holder.Delete(ctx)
+			Expect(err).To(BeNil())
+
+			err = back.DeleteInstance(ctx, back)
+			Expect(err).To(BeNil())
 		})
 	})
 

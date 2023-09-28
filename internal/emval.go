@@ -307,6 +307,15 @@ func (e *emvalEngine) callMethod(ctx context.Context, mod api.Module, registered
 
 	actualMethodName := methodName
 	if matchedMethod == nil {
+		manualMap := map[string]string{
+			"__destruct": "deleteInheritedInstance",
+		}
+
+		_, ok := manualMap[methodName]
+		if ok {
+			methodName = manualMap[methodName]
+		}
+
 		m, ok := st.MethodByName(methodName)
 		if ok {
 			matchedMethod = &m
@@ -363,6 +372,12 @@ func (e *emvalEngine) callMethod(ctx context.Context, mod api.Module, registered
 
 	for i := 1; i < argCount; i++ {
 		callArgs[i-1] = reflect.ValueOf(args[i])
+	}
+
+	// Workaround to pass a context on to DeleteInheritedInstance.
+	if matchedMethod.Name == "DeleteInheritedInstance" {
+		callArgs = make([]reflect.Value, 1)
+		callArgs[0] = reflect.ValueOf(ctx)
 	}
 
 	resultData := reflect.ValueOf(handle).MethodByName(matchedMethod.Name).Call(callArgs)
@@ -644,7 +659,8 @@ var EmvalNew = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack 
 var EmvalSetProperty = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
 	engine := MustGetEngineFromContext(ctx, mod).(*engine)
 
-	handle, err := engine.emvalEngine.toValue(api.DecodeI32(stack[0]))
+	id := api.DecodeI32(stack[0])
+	handle, err := engine.emvalEngine.toValue(id)
 	if err != nil {
 		panic(fmt.Errorf("could not find handle: %w", err))
 	}
@@ -657,6 +673,24 @@ var EmvalSetProperty = api.GoModuleFunc(func(ctx context.Context, mod api.Module
 	val, err := engine.emvalEngine.toValue(api.DecodeI32(stack[2]))
 	if err != nil {
 		panic(fmt.Errorf("could not find val: %w", err))
+	}
+
+	keyInt, ok := key.(int32)
+	if ok {
+		arrayHandle, isAnyArray := handle.([]any)
+		if !isAnyArray {
+			panic(fmt.Errorf("could not set property on emval %T: %w", handle, errors.New("key is of type int32 but handle is not an array")))
+		}
+
+		if keyInt >= int32(len(arrayHandle)) {
+			newArray := make([]any, keyInt+1)
+			copy(newArray, arrayHandle)
+			arrayHandle = newArray
+		}
+
+		arrayHandle[keyInt] = val
+		engine.emvalEngine.allocator.allocated[id].value = arrayHandle
+		return
 	}
 
 	keyString, ok := key.(string)
@@ -693,6 +727,21 @@ var EmvalGetProperty = api.GoModuleFunc(func(ctx context.Context, mod api.Module
 	key, err := engine.emvalEngine.toValue(api.DecodeI32(stack[1]))
 	if err != nil {
 		panic(fmt.Errorf("could not find key: %w", err))
+	}
+
+	keyInt, ok := key.(int32)
+	if ok {
+		arrayHandle, isAnyArray := handle.([]any)
+		if !isAnyArray {
+			panic(fmt.Errorf("could not get property on emval %T: %w", handle, errors.New("key is of type int32 but handle is not an array")))
+		}
+
+		if keyInt >= int32(len(arrayHandle)) {
+			panic(fmt.Errorf("could not get property on emval %T: %w", handle, fmt.Errorf("invalid index %d requested", keyInt)))
+		}
+
+		stack[0] = api.EncodeI32(engine.emvalEngine.toHandle(arrayHandle[keyInt]))
+		return
 	}
 
 	keyString, ok := key.(string)

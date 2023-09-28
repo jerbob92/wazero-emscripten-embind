@@ -774,6 +774,38 @@ func (e *engine) CountEmvalHandles() int {
 	return len(e.emvalEngine.allocator.allocated) - len(e.emvalEngine.allocator.freelist) - e.emvalEngine.allocator.reserved
 }
 
+func (e *engine) registerInheritedInstance(ctx context.Context, registeredClass *classType, ptr uint32, instance IClassBase) error {
+	ptr, err := instance.getPtrType().getBasestPointer(ctx, registeredClass, ptr)
+	if err != nil {
+		return err
+	}
+
+	_, ok := e.registeredInstances[ptr]
+	if ok {
+		return fmt.Errorf("tried to register registered instance: %d", ptr)
+	}
+
+	e.registeredInstances[ptr] = instance
+
+	return nil
+}
+
+func (e *engine) unregisterInheritedInstance(ctx context.Context, registeredClass *classType, ptr uint32, instance IClassBase) error {
+	ptr, err := instance.getPtrType().getBasestPointer(ctx, registeredClass, ptr)
+	if err != nil {
+		return err
+	}
+
+	_, ok := e.registeredInstances[ptr]
+	if !ok {
+		return fmt.Errorf("tried to unregister unregistered instance: %d", ptr)
+	}
+
+	delete(e.registeredInstances, ptr)
+
+	return nil
+}
+
 func (e *engine) GetInheritedInstanceCount() int {
 	return len(e.registeredInstances)
 }

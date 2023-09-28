@@ -191,16 +191,6 @@ std::u32string get_literal_u32string() {
     return U"get_literal_u32string";
 }
 
-void force_memory_growth() {
-    std::size_t old_size = emscripten_get_heap_size();
-    assert(val::global("oldheap")["byteLength"].as<size_t>() == old_size);
-    emscripten_resize_heap(old_size + EMSCRIPTEN_PAGE_SIZE);
-    assert(emscripten_get_heap_size() > old_size);
-    // HEAPU8 on the module should now be rebound, and our oldheap should be detached
-    assert(val::module_property("HEAPU8")["byteLength"].as<size_t>() > old_size);
-    assert(val::global("oldheap")["byteLength"].as<size_t>() == 0);
-}
-
 std::string emval_test_take_and_return_const_char_star(const char* str) {
     return str;
 }
@@ -1829,7 +1819,6 @@ EMSCRIPTEN_BINDINGS(tests) {
     function("get_non_ascii_string", &get_non_ascii_string);
     function("get_non_ascii_wstring", &get_non_ascii_wstring);
     function("get_literal_wstring", &get_literal_wstring);
-    function("force_memory_growth", &force_memory_growth);
 
     //function("emval_test_take_and_return_const_char_star", &emval_test_take_and_return_const_char_star);
     function("emval_test_take_and_return_std_string", &emval_test_take_and_return_std_string);
@@ -2883,21 +2872,10 @@ val construct_with_ints_and_float(val factory) {
     return factory.new_(65537, 4.0f, 65538);
 }
 
-val construct_with_arguments_before_and_after_memory_growth() {
-    auto out = val::array();
-    out.set(0, val::global("Uint8Array").new_(5));
-    force_memory_growth();
-    out.set(1, val::global("Uint8Array").new_(5));
-    return out;
-}
-
 EMSCRIPTEN_BINDINGS(val_new_) {
     function("construct_with_6_arguments", &construct_with_6);
     function("construct_with_memory_view", &construct_with_memory_view);
     function("construct_with_ints_and_float", &construct_with_ints_and_float);
-    function(
-            "construct_with_arguments_before_and_after_memory_growth",
-            &construct_with_arguments_before_and_after_memory_growth);
 }
 
 template <typename T>
