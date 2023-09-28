@@ -698,6 +698,13 @@ var EmvalSetProperty = api.GoModuleFunc(func(ctx context.Context, mod api.Module
 		panic(fmt.Errorf("could not set property on emval %T: %w", handle, errors.New("key is not of type string")))
 	}
 
+	handleMap, isMap := handle.(map[string]any)
+	if isMap {
+		handleMap[keyString] = val
+		engine.emvalEngine.allocator.allocated[id].value = handleMap
+		return
+	}
+
 	f, err := engine.emvalEngine.getElemField(handle, keyString)
 	if err != nil {
 		panic(fmt.Errorf("could not set property %s on emval %T: %w", keyString, handle, err))
@@ -747,6 +754,12 @@ var EmvalGetProperty = api.GoModuleFunc(func(ctx context.Context, mod api.Module
 	keyString, ok := key.(string)
 	if !ok {
 		panic(fmt.Errorf("could not get property on emval %T: %w", handle, errors.New("key is not of type string")))
+	}
+
+	handleMap, isMap := handle.(map[string]any)
+	if isMap {
+		stack[0] = api.EncodeI32(engine.emvalEngine.toHandle(handleMap[keyString]))
+		return
 	}
 
 	f, err := engine.emvalEngine.getElemField(handle, keyString)
@@ -1040,8 +1053,25 @@ var EmvalDelete = api.GoModuleFunc(func(ctx context.Context, mod api.Module, sta
 })
 
 var EmvalEquals = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
-	// @todo: implement me.
-	panic("EmvalEquals call unimplemented")
+	engine := MustGetEngineFromContext(ctx, mod).(*engine)
+	id1 := api.DecodeI32(stack[0])
+	first, err := engine.emvalEngine.toValue(id1)
+	if err != nil {
+		panic(fmt.Errorf("could not find handle: %w", err))
+	}
+
+	id2 := api.DecodeI32(stack[1])
+	second, err := engine.emvalEngine.toValue(id2)
+	if err != nil {
+		panic(fmt.Errorf("could not find handle: %w", err))
+	}
+
+	ret := int32(0)
+	if first == second {
+		ret = 1
+	}
+
+	stack[0] = api.EncodeI32(ret)
 })
 
 var EmvalGetModuleProperty = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
@@ -1100,8 +1130,25 @@ var EmvalNot = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack 
 })
 
 var EmvalStrictlyEquals = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
-	// @todo: implement me.
-	panic("EmvalStrictlyEquals call unimplemented")
+	engine := MustGetEngineFromContext(ctx, mod).(*engine)
+	id1 := api.DecodeI32(stack[0])
+	first, err := engine.emvalEngine.toValue(id1)
+	if err != nil {
+		panic(fmt.Errorf("could not find handle: %w", err))
+	}
+
+	id2 := api.DecodeI32(stack[1])
+	second, err := engine.emvalEngine.toValue(id2)
+	if err != nil {
+		panic(fmt.Errorf("could not find handle: %w", err))
+	}
+
+	ret := int32(0)
+	if first == second {
+		ret = 1
+	}
+
+	stack[0] = api.EncodeI32(ret)
 })
 
 var EmvalThrow = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
