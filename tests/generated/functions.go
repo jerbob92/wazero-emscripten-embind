@@ -324,17 +324,6 @@ func Construct_with_6_arguments(e embind.Engine, ctx context.Context, arg0 any) 
 	return res.(any), nil
 }
 
-func Construct_with_arguments_before_and_after_memory_growth(e embind.Engine, ctx context.Context) (any, error) {
-	res, err := e.CallPublicSymbol(ctx, "construct_with_arguments_before_and_after_memory_growth")
-	if err != nil {
-		return nil, err
-	}
-	if res == nil {
-		return nil, nil
-	}
-	return res.(any), nil
-}
-
 func Construct_with_ints_and_float(e embind.Engine, ctx context.Context, arg0 any) (any, error) {
 	res, err := e.CallPublicSymbol(ctx, "construct_with_ints_and_float", arg0)
 	if err != nil {
@@ -1703,11 +1692,6 @@ func Foo_(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
 		return nil, nil
 	}
 	return res.(embind.ClassBase), nil
-}
-
-func Force_memory_growth(e embind.Engine, ctx context.Context) error {
-	_, err := e.CallPublicSymbol(ctx, "force_memory_growth")
-	return err
 }
 
 func Function_overload0(e embind.Engine, ctx context.Context) (int32, error) {

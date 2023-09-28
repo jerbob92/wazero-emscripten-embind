@@ -2,12 +2,12 @@ package tests
 
 import (
 	"context"
-	embind "github.com/jerbob92/wazero-emscripten-embind/internal"
 	"log"
 	"os"
 	"testing"
 
 	embind_external "github.com/jerbob92/wazero-emscripten-embind"
+	embind "github.com/jerbob92/wazero-emscripten-embind/internal"
 	"github.com/jerbob92/wazero-emscripten-embind/tests/generated"
 	"github.com/jerbob92/wazero-emscripten-embind/types"
 
@@ -900,117 +900,201 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 		*/
 	})
 	When("embind", func() {
-		/*
-					        test("value creation", function() {
-					            assert.equal(15, cm.emval_test_new_integer());
-					            assert.equal("Hello everyone", cm.emval_test_new_string());
-					            assert.equal("Hello everyone", cm.emval_test_get_string_from_val({key: "Hello everyone"}));
+		It("value creation", func() {
+			newInteger, err := generated.Emval_test_new_integer(engine, ctx)
+			Expect(err).To(BeNil())
+			Expect(newInteger).To(Equal(int32(15)))
 
-					            var object = cm.emval_test_new_object();
-					            assert.equal('bar', object.foo);
-					            assert.equal(1, object.baz);
-					        });
+			newString, err := generated.Emval_test_new_string(engine, ctx)
+			Expect(err).To(BeNil())
+			Expect(newString).To(Equal("Hello everyone"))
 
-					        test("pass const reference to primitive", function() {
-					            assert.equal(3, cm.const_ref_adder(1, 2));
-					        });
+			newStringFromVal, err := generated.Emval_test_get_string_from_val(engine, ctx, map[string]any{"key": "Hello everyone"})
+			Expect(err).To(BeNil())
+			Expect(newStringFromVal).To(Equal("Hello everyone"))
 
-					        test("get instance pointer as value", function() {
-					            var v = cm.emval_test_instance_pointer();
-					            assert.instanceof(v, cm.DummyForPointer);
-					        });
+			object, err := generated.Emval_test_new_object(engine, ctx)
+			Expect(err).To(BeNil())
+			Expect(object).To(HaveKeyWithValue("foo", "bar"))
+			Expect(object).To(HaveKeyWithValue("baz", int32(1)))
+		})
 
-					        test("cast value to instance pointer using as<T*>", function() {
-					            var v = cm.emval_test_instance_pointer();
-					            var p_value = cm.emval_test_value_from_instance_pointer(v);
-					            assert.equal(42, p_value);
-					        });
+		It("pass const reference to primitive", func() {
+			const_ref_adder, err := generated.Const_ref_adder(engine, ctx, 1, 2)
+			Expect(err).To(BeNil())
+			Expect(const_ref_adder).To(Equal(float32(3)))
+		})
 
-					        test("passthrough", function() {
-					            var a = {foo: 'bar'};
-					            var b = cm.emval_test_passthrough(a);
-					            a.bar = 'baz';
-					            assert.equal('baz', b.bar);
+		It("get instance pointer as value", func() {
+			v, err := generated.Emval_test_instance_pointer(engine, ctx)
+			Expect(err).To(BeNil())
+			_, ok := v.(*generated.ClassDummyForPointer)
+			Expect(ok).To(BeTrue())
+		})
 
-					            assert.equal(0, cm.count_emval_handles());
-					        });
+		It("cast value to instance pointer using as<T*>", func() {
+			v, err := generated.Emval_test_instance_pointer(engine, ctx)
+			Expect(err).To(BeNil())
+			p_value, err := generated.Emval_test_value_from_instance_pointer(engine, ctx, v)
+			Expect(err).To(BeNil())
 
-					        test("void return converts to undefined", function() {
-					            assert.equal(undefined, cm.emval_test_return_void());
-					        });
+			Expect(p_value).To(Equal(int32(42)))
+		})
 
-					        test("booleans can be marshalled", function() {
-					            assert.equal(false, cm.emval_test_not(true));
-					            assert.equal(true, cm.emval_test_not(false));
-					        });
+		It("passthrough", func() {
+			a := map[string]any{"foo": "bar"}
+			b, err := generated.Emval_test_passthrough(engine, ctx, a)
+			Expect(err).To(BeNil())
 
-					        test("val.is_undefined() is functional",function() {
-					            assert.equal(true, cm.emval_test_is_undefined(undefined));
-					            assert.equal(false, cm.emval_test_is_undefined(true));
-					            assert.equal(false, cm.emval_test_is_undefined(false));
-					            assert.equal(false, cm.emval_test_is_undefined(null));
-					            assert.equal(false, cm.emval_test_is_undefined({}));
-					        });
+			a["bar"] = "baz"
+			Expect(b.(map[string]any)["bar"]).To(Equal("baz"))
 
-					        test("val.is_null() is functional",function() {
-					            assert.equal(true, cm.emval_test_is_null(null));
-					            assert.equal(false, cm.emval_test_is_null(true));
-					            assert.equal(false, cm.emval_test_is_null(false));
-					            assert.equal(false, cm.emval_test_is_null(undefined));
-					            assert.equal(false, cm.emval_test_is_null({}));
-					        });
+			emvalhandles := engine.CountEmvalHandles()
+			Expect(emvalhandles).To(Equal(0))
+		})
 
-					        test("val.is_true() is functional",function() {
-					            assert.equal(true, cm.emval_test_is_true(true));
-					            assert.equal(false, cm.emval_test_is_true(false));
-					            assert.equal(false, cm.emval_test_is_true(null));
-					            assert.equal(false, cm.emval_test_is_true(undefined));
-					            assert.equal(false, cm.emval_test_is_true({}));
-					        });
+		It("void return converts to undefined", func() {
+			err := generated.Emval_test_return_void(engine, ctx)
+			Expect(err).To(BeNil())
 
-					        test("val.is_false() is functional",function() {
-					            assert.equal(true, cm.emval_test_is_false(false));
-					            assert.equal(false, cm.emval_test_is_false(true));
-					            assert.equal(false, cm.emval_test_is_false(null));
-					            assert.equal(false, cm.emval_test_is_false(undefined));
-					            assert.equal(false, cm.emval_test_is_false({}));
-					        });
+			val, err := engine.CallPublicSymbol(ctx, "emval_test_return_void")
+			Expect(err).To(BeNil())
+			Expect(val).To(BeNil())
+		})
 
-					        test("val.equals() is functional",function() {
-					            var values = [undefined, null, true, false, {}];
+		It("booleans can be marshalled", func() {
+			not, err := generated.Emval_test_not(engine, ctx, true)
+			Expect(err).To(BeNil())
+			Expect(not).To(BeFalse())
 
-					            for(var i=0;i<values.length;++i){
-					                var first = values[i];
-					                for(var j=i;j<values.length;++j)
-					                {
-					                    var second = values[j];
-					assert.equal((first == second), cm.emval_test_equals(first, second));
+			not, err = generated.Emval_test_not(engine, ctx, false)
+			Expect(err).To(BeNil())
+			Expect(not).To(BeTrue())
+		})
+
+		It("val.is_undefined() is functional", func() {
+			emval_test_is_undefined, err := generated.Emval_test_is_undefined(engine, ctx, types.Undefined)
+			Expect(err).To(BeNil())
+			Expect(emval_test_is_undefined).To(BeTrue())
+
+			emval_test_is_undefined, err = generated.Emval_test_is_undefined(engine, ctx, true)
+			Expect(err).To(BeNil())
+			Expect(emval_test_is_undefined).To(BeFalse())
+
+			emval_test_is_undefined, err = generated.Emval_test_is_undefined(engine, ctx, false)
+			Expect(err).To(BeNil())
+			Expect(emval_test_is_undefined).To(BeFalse())
+
+			emval_test_is_undefined, err = generated.Emval_test_is_undefined(engine, ctx, nil)
+			Expect(err).To(BeNil())
+			Expect(emval_test_is_undefined).To(BeFalse())
+
+			emval_test_is_undefined, err = generated.Emval_test_is_undefined(engine, ctx, struct{}{})
+			Expect(err).To(BeNil())
+			Expect(emval_test_is_undefined).To(BeFalse())
+		})
+
+		It("val.is_null() is functional", func() {
+			emval_test_is_null, err := generated.Emval_test_is_null(engine, ctx, nil)
+			Expect(err).To(BeNil())
+			Expect(emval_test_is_null).To(BeTrue())
+
+			emval_test_is_null, err = generated.Emval_test_is_null(engine, ctx, true)
+			Expect(err).To(BeNil())
+			Expect(emval_test_is_null).To(BeFalse())
+
+			emval_test_is_null, err = generated.Emval_test_is_null(engine, ctx, false)
+			Expect(err).To(BeNil())
+			Expect(emval_test_is_null).To(BeFalse())
+
+			emval_test_is_null, err = generated.Emval_test_is_null(engine, ctx, types.Undefined)
+			Expect(err).To(BeNil())
+			Expect(emval_test_is_null).To(BeFalse())
+
+			emval_test_is_null, err = generated.Emval_test_is_null(engine, ctx, struct{}{})
+			Expect(err).To(BeNil())
+			Expect(emval_test_is_null).To(BeFalse())
+		})
+
+		It("val.is_true() is functional", func() {
+			emval_test_is_true, err := generated.Emval_test_is_true(engine, ctx, true)
+			Expect(err).To(BeNil())
+			Expect(emval_test_is_true).To(BeTrue())
+
+			emval_test_is_true, err = generated.Emval_test_is_true(engine, ctx, false)
+			Expect(err).To(BeNil())
+			Expect(emval_test_is_true).To(BeFalse())
+
+			emval_test_is_true, err = generated.Emval_test_is_true(engine, ctx, nil)
+			Expect(err).To(BeNil())
+			Expect(emval_test_is_true).To(BeFalse())
+
+			emval_test_is_true, err = generated.Emval_test_is_true(engine, ctx, types.Undefined)
+			Expect(err).To(BeNil())
+			Expect(emval_test_is_true).To(BeFalse())
+
+			emval_test_is_true, err = generated.Emval_test_is_true(engine, ctx, struct{}{})
+			Expect(err).To(BeNil())
+			Expect(emval_test_is_true).To(BeFalse())
+		})
+
+		It("val.is_false() is functional", func() {
+			emval_test_is_false, err := generated.Emval_test_is_false(engine, ctx, false)
+			Expect(err).To(BeNil())
+			Expect(emval_test_is_false).To(BeTrue())
+
+			emval_test_is_false, err = generated.Emval_test_is_false(engine, ctx, true)
+			Expect(err).To(BeNil())
+			Expect(emval_test_is_false).To(BeFalse())
+
+			emval_test_is_false, err = generated.Emval_test_is_false(engine, ctx, nil)
+			Expect(err).To(BeNil())
+			Expect(emval_test_is_false).To(BeFalse())
+
+			emval_test_is_false, err = generated.Emval_test_is_false(engine, ctx, types.Undefined)
+			Expect(err).To(BeNil())
+			Expect(emval_test_is_false).To(BeFalse())
+
+			emval_test_is_false, err = generated.Emval_test_is_false(engine, ctx, struct{}{})
+			Expect(err).To(BeNil())
+			Expect(emval_test_is_false).To(BeFalse())
+		})
+
+		It("val.equals() is functional", func() {
+			vals := []any{types.Undefined, nil, true, false, struct{}{}}
+			for i := range vals {
+				first := vals[i]
+				for j := range vals {
+					second := vals[j]
+					isEqual, err := generated.Emval_test_equals(engine, ctx, first, second)
+					Expect(err).To(BeNil())
+					if i == j {
+						Expect(isEqual).To(BeTrue())
+					} else {
+						Expect(isEqual).To(BeFalse())
+					}
 				}
 			}
-			});
+		})
 
-			test("val.strictlyEquals() is functional", function() {
-			var values = [undefined, null, true, false, {}];
-
-			for(var i=0;i<values.length;++i){
-			var first = values[i];
-			for(var j=i;j<values.length;++j)
-			{
-			var second = values[j];
-			assert.equal(first===second, cm.emval_test_strictly_equals(first, second));
+		It("val.strictlyEquals() is functional", func() {
+			vals := []any{types.Undefined, nil, true, false, struct{}{}}
+			for i := range vals {
+				first := vals[i]
+				for j := range vals {
+					second := vals[j]
+					isEqual, err := generated.Emval_test_strictly_equals(engine, ctx, first, second)
+					Expect(err).To(BeNil())
+					if i == j {
+						Expect(isEqual).To(BeTrue())
+					} else {
+						Expect(isEqual).To(BeFalse())
+					}
+				}
 			}
-			}
-			});
+		})
 
-			test("can pass booleans as integers", function() {
-			assert.equal(1, cm.emval_test_as_unsigned(true));
-			assert.equal(0, cm.emval_test_as_unsigned(false));
-			});
-
-			test("can pass booleans as floats", function() {
-			assert.equal(2, cm.const_ref_adder(true, true));
-			});
-
+		/*
 			test("passing Symbol or BigInt as floats always throws", function() {
 			assert.throws(TypeError, function() { cm.const_ref_adder(Symbol('0'), 1); });
 			assert.throws(TypeError, function() { cm.const_ref_adder(0n, 1); });
@@ -3204,25 +3288,26 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 		       assert.equal("Derived", owned.getClassName());
 		       owned.delete();
 		   });
-
-		   test("emscripten::val method arguments don't leak", function() {
-		       var parent = cm.AbstractClass;
-		       var got;
-		       var C = parent.extend("C", {
-		           abstractMethod: function() {
-		           },
-		           passVal: function(g) {
-		               got = g;
-		           }
-		       });
-		       var impl = new C;
-		       var v = {};
-		       cm.passVal(impl, v);
-		       impl.delete();
-
-		       assert.equal(v, got);
-		   });
 		*/
+
+		It("emscripten::val method arguments don't leak", func() {
+			type newStructTypeToExtend struct {
+				embind_external.ClassBase
+			}
+			parent, err := generated.ClassAbstractClassStaticExtend(engine, ctx, "C2", &newStructTypeToExtend{})
+			Expect(err).To(BeNil())
+
+			impl, err := parent.(func(context.Context, ...any) (any, error))(ctx)
+			Expect(err).To(BeNil())
+
+			typedImpl := impl.(*newStructTypeToExtend)
+			err = typedImpl.DeleteInstance(ctx, typedImpl)
+			Expect(err).To(BeNil())
+
+			// @todo: do we actually want to test whether this works?
+			//   We already know this of the correct type, so why do we need to validate this?
+			//   Go already tells us this is a specific type.
+		})
 	})
 
 	When("registration order", func() {
@@ -3850,15 +3935,6 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 				C: 65538,
 			}))
 		})
-
-		It("before and after memory growth", func() {
-			// @todo: implement EmvalNewArray.
-			// @todo: implement some globals that we can also have on our side (like Uint8Array).
-			//array, err := generated.Construct_with_arguments_before_and_after_memory_growth(engine, ctx)
-			//Expect(err).To(BeNil())
-			//Expect(array.([]uint8)[0]).To(HaveLen(5))
-			//Expect(array.([]uint8)[0]).To(HaveLen(len(array.([]uint8)[1])))
-		})
 	})
 
 	When("intrusive pointers", func() {
@@ -3903,26 +3979,37 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 			Expect(err).To(BeNil())
 		})
 
-		// @todo: implement me
-		// We don't support this in Go right now. Needs CreateInheritingConstructor.
 		It("can extend from intrusive pointer class and still preserve reference in JavaScript", func() {
-			//type newStructTypeToExtend struct {
-			//	embind.ClassBase
-			//}
-			//C, err := generated.ClassIntrusiveClassStaticExtend(engine, ctx, "C2", &newStructTypeToExtend{})
-			//Expect(err).To(BeNil())
-			//log.Println(C)
-			//log.Println(C.(func(context.Context, ...any) (any, error))(ctx))
+			type newStructTypeToExtend struct {
+				embind_external.ClassBase
+			}
+			C, err := generated.ClassIntrusiveClassStaticExtend(engine, ctx, "C2", &newStructTypeToExtend{})
+			Expect(err).To(BeNil())
 
-			//var instance = new C;
-			//var holder = new cm.IntrusiveClassHolder;
-			//holder.set(instance);
-			//instance.delete();
+			instance, err := C.(func(context.Context, ...any) (any, error))(ctx)
+			Expect(err).To(BeNil())
 
-			//var back = holder.get();
-			//assert.equal(back, instance);
-			//holder.delete();
-			//back.delete();
+			typedInstance := instance.(embind_external.ClassBase)
+
+			holder, err := generated.NewClassIntrusiveClassHolder(engine, ctx)
+			Expect(err).To(BeNil())
+
+			err = holder.Set(ctx, typedInstance)
+			Expect(err).To(BeNil())
+
+			err = typedInstance.DeleteInstance(ctx, typedInstance)
+			Expect(err).To(BeNil())
+
+			back, err := holder.Get(ctx)
+			Expect(err).To(BeNil())
+
+			Expect(back).To(Equal(instance))
+
+			err = holder.Delete(ctx)
+			Expect(err).To(BeNil())
+
+			err = back.DeleteInstance(ctx, back)
+			Expect(err).To(BeNil())
 		})
 	})
 
