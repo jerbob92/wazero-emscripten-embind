@@ -43,7 +43,8 @@ func (e unexportedFunctionError) Error() string {
 func (e functionExporter) GetImportedFunction(name string) api.FunctionDefinition {
 	importedFunctions := e.guest.ImportedFunctions()
 	for i := range importedFunctions {
-		if importedFunctions[i].Name() == name {
+		module, importName, _ := importedFunctions[i].Import()
+		if module == "env" && importName == name {
 			return importedFunctions[i]
 		}
 	}
