@@ -20,6 +20,7 @@ import (
 	"github.com/jerbob92/wazero-emscripten-embind"
 
 	"github.com/tetratelabs/wazero"
+	"github.com/tetratelabs/wazero/api"
 	"github.com/tetratelabs/wazero/imports/emscripten"
 	"github.com/tetratelabs/wazero/imports/wasi_snapshot_preview1"
 	"golang.org/x/tools/go/packages"
@@ -68,6 +69,38 @@ func Generate(dir string, fileName string, wasm []byte, initFunction string) err
 	err = embindExporter.ExportFunctions(builder)
 	if err != nil {
 		return err
+	}
+
+	compiledBuilder, err := builder.Compile(ctx)
+	if err != nil {
+		return err
+	}
+
+	// Generate any missing imports.
+	exportedFunctions := compiledBuilder.ExportedFunctions()
+	importedFunctions := compiledModule.ImportedFunctions()
+	missingFunctions := map[string]api.FunctionDefinition{}
+	for i := range importedFunctions {
+		module, importName, _ := importedFunctions[i].Import()
+		if module == "env" {
+			if _, isset := exportedFunctions[importName]; !isset {
+				if strings.HasPrefix(importName, "_embind") || strings.HasPrefix(importName, "_emval") {
+					return fmt.Errorf("missing host method \"%s\", this indicates a missing feature in wazero-emscripten-embind", importName)
+				}
+				missingFunctions[importName] = importedFunctions[i]
+			}
+		}
+	}
+
+	for missingFunctionName := range missingFunctions {
+		var dummyFunc = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
+			log.Fatalf("called wazero-emscripten-embind dummy host method \"%s\", this should not happen.", missingFunctionName)
+		})
+
+		builder.NewFunctionBuilder().
+			WithName(missingFunctionName).
+			WithGoModuleFunction(dummyFunc, missingFunctions[missingFunctionName].ParamTypes(), missingFunctions[missingFunctionName].ResultTypes()).
+			Export(missingFunctionName)
 	}
 
 	_, err = builder.Instantiate(ctx)
