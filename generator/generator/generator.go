@@ -46,66 +46,114 @@ func Generate(dir string, fileName string, wasm []byte, initFunction string) err
 	r := wazero.NewRuntimeWithConfig(ctx, runtimeConfig)
 	defer r.Close(ctx)
 
-	if _, err := wasi_snapshot_preview1.Instantiate(ctx, r); err != nil {
+	// Create a WASI module and compile it so that we can check for missing
+	// functions and add them.
+	wasiBuilder := r.NewHostModuleBuilder(wasi_snapshot_preview1.ModuleName)
+	wasiExporter := wasi_snapshot_preview1.NewFunctionExporter()
+	wasiExporter.ExportFunctions(wasiBuilder)
+	compiledWasi, err := wasiBuilder.Compile(ctx)
+	if err != nil {
 		return err
 	}
 
+	// Compile the module so that we can dynamically generate the needed
+	// functions in the Emscripten package.
 	compiledModule, err := r.CompileModule(ctx, wasm)
 	if err != nil {
 		return err
 	}
 
-	builder := r.NewHostModuleBuilder("env")
+	// Create a new env module, which is where the Emscripten and embind host
+	// function calls are in.
+	envBuilder := r.NewHostModuleBuilder("env")
 	emscriptenExporter, err := emscripten.NewFunctionExporterForModule(compiledModule)
 	if err != nil {
 		return err
 	}
-	emscriptenExporter.ExportFunctions(builder)
 
+	// Export the Emscripten host functions to the env module builder.
+	emscriptenExporter.ExportFunctions(envBuilder)
+
+	// Create a new embind engine and export the embind functions to the
+	// env module builder.
 	engine := embind.CreateEngine(nil)
 	ctx = engine.Attach(ctx)
 
+	// Dynamically generate the needed embind host functions by looking at the
+	// compiled module of the WASM file.
 	embindExporter := engine.NewFunctionExporterForModule(compiledModule)
-	err = embindExporter.ExportFunctions(builder)
+	err = embindExporter.ExportFunctions(envBuilder)
 	if err != nil {
 		return err
 	}
 
-	compiledBuilder, err := builder.Compile(ctx)
+	// Compile the env module in its current state so that we can check for
+	// missing functions and add them.
+	compiledEnv, err := envBuilder.Compile(ctx)
 	if err != nil {
 		return err
+	}
+
+	compiledModules := map[string]wazero.CompiledModule{
+		compiledEnv.Name():  compiledEnv,
+		compiledWasi.Name(): compiledWasi,
+	}
+
+	builders := map[string]wazero.HostModuleBuilder{
+		compiledEnv.Name():  envBuilder,
+		compiledWasi.Name(): wasiBuilder,
 	}
 
 	// Generate any missing imports.
-	exportedFunctions := compiledBuilder.ExportedFunctions()
 	importedFunctions := compiledModule.ImportedFunctions()
-	missingFunctions := map[string]api.FunctionDefinition{}
 	for i := range importedFunctions {
 		module, importName, _ := importedFunctions[i].Import()
-		if module == "env" {
-			if _, isset := exportedFunctions[importName]; !isset {
-				if strings.HasPrefix(importName, "_embind") || strings.HasPrefix(importName, "_emval") {
-					return fmt.Errorf("missing host method \"%s\", this indicates a missing feature in wazero-emscripten-embind", importName)
-				}
-				missingFunctions[importName] = importedFunctions[i]
-			}
-		}
-	}
 
-	for missingFunctionName := range missingFunctions {
 		var dummyFunc = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
-			log.Fatalf("called wazero-emscripten-embind dummy host method \"%s\", this should not happen.", missingFunctionName)
+			log.Fatalf("called wazero-emscripten-embind dummy host method \"%s.%s\", this should not happen.", module, importName)
 		})
 
-		builder.NewFunctionBuilder().
-			WithName(missingFunctionName).
-			WithGoModuleFunction(dummyFunc, missingFunctions[missingFunctionName].ParamTypes(), missingFunctions[missingFunctionName].ResultTypes()).
-			Export(missingFunctionName)
+		// Add function to existing module.
+		compiledModule, compiledModuleExists := compiledModules[module]
+		if compiledModuleExists {
+			exportedModuleFunctions := compiledModule.ExportedFunctions()
+
+			// If the function doesn't exist yet, add it. Except _embind and
+			// _emval functions, those indicate an issue with the implementation.
+			if _, isset := exportedModuleFunctions[importName]; !isset {
+				if module == "env" && strings.HasPrefix(importName, "_embind") || strings.HasPrefix(importName, "_emval") {
+					return fmt.Errorf("missing host method \"%s\", this indicates a missing feature in wazero-emscripten-embind", importName)
+				}
+
+				builders[module].NewFunctionBuilder().
+					WithName(importName).
+					WithGoModuleFunction(dummyFunc, importedFunctions[i].ParamTypes(), importedFunctions[i].ResultTypes()).
+					Export(importName)
+			}
+			continue
+		}
+
+		// Create a builder for this module if it doesn't exist yet.
+		_, builderExists := builders[module]
+		if !builderExists {
+			builders[module] = r.NewHostModuleBuilder(module)
+		}
+
+		// Add the missing function to the builder. If it's not in a compiled
+		// module the function will always be missing, so we don't have to
+		// check for that.
+		builders[module].NewFunctionBuilder().
+			WithName(importName).
+			WithGoModuleFunction(dummyFunc, importedFunctions[i].ParamTypes(), importedFunctions[i].ResultTypes()).
+			Export(importName)
 	}
 
-	_, err = builder.Instantiate(ctx)
-	if err != nil {
-		return err
+	// Compile and register all the builders with the runtime.
+	for module := range builders {
+		_, err = builders[module].Instantiate(ctx)
+		if err != nil {
+			return err
+		}
 	}
 
 	moduleConfig := wazero.NewModuleConfig().
