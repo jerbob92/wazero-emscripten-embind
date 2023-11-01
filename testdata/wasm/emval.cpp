@@ -1,5 +1,6 @@
 #include <emscripten/bind.h>
 #include <emscripten/val.h>
+#include <emscripten/version.h>
 #include <stdio.h>
 #include <math.h>
 
@@ -81,6 +82,29 @@ val emval_array() {
     return val::array();
 }
 
+val emscripten_version() {
+    std::vector<int> version_vec;
+    version_vec.push_back(__EMSCRIPTEN_major__);
+    version_vec.push_back(__EMSCRIPTEN_minor__);
+    version_vec.push_back(__EMSCRIPTEN_tiny__);
+    return val::array(version_vec);
+}
+
+#if __EMSCRIPTEN_major__ > 3 || (__EMSCRIPTEN_major__ == 3 && __EMSCRIPTEN_minor__ > 1) || (__EMSCRIPTEN_major__ == 3 && __EMSCRIPTEN_minor__ == 1 && __EMSCRIPTEN_tiny__ >= 47)
+std::vector<int> emval_iterator() {
+    std::vector<int> vec2;
+    vec2.push_back(0);
+    vec2.push_back(1);
+    vec2.push_back(3);
+    val::global().set("a", val::array(vec2));
+    std::vector<int> vec2_from_iter;
+    for (val&& v : val::global("a")) {
+        vec2_from_iter.push_back(v.as<int>());
+    }
+    return vec2_from_iter;
+}
+#endif
+
 EMSCRIPTEN_BINDINGS(emval) {
     function("doEmval", &doEmval);
     function("emval_instance_of", &emval_instance_of);
@@ -96,4 +120,9 @@ EMSCRIPTEN_BINDINGS(emval) {
     function("emval_u16_string", &emval_u16_string, allow_raw_pointers());
     function("emval_u8_string", &emval_u8_string, allow_raw_pointers());
     function("emval_array", &emval_array);
+    function("emscripten_version", &emscripten_version);
+
+    #if __EMSCRIPTEN_major__ > 3 || (__EMSCRIPTEN_major__ == 3 && __EMSCRIPTEN_minor__ > 1) || (__EMSCRIPTEN_major__ == 3 && __EMSCRIPTEN_minor__ == 1 && __EMSCRIPTEN_tiny__ >= 47)
+    function("emval_iterator", &emval_iterator);
+    #endif
 }

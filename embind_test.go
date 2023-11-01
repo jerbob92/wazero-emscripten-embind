@@ -841,6 +841,26 @@ type ICreateOscillator interface {
 	CreateOscillator() *webkitAudioContextOscillator
 }
 
+func isSupportedByEmscriptenVersion(version []any, major, minor, tiny int32) bool {
+	currentMajor := version[0].(int32)
+	currentMinor := version[1].(int32)
+	currentTiny := version[2].(int32)
+
+	if currentMajor > major {
+		return true
+	}
+
+	if currentMajor == major && currentMinor > minor {
+		return true
+	}
+
+	if currentMajor == major && currentMinor == minor && currentTiny >= tiny {
+		return true
+	}
+
+	return false
+}
+
 var _ = Describe("Using embind emval", Label("library"), func() {
 	When("using the Go struct mapping", func() {
 		It("fails when no struct is mapped", func() {
@@ -878,6 +898,36 @@ All done!
 			array, err := engine.CallPublicSymbol(ctx, "emval_array")
 			Expect(err).To(BeNil())
 			Expect(array).To(Equal([]any{}))
+		})
+
+		It("can create an iterator on an array and loop over it (from version 3.1.47)", func() {
+			version, err := engine.CallPublicSymbol(ctx, "emscripten_version")
+			Expect(err).To(BeNil())
+			if !isSupportedByEmscriptenVersion(version.([]any), 3, 1, 47) {
+				return
+			}
+
+			res, err := engine.CallPublicSymbol(ctx, "emval_iterator")
+			Expect(err).To(BeNil())
+			Expect(res).To(Not(BeNil()))
+			Expect(res).To(BeAssignableToTypeOf(&embind.ClassBase{}))
+			if obj, ok := res.(*embind.ClassBase); ok {
+				size, err := obj.CallInstanceMethod(ctx, obj, "size")
+				Expect(err).To(BeNil())
+				Expect(size).To(Equal(uint32(3)))
+
+				val, err := obj.CallInstanceMethod(ctx, obj, "get", uint32(0))
+				Expect(err).To(BeNil())
+				Expect(val).To(Equal(int32(0)))
+
+				val, err = obj.CallInstanceMethod(ctx, obj, "get", uint32(1))
+				Expect(err).To(BeNil())
+				Expect(val).To(Equal(int32(1)))
+
+				val, err = obj.CallInstanceMethod(ctx, obj, "get", uint32(2))
+				Expect(err).To(BeNil())
+				Expect(val).To(Equal(int32(3)))
+			}
 		})
 	})
 })

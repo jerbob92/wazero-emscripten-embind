@@ -1004,6 +1004,17 @@ func Embind_test_return_unique_ptr(e embind.Engine, ctx context.Context, arg0 in
 	return res.(int32), nil
 }
 
+func Emscripten_version(e embind.Engine, ctx context.Context) (any, error) {
+	res, err := e.CallPublicSymbol(ctx, "emscripten_version")
+	if err != nil {
+		return nil, err
+	}
+	if res == nil {
+		return nil, nil
+	}
+	return res.(any), nil
+}
+
 func Emval_array(e embind.Engine, ctx context.Context) (any, error) {
 	res, err := e.CallPublicSymbol(ctx, "emval_array")
 	if err != nil {
@@ -1095,6 +1106,17 @@ func Emval_is_string(e embind.Engine, ctx context.Context, arg0 any) (bool, erro
 		return bool(false), nil
 	}
 	return res.(bool), nil
+}
+
+func Emval_iterator(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_iterator")
+	if err != nil {
+		return nil, err
+	}
+	if res == nil {
+		return nil, nil
+	}
+	return res.(embind.ClassBase), nil
 }
 
 func Emval_test_add(e embind.Engine, ctx context.Context, arg0 int8, arg1 int8, arg2 uint8, arg3 int16, arg4 uint16, arg5 int32, arg6 uint32, arg7 int32, arg8 uint32, arg9 float32, arg10 float64) (float64, error) {

@@ -222,8 +222,12 @@ func (e *emvalEngine) toValue(id int32) (any, error) {
 	return handle.value, nil
 }
 
-func (e *emvalEngine) getGlobal(name string) any {
-	global, ok := e.globals[name]
+func (e *emvalEngine) getGlobal(name *string) any {
+	if name == nil {
+		return e.globals
+	}
+
+	global, ok := e.globals[*name]
 	if !ok {
 		return types.Undefined
 	}
@@ -514,13 +518,13 @@ var EmvalGetGlobal = api.GoModuleFunc(func(ctx context.Context, mod api.Module, 
 	name := api.DecodeI32(stack[0])
 
 	if name == 0 {
-		stack[0] = api.EncodeI32(engine.emvalEngine.toHandle(engine.emvalEngine.getGlobal("")))
+		stack[0] = api.EncodeI32(engine.emvalEngine.toHandle(engine.emvalEngine.getGlobal(nil)))
 	} else {
 		name, err := engine.getStringOrSymbol(uint32(name))
 		if err != nil {
 			panic(fmt.Errorf("could not get symbol name"))
 		}
-		stack[0] = api.EncodeI32(engine.emvalEngine.toHandle(engine.emvalEngine.getGlobal(name)))
+		stack[0] = api.EncodeI32(engine.emvalEngine.toHandle(engine.emvalEngine.getGlobal(&name)))
 	}
 })
 
@@ -1105,8 +1109,24 @@ var EmvalNewArray = api.GoModuleFunc(func(ctx context.Context, mod api.Module, s
 })
 
 var EmvalNewArrayFromMemoryView = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
-	// @todo: implement me.
-	panic("EmvalNewArrayFromMemoryView call unimplemented")
+	engine := MustGetEngineFromContext(ctx, mod).(*engine)
+	handle := api.DecodeI32(stack[0])
+	view, err := engine.emvalEngine.toValue(handle)
+	if err != nil {
+		panic(fmt.Errorf("could not find handle: %w", err))
+	}
+
+	if reflect.TypeOf(view).Kind() != reflect.Slice {
+		panic(fmt.Errorf("handle is not a slice so can't be iterated over"))
+	}
+
+	s := reflect.ValueOf(view)
+	newArray := make([]any, s.Len())
+	for i := 0; i < s.Len(); i++ {
+		newArray[i] = s.Index(i).Interface()
+	}
+
+	stack[0] = api.EncodeI32(engine.emvalEngine.toHandle(newArray))
 })
 
 var EmvalNewObject = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
@@ -1159,4 +1179,54 @@ var EmvalThrow = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stac
 var EmvalGreaterThan = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
 	// @todo: implement me.
 	panic("EmvalGreaterThan call unimplemented")
+})
+
+type emvalIterable struct {
+	val reflect.Value
+	cur int
+	len int
+}
+
+var EmvalIterBegin = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
+	engine := MustGetEngineFromContext(ctx, mod).(*engine)
+	handle := api.DecodeI32(stack[0])
+	iterable, err := engine.emvalEngine.toValue(handle)
+	if err != nil {
+		panic(fmt.Errorf("could not find handle: %w", err))
+	}
+
+	if reflect.TypeOf(iterable).Kind() != reflect.Slice {
+		panic(fmt.Errorf("handle is not a slice so can't be iterated over"))
+	}
+
+	s := reflect.ValueOf(iterable)
+	stack[0] = api.EncodeI32(engine.emvalEngine.toHandle(&emvalIterable{
+		val: s,
+		cur: 0,
+		len: s.Len(),
+	}))
+})
+
+var EmvalIterNext = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
+	engine := MustGetEngineFromContext(ctx, mod).(*engine)
+	handle := api.DecodeI32(stack[0])
+	iterable, err := engine.emvalEngine.toValue(handle)
+	if err != nil {
+		panic(fmt.Errorf("could not find handle: %w", err))
+	}
+
+	typedIterable, isIterable := iterable.(*emvalIterable)
+	if !isIterable {
+		panic(fmt.Errorf("handle is not iterable but %T", iterable))
+	}
+
+	if typedIterable.cur >= typedIterable.len {
+		stack[0] = 0
+		return
+	}
+
+	item := typedIterable.val.Index(typedIterable.cur).Interface()
+	typedIterable.cur++
+
+	stack[0] = api.EncodeI32(engine.emvalEngine.toHandle(item))
 })

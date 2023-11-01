@@ -574,5 +574,19 @@ func (e functionExporter) ExportFunctions(b wazero.HostModuleBuilder) error {
 		WithGoModuleFunction(internal.EmvalTypeof, []api.ValueType{api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32}).
 		Export("_emval_typeof")
 
+	b.NewFunctionBuilder().
+		WithName("_emval_iter_begin").
+		WithParameterNames("iterable").
+		WithResultNames("iterator").
+		WithGoModuleFunction(internal.EmvalIterBegin, []api.ValueType{api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32}).
+		Export("_emval_iter_begin")
+
+	b.NewFunctionBuilder().
+		WithName("_emval_iter_next").
+		WithParameterNames("iterator").
+		WithResultNames("result").
+		WithGoModuleFunction(internal.EmvalIterNext, []api.ValueType{api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32}).
+		Export("_emval_iter_next")
+
 	return nil
 }
