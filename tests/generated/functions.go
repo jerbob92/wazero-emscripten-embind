@@ -1097,6 +1097,17 @@ func Emval_is_string(e embind.Engine, ctx context.Context, arg0 any) (bool, erro
 	return res.(bool), nil
 }
 
+func Emval_iterator(e embind.Engine, ctx context.Context) (embind.ClassBase, error) {
+	res, err := e.CallPublicSymbol(ctx, "emval_iterator")
+	if err != nil {
+		return nil, err
+	}
+	if res == nil {
+		return nil, nil
+	}
+	return res.(embind.ClassBase), nil
+}
+
 func Emval_test_add(e embind.Engine, ctx context.Context, arg0 int8, arg1 int8, arg2 uint8, arg3 int16, arg4 uint16, arg5 int32, arg6 uint32, arg7 int32, arg8 uint32, arg9 float32, arg10 float64) (float64, error) {
 	res, err := e.CallPublicSymbol(ctx, "emval_test_add", arg0, arg1, arg2, arg3, arg4, arg5, arg6, arg7, arg8, arg9, arg10)
 	if err != nil {

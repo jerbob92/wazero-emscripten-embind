@@ -81,6 +81,19 @@ val emval_array() {
     return val::array();
 }
 
+std::vector<int> emval_iterator() {
+    std::vector<int> vec2;
+    vec2.push_back(0);
+    vec2.push_back(1);
+    vec2.push_back(3);
+    val::global().set("a", val::array(vec2));
+    std::vector<int> vec2_from_iter;
+    for (val&& v : val::global("a")) {
+        vec2_from_iter.push_back(v.as<int>());
+    }
+    return vec2_from_iter;
+}
+
 EMSCRIPTEN_BINDINGS(emval) {
     function("doEmval", &doEmval);
     function("emval_instance_of", &emval_instance_of);
@@ -96,4 +109,5 @@ EMSCRIPTEN_BINDINGS(emval) {
     function("emval_u16_string", &emval_u16_string, allow_raw_pointers());
     function("emval_u8_string", &emval_u8_string, allow_raw_pointers());
     function("emval_array", &emval_array);
+    function("emval_iterator", &emval_iterator);
 }

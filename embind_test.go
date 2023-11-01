@@ -879,6 +879,30 @@ All done!
 			Expect(err).To(BeNil())
 			Expect(array).To(Equal([]any{}))
 		})
+
+		It("can create an iterator on an array and loop over it", func() {
+			res, err := engine.CallPublicSymbol(ctx, "emval_iterator")
+			Expect(err).To(BeNil())
+			Expect(res).To(Not(BeNil()))
+			Expect(res).To(BeAssignableToTypeOf(&embind.ClassBase{}))
+			if obj, ok := res.(*embind.ClassBase); ok {
+				size, err := obj.CallInstanceMethod(ctx, obj, "size")
+				Expect(err).To(BeNil())
+				Expect(size).To(Equal(uint32(3)))
+
+				val, err := obj.CallInstanceMethod(ctx, obj, "get", uint32(0))
+				Expect(err).To(BeNil())
+				Expect(val).To(Equal(int32(0)))
+
+				val, err = obj.CallInstanceMethod(ctx, obj, "get", uint32(1))
+				Expect(err).To(BeNil())
+				Expect(val).To(Equal(int32(1)))
+
+				val, err = obj.CallInstanceMethod(ctx, obj, "get", uint32(2))
+				Expect(err).To(BeNil())
+				Expect(val).To(Equal(int32(3)))
+			}
+		})
 	})
 })
 
