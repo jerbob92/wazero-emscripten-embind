@@ -1004,6 +1004,17 @@ func Embind_test_return_unique_ptr(e embind.Engine, ctx context.Context, arg0 in
 	return res.(int32), nil
 }
 
+func Emscripten_version(e embind.Engine, ctx context.Context) (any, error) {
+	res, err := e.CallPublicSymbol(ctx, "emscripten_version")
+	if err != nil {
+		return nil, err
+	}
+	if res == nil {
+		return nil, nil
+	}
+	return res.(any), nil
+}
+
 func Emval_array(e embind.Engine, ctx context.Context) (any, error) {
 	res, err := e.CallPublicSymbol(ctx, "emval_array")
 	if err != nil {

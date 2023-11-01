@@ -841,6 +841,26 @@ type ICreateOscillator interface {
 	CreateOscillator() *webkitAudioContextOscillator
 }
 
+func isSupportedByEmscriptenVersion(version []any, major, minor, tiny int32) bool {
+	currentMajor := version[0].(int32)
+	currentMinor := version[1].(int32)
+	currentTiny := version[2].(int32)
+
+	if currentMajor > major {
+		return true
+	}
+
+	if currentMajor == major && currentMinor > minor {
+		return true
+	}
+
+	if currentMajor == major && currentMinor == minor && currentTiny >= tiny {
+		return true
+	}
+
+	return false
+}
+
 var _ = Describe("Using embind emval", Label("library"), func() {
 	When("using the Go struct mapping", func() {
 		It("fails when no struct is mapped", func() {
@@ -880,7 +900,13 @@ All done!
 			Expect(array).To(Equal([]any{}))
 		})
 
-		It("can create an iterator on an array and loop over it", func() {
+		It("can create an iterator on an array and loop over it (from version 3.1.47)", func() {
+			version, err := engine.CallPublicSymbol(ctx, "emscripten_version")
+			Expect(err).To(BeNil())
+			if !isSupportedByEmscriptenVersion(version.([]any), 3, 1, 47) {
+				return
+			}
+
 			res, err := engine.CallPublicSymbol(ctx, "emval_iterator")
 			Expect(err).To(BeNil())
 			Expect(res).To(Not(BeNil()))
