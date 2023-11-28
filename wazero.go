@@ -254,8 +254,7 @@ func (e functionExporter) ExportFunctions(b wazero.HostModuleBuilder) error {
 
 	importedEmvalCall := e.GetImportedFunction("_emval_call")
 	if importedEmvalCall != nil {
-		// Since Emscripten 3.1.48, _emval_get_method_caller has 3 params.
-		// The new param is called "kind".
+		// Since Emscripten 3.1.48, _emval_call has a F64 return.
 		importedEmvalCallHasF64Return := importedEmvalCall.ResultTypes()[0] == api.ValueTypeF64
 		if importedEmvalCallHasF64Return {
 			b.NewFunctionBuilder().
