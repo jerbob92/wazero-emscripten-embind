@@ -815,95 +815,99 @@ var EmvalRunDestructors = api.GoModuleFunc(func(ctx context.Context, mod api.Mod
 	}
 })
 
-var EmvalGetMethodCaller = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
-	engine := MustGetEngineFromContext(ctx, mod).(*engine)
+var EmvalGetMethodCaller = func(hasKind bool) api.GoModuleFunc {
+	return api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
+		engine := MustGetEngineFromContext(ctx, mod).(*engine)
 
-	argCount := int(api.DecodeI32(stack[0]))
-	argsTypeBase := uint32(api.DecodeI32(stack[1]))
+		argCount := int(api.DecodeI32(stack[0]))
+		argsTypeBase := uint32(api.DecodeI32(stack[1]))
 
-	typeNames := make([]string, argCount)
-	argTypes := make([]registeredType, argCount)
-	for i := 0; i < argCount; i++ {
-		argType, ok := mod.Memory().ReadUint32Le(argsTypeBase + (4 * uint32(i)))
-		if !ok {
-			panic(fmt.Errorf("could not read arg type for arg %d from memory", i))
+		typeNames := make([]string, argCount)
+		argTypes := make([]registeredType, argCount)
+		for i := 0; i < argCount; i++ {
+			argType, ok := mod.Memory().ReadUint32Le(argsTypeBase + (4 * uint32(i)))
+			if !ok {
+				panic(fmt.Errorf("could not read arg type for arg %d from memory", i))
+			}
+
+			registeredType, err := engine.requireRegisteredType(ctx, int32(argType), fmt.Sprintf("argument %d", i))
+			if err != nil {
+				panic(fmt.Errorf("could not require registered type: %w", err))
+			}
+
+			typeNames[i] = registeredType.Name()
+			argTypes[i] = registeredType
 		}
 
-		registeredType, err := engine.requireRegisteredType(ctx, int32(argType), fmt.Sprintf("argument %d", i))
-		if err != nil {
-			panic(fmt.Errorf("could not require registered type: %w", err))
+		signatureName := typeNames[0] + "_$" + strings.Join(typeNames[1:], "_") + "$"
+
+		id, ok := engine.emvalEngine.registeredMethodIds[signatureName]
+		if ok {
+			stack[0] = api.EncodeI32(id)
+			return
 		}
 
-		typeNames[i] = registeredType.Name()
-		argTypes[i] = registeredType
-	}
+		newID := engine.emvalEngine.registeredMethodCount
+		newRegisteredMethod := &emvalRegisteredMethod{
+			id:       newID,
+			argTypes: argTypes,
+			name:     signatureName,
+		}
+		engine.emvalEngine.registeredMethodIds[signatureName] = newID
+		engine.emvalEngine.registeredMethods[newID] = newRegisteredMethod
+		engine.emvalEngine.registeredMethodCount++
 
-	signatureName := typeNames[0] + "_$" + strings.Join(typeNames[1:], "_") + "$"
-
-	id, ok := engine.emvalEngine.registeredMethodIds[signatureName]
-	if ok {
-		stack[0] = api.EncodeI32(id)
+		stack[0] = api.EncodeI32(newID)
 		return
-	}
+	})
+}
 
-	newID := engine.emvalEngine.registeredMethodCount
-	newRegisteredMethod := &emvalRegisteredMethod{
-		id:       newID,
-		argTypes: argTypes,
-		name:     signatureName,
-	}
-	engine.emvalEngine.registeredMethodIds[signatureName] = newID
-	engine.emvalEngine.registeredMethods[newID] = newRegisteredMethod
-	engine.emvalEngine.registeredMethodCount++
+var EmvalCall = func(hasF64Return bool) api.GoModuleFunc {
+	return api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
+		engine := MustGetEngineFromContext(ctx, mod).(*engine)
+		id := api.DecodeI32(stack[0])
+		argCount := api.DecodeI32(stack[1])
+		argTypes := api.DecodeI32(stack[2])
+		argv := api.DecodeI32(stack[3])
 
-	stack[0] = api.EncodeI32(newID)
-	return
-})
-
-var EmvalCall = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
-	engine := MustGetEngineFromContext(ctx, mod).(*engine)
-	id := api.DecodeI32(stack[0])
-	argCount := api.DecodeI32(stack[1])
-	argTypes := api.DecodeI32(stack[2])
-	argv := api.DecodeI32(stack[3])
-
-	handle, err := engine.emvalEngine.toValue(id)
-	if err != nil {
-		panic(fmt.Errorf("could not find handle: %w", err))
-	}
-
-	registeredArgTypes, err := engine.lookupTypes(ctx, argCount, argTypes)
-	if err != nil {
-		panic(fmt.Errorf("could not load required types: %w", err))
-	}
-
-	args := make([]any, argCount)
-	for i := 0; i < int(argCount); i++ {
-		requiredType := registeredArgTypes[i]
-		args[i], err = requiredType.ReadValueFromPointer(ctx, mod, uint32(argv))
+		handle, err := engine.emvalEngine.toValue(id)
 		if err != nil {
-			panic(fmt.Errorf("could not load argument value: %w", err))
+			panic(fmt.Errorf("could not find handle: %w", err))
 		}
 
-		argv += requiredType.ArgPackAdvance()
-	}
+		registeredArgTypes, err := engine.lookupTypes(ctx, argCount, argTypes)
+		if err != nil {
+			panic(fmt.Errorf("could not load required types: %w", err))
+		}
 
-	reflectValues := make([]reflect.Value, argCount)
-	for i := range args {
-		reflectValues[i] = reflect.ValueOf(args[i])
-	}
+		args := make([]any, argCount)
+		for i := 0; i < int(argCount); i++ {
+			requiredType := registeredArgTypes[i]
+			args[i], err = requiredType.ReadValueFromPointer(ctx, mod, uint32(argv))
+			if err != nil {
+				panic(fmt.Errorf("could not load argument value: %w", err))
+			}
 
-	value := reflect.ValueOf(handle)
-	result := value.Call(reflectValues)
+			argv += requiredType.ArgPackAdvance()
+		}
 
-	var resultVal any = types.Undefined
-	if len(result) > 0 {
-		resultVal = result[0].Interface()
-	}
+		reflectValues := make([]reflect.Value, argCount)
+		for i := range args {
+			reflectValues[i] = reflect.ValueOf(args[i])
+		}
 
-	newHandle := engine.emvalEngine.toHandle(resultVal)
-	stack[0] = api.EncodeI32(newHandle)
-})
+		value := reflect.ValueOf(handle)
+		result := value.Call(reflectValues)
+
+		var resultVal any = types.Undefined
+		if len(result) > 0 {
+			resultVal = result[0].Interface()
+		}
+
+		newHandle := engine.emvalEngine.toHandle(resultVal)
+		stack[0] = api.EncodeI32(newHandle)
+	})
+}
 
 var EmvalCallMethod = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
 	engine := MustGetEngineFromContext(ctx, mod).(*engine)
