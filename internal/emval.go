@@ -552,12 +552,17 @@ func EmvalReturnValue(ctx context.Context, mod api.Module, returnType registered
 		return 0, fmt.Errorf("could not call toWireType on _emval_as: %w", err)
 	}
 
+	// Default of 0 to reset value at memory address.
+	rd := int32(0)
+
+	// Only create destructor ref when needed.
 	if destructors != nil && len(*destructors) > 0 {
-		rd := engine.emvalEngine.toHandle(destructors)
-		ok := mod.Memory().WriteUint32Le(destructorsRef, uint32(rd))
-		if !ok {
-			return 0, fmt.Errorf("could not write destructor ref to memory")
-		}
+		rd = engine.emvalEngine.toHandle(destructors)
+	}
+
+	ok := mod.Memory().WriteUint32Le(destructorsRef, uint32(rd))
+	if !ok {
+		return 0, fmt.Errorf("could not write destructor ref to memory")
 	}
 
 	return returnVal, nil
@@ -829,6 +834,7 @@ var EmvalNewCString = api.GoModuleFunc(func(ctx context.Context, mod api.Module,
 var EmvalRunDestructors = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
 	engine := MustGetEngineFromContext(ctx, mod).(*engine)
 	id := api.DecodeI32(stack[0])
+
 	destructorsVal, err := engine.emvalEngine.toValue(id)
 	if err != nil {
 		panic(fmt.Errorf("could not find handle: %w", err))
