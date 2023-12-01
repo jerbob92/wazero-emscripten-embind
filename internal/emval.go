@@ -835,6 +835,11 @@ var EmvalRunDestructors = api.GoModuleFunc(func(ctx context.Context, mod api.Mod
 	engine := MustGetEngineFromContext(ctx, mod).(*engine)
 	id := api.DecodeI32(stack[0])
 
+	// Fix emval_run_destructors for <= 3.1.46 when id is 0 (no destructors).
+	if id == 0 {
+		return
+	}
+
 	destructorsVal, err := engine.emvalEngine.toValue(id)
 	if err != nil {
 		panic(fmt.Errorf("could not find handle: %w", err))
