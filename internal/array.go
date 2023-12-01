@@ -209,7 +209,7 @@ var FinalizeValueArray = api.GoModuleFunc(func(ctx context.Context, mod api.Modu
 				baseType: baseType{
 					rawType:        rawTupleType,
 					name:           reg.name,
-					argPackAdvance: 8,
+					argPackAdvance: GenericWireTypeSize,
 				},
 				reg:            reg,
 				elementsLength: elementsLength,

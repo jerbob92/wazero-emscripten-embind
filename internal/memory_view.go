@@ -150,7 +150,7 @@ var RegisterMemoryView = api.GoModuleFunc(func(ctx context.Context, mod api.Modu
 		baseType: baseType{
 			rawType:        rawType,
 			name:           name,
-			argPackAdvance: 8,
+			argPackAdvance: GenericWireTypeSize,
 		},
 		dataTypeIndex: dataTypeIndex,
 		nativeSize:    sizeMapping[dataTypeIndex],

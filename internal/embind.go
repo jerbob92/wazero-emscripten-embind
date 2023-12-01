@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"reflect"
+	"strings"
 
 	"github.com/tetratelabs/wazero/api"
 )
@@ -104,4 +105,16 @@ func CreateEngine(config IEngineConfig) IEngine {
 		delayFunction:        nil,
 		emvalEngine:          createEmvalEngine(),
 	}
+}
+
+const GenericWireTypeSize = 8
+
+func getFunctionName(signature string) (string, error) {
+	signature = strings.TrimSpace(signature)
+	argsIndex := strings.Index(signature, "(")
+	if argsIndex != -1 {
+		return signature[0:argsIndex], nil
+	}
+
+	return signature, nil
 }

@@ -120,7 +120,7 @@ var RegisterStdString = api.GoModuleFunc(func(ctx context.Context, mod api.Modul
 		baseType: baseType{
 			rawType:        rawType,
 			name:           name,
-			argPackAdvance: 8,
+			argPackAdvance: GenericWireTypeSize,
 		},
 		stdStringIsUTF8: name == "std::string",
 	}, nil)
