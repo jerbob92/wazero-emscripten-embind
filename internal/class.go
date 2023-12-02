@@ -646,7 +646,7 @@ var RegisterClass = api.GoModuleFunc(func(ctx context.Context, mod api.Module, s
 
 		referenceConverter := &registeredPointerType{
 			baseType: baseType{
-				argPackAdvance: 8,
+				argPackAdvance: GenericWireTypeSize,
 				name:           name,
 			},
 			registeredClass: engine.registeredClasses[name],
@@ -657,7 +657,7 @@ var RegisterClass = api.GoModuleFunc(func(ctx context.Context, mod api.Module, s
 
 		pointerConverter := &registeredPointerType{
 			baseType: baseType{
-				argPackAdvance: 8,
+				argPackAdvance: GenericWireTypeSize,
 				name:           name + "*",
 			},
 			registeredClass: engine.registeredClasses[name],
@@ -668,7 +668,7 @@ var RegisterClass = api.GoModuleFunc(func(ctx context.Context, mod api.Module, s
 
 		constPointerConverter := &registeredPointerType{
 			baseType: baseType{
-				argPackAdvance: 8,
+				argPackAdvance: GenericWireTypeSize,
 				name:           name + " const*",
 			},
 			registeredClass: engine.registeredClasses[name],
@@ -805,6 +805,11 @@ var RegisterClassFunction = api.GoModuleFunc(func(ctx context.Context, mod api.M
 		panic(fmt.Errorf("could not read method name: %w", err))
 	}
 
+	methodName, err = getFunctionName(methodName)
+	if err != nil {
+		panic(fmt.Errorf("could not read method name: %w", err))
+	}
+
 	err = engine.whenDependentTypesAreResolved([]int32{}, []int32{rawClassType}, func(classTypes []registeredType) ([]registeredType, error) {
 		classType := classTypes[0].(*registeredPointerType)
 		humanName := classType.Name() + "." + methodName
@@ -933,6 +938,11 @@ var RegisterClassClassFunction = api.GoModuleFunc(func(ctx context.Context, mod 
 	}
 
 	methodName, err := engine.readCString(uint32(methodNamePtr))
+	if err != nil {
+		panic(fmt.Errorf("could not read method name: %w", err))
+	}
+
+	methodName, err = getFunctionName(methodName)
 	if err != nil {
 		panic(fmt.Errorf("could not read method name: %w", err))
 	}
@@ -1356,7 +1366,7 @@ var RegisterSmartPtr = api.GoModuleFunc(func(ctx context.Context, mod api.Module
 
 		smartPointerType := &registeredPointerType{
 			baseType: baseType{
-				argPackAdvance: 8,
+				argPackAdvance: GenericWireTypeSize,
 				name:           name,
 			},
 			registeredClass: pointeeType.(*registeredPointerType).registeredClass,

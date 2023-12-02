@@ -151,7 +151,7 @@ var RegisterStdWString = api.GoModuleFunc(func(ctx context.Context, mod api.Modu
 		baseType: baseType{
 			rawType:        rawType,
 			name:           name,
-			argPackAdvance: 8,
+			argPackAdvance: GenericWireTypeSize,
 		},
 		charSize: api.DecodeI32(stack[1]),
 	}, nil)

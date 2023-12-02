@@ -97,7 +97,7 @@ var RegisterBigInt = api.GoModuleFunc(func(ctx context.Context, mod api.Module, 
 		baseType: baseType{
 			rawType:        rawType,
 			name:           name,
-			argPackAdvance: 8,
+			argPackAdvance: GenericWireTypeSize,
 		},
 		size:   api.DecodeI32(stack[2]),
 		signed: !strings.HasPrefix(name, "u"),

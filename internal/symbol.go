@@ -110,6 +110,11 @@ var RegisterFunction = api.GoModuleFunc(func(ctx context.Context, mod api.Module
 		panic(fmt.Errorf("could not read name: %w", err))
 	}
 
+	name, err = getFunctionName(name)
+	if err != nil {
+		panic(fmt.Errorf("could not read function name: %w", err))
+	}
+
 	publicSymbolArgs := argCount - 1
 
 	// Set a default callback that errors out when not all types are resolved.

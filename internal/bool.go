@@ -150,7 +150,7 @@ var RegisterBool = func(hasSize bool) api.GoModuleFunc {
 			baseType: baseType{
 				rawType:        rawType,
 				name:           name,
-				argPackAdvance: 8,
+				argPackAdvance: GenericWireTypeSize,
 			},
 			size:     size,
 			trueVal:  trueVal,

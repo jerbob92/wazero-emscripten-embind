@@ -219,7 +219,7 @@ var FinalizeValueObject = api.GoModuleFunc(func(ctx context.Context, mod api.Mod
 				baseType: baseType{
 					rawType:        structType,
 					name:           reg.name,
-					argPackAdvance: 8,
+					argPackAdvance: GenericWireTypeSize,
 				},
 				reg: reg,
 			},

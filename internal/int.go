@@ -115,7 +115,7 @@ func (it *intType) ReadValueFromPointer(ctx context.Context, mod api.Module, poi
 		return int32(val), nil
 	}
 
-	return nil, fmt.Errorf("unknown integer type: %s", it.name)
+	return nil, fmt.Errorf("invalid integer width (%d): %s", it.size, it.name)
 }
 
 func (it *intType) GoType() string {
@@ -173,7 +173,7 @@ var RegisterInteger = api.GoModuleFunc(func(ctx context.Context, mod api.Module,
 		baseType: baseType{
 			rawType:        rawType,
 			name:           name,
-			argPackAdvance: 8,
+			argPackAdvance: GenericWireTypeSize,
 		},
 		size:   api.DecodeI32(stack[2]),
 		signed: !strings.Contains(name, "unsigned"),

@@ -150,7 +150,7 @@ var RegisterEnum = api.GoModuleFunc(func(ctx context.Context, mod api.Module, st
 	engine.registeredEnums[name].baseType = baseType{
 		rawType:        rawType,
 		name:           name,
-		argPackAdvance: 8,
+		argPackAdvance: GenericWireTypeSize,
 	}
 
 	engine.registeredEnums[name].intHelper = intType{

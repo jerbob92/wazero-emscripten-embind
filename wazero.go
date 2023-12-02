@@ -230,19 +230,50 @@ func (e functionExporter) ExportFunctions(b wazero.HostModuleBuilder) error {
 		WithGoModuleFunction(internal.EmvalRunDestructors, []api.ValueType{api.ValueTypeI32}, []api.ValueType{}).
 		Export("_emval_run_destructors")
 
-	b.NewFunctionBuilder().
-		WithName("_emval_get_method_caller").
-		WithParameterNames("argCount", "argTypes").
-		WithResultNames("id").
-		WithGoModuleFunction(internal.EmvalGetMethodCaller, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32}).
-		Export("_emval_get_method_caller")
+	importedEmvalGetMethodCaller := e.GetImportedFunction("_emval_get_method_caller")
+	if importedEmvalGetMethodCaller != nil {
+		// Since Emscripten 3.1.48, _emval_get_method_caller has 3 params.
+		// The new param is called "kind".
+		emvalGetMethodCallerHasKindParam := len(importedEmvalGetMethodCaller.ParamTypes()) == 3
+		if emvalGetMethodCallerHasKindParam {
+			b.NewFunctionBuilder().
+				WithName("_emval_get_method_caller").
+				WithParameterNames("argCount", "argTypes", "kind").
+				WithResultNames("id").
+				WithGoModuleFunction(internal.EmvalGetMethodCaller(true), []api.ValueType{api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32}).
+				Export("_emval_get_method_caller")
+		} else {
+			b.NewFunctionBuilder().
+				WithName("_emval_get_method_caller").
+				WithParameterNames("argCount", "argTypes").
+				WithResultNames("id").
+				WithGoModuleFunction(internal.EmvalGetMethodCaller(false), []api.ValueType{api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32}).
+				Export("_emval_get_method_caller")
+		}
+	}
 
-	b.NewFunctionBuilder().
-		WithName("_emval_call").
-		WithParameterNames("handle", "argCount", "argTypes", "argv").
-		WithResultNames("handle").
-		WithGoModuleFunction(internal.EmvalCall, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32}).
-		Export("_emval_call")
+	importedEmvalCall := e.GetImportedFunction("_emval_call")
+	if importedEmvalCall != nil {
+		// Since Emscripten 3.1.48, _emval_call has a F64 return.
+		importedEmvalCallHasF64Return := importedEmvalCall.ResultTypes()[0] == api.ValueTypeF64
+		if importedEmvalCallHasF64Return {
+			b.NewFunctionBuilder().
+				WithName("_emval_call").
+				WithParameterNames("handle", "argCount", "argTypes", "argv").
+				WithResultNames("handle").
+				WithGoModuleFunction(internal.EmvalCall(true), []api.ValueType{api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{api.ValueTypeF64}).
+				Export("_emval_call")
+
+		} else {
+			b.NewFunctionBuilder().
+				WithName("_emval_call").
+				WithParameterNames("handle", "argCount", "argTypes", "argv").
+				WithResultNames("handle").
+				WithGoModuleFunction(internal.EmvalCall(false), []api.ValueType{api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{api.ValueTypeI32}).
+				Export("_emval_call")
+
+		}
+	}
 
 	b.NewFunctionBuilder().
 		WithName("_emval_call_method").

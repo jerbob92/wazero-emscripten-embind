@@ -53,7 +53,7 @@ func (ft *floatType) ReadValueFromPointer(ctx context.Context, mod api.Module, p
 		return val, nil
 	}
 
-	return nil, fmt.Errorf("unknown float type: %s", ft.name)
+	return nil, fmt.Errorf("invalid float width (%d): %s", ft.size, ft.name)
 }
 
 func (ft *floatType) NativeType() api.ValueType {
@@ -103,7 +103,7 @@ var RegisterFloat = api.GoModuleFunc(func(ctx context.Context, mod api.Module, s
 		baseType: baseType{
 			rawType:        rawType,
 			name:           name,
-			argPackAdvance: 8,
+			argPackAdvance: GenericWireTypeSize,
 		},
 		size: api.DecodeI32(stack[2]),
 	}, nil)
