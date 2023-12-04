@@ -2,6 +2,7 @@ package tests
 
 import (
 	"context"
+	"github.com/jerbob92/wazero-emscripten-embind/js"
 	"log"
 	"os"
 	"testing"
@@ -1094,6 +1095,75 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 			}
 		})
 
+		Context("get_module_property", func() {
+			It("returns an error when requesting an unknown module property", func() {
+				res, err := generated.Get_module_property(engine, ctx, "unknown")
+				Expect(err).To(Not(BeNil()))
+				if err != nil {
+					Expect(err.Error()).To(ContainSubstring("could not find module property: unknown"))
+				}
+				Expect(res).To(BeNil())
+			})
+
+			It("returns an array of the right size for the memory view", func() {
+				res, err := generated.Get_module_property(engine, ctx, "HEAP8")
+				Expect(err).To(BeNil())
+				Expect(res).To(BeAssignableToTypeOf(js.Int8Array{}))
+				expectedLength := int(mod.Memory().Size())
+				Expect(res.(js.Int8Array).Length).To(Equal(expectedLength))
+				Expect(res.(js.Int8Array).Buffer).To(HaveLen(expectedLength))
+
+				res, err = generated.Get_module_property(engine, ctx, "HEAPU8")
+				Expect(err).To(BeNil())
+				Expect(res).To(BeAssignableToTypeOf(js.Uint8Array{}))
+				expectedLength = int(mod.Memory().Size())
+				Expect(res.(js.Uint8Array).Length).To(Equal(expectedLength))
+				Expect(res.(js.Uint8Array).Buffer).To(HaveLen(expectedLength))
+
+				res, err = generated.Get_module_property(engine, ctx, "HEAP16")
+				Expect(err).To(BeNil())
+				Expect(res).To(BeAssignableToTypeOf(js.Int16Array{}))
+				expectedLength = int(mod.Memory().Size() / 2)
+				Expect(res.(js.Int16Array).Length).To(Equal(expectedLength))
+				Expect(res.(js.Int16Array).Buffer).To(HaveLen(expectedLength))
+
+				res, err = generated.Get_module_property(engine, ctx, "HEAPU16")
+				Expect(err).To(BeNil())
+				Expect(res).To(BeAssignableToTypeOf(js.Uint16Array{}))
+				expectedLength = int(mod.Memory().Size() / 2)
+				Expect(res.(js.Uint16Array).Length).To(Equal(expectedLength))
+				Expect(res.(js.Uint16Array).Buffer).To(HaveLen(expectedLength))
+
+				res, err = generated.Get_module_property(engine, ctx, "HEAP32")
+				Expect(err).To(BeNil())
+				Expect(res).To(BeAssignableToTypeOf(js.Int32Array{}))
+				expectedLength = int(mod.Memory().Size() / 4)
+				Expect(res.(js.Int32Array).Length).To(Equal(expectedLength))
+				Expect(res.(js.Int32Array).Buffer).To(HaveLen(expectedLength))
+
+				res, err = generated.Get_module_property(engine, ctx, "HEAPU32")
+				Expect(err).To(BeNil())
+				Expect(res).To(BeAssignableToTypeOf(js.Uint32Array{}))
+				expectedLength = int(mod.Memory().Size() / 4)
+				Expect(res.(js.Uint32Array).Length).To(Equal(expectedLength))
+				Expect(res.(js.Uint32Array).Buffer).To(HaveLen(expectedLength))
+
+				res, err = generated.Get_module_property(engine, ctx, "HEAPF32")
+				Expect(err).To(BeNil())
+				Expect(res).To(BeAssignableToTypeOf(js.Float32Array{}))
+				expectedLength = int(mod.Memory().Size() / 4)
+				Expect(res.(js.Float32Array).Length).To(Equal(expectedLength))
+				Expect(res.(js.Float32Array).Buffer).To(HaveLen(expectedLength))
+
+				res, err = generated.Get_module_property(engine, ctx, "HEAPF64")
+				Expect(err).To(BeNil())
+				Expect(res).To(BeAssignableToTypeOf(js.Float64Array{}))
+				expectedLength = int(mod.Memory().Size() / 8)
+				Expect(res.(js.Float64Array).Length).To(Equal(expectedLength))
+				Expect(res.(js.Float64Array).Buffer).To(HaveLen(expectedLength))
+			})
+		})
+
 		/*
 			test("passing Symbol or BigInt as floats always throws", function() {
 			assert.throws(TypeError, function() { cm.const_ref_adder(Symbol('0'), 1); });
@@ -1176,9 +1246,7 @@ var _ = Describe("executing original embind tests", Label("library"), func() {
 			assert.equal(x, instance.argument);
 			});
 
-			test("can return module property objects", function() {
-			assert.equal(cm.HEAP8, cm.get_module_property("HEAP8"));
-			});
+
 
 			test("can return big class instances", function() {
 			var c = cm.embind_test_return_big_class_instance();
