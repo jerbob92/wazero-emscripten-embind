@@ -1239,7 +1239,7 @@ var EmvalGetModuleProperty = api.GoModuleFunc(func(ctx context.Context, mod api.
 	namePtr := api.DecodeI32(stack[0])
 	name, err := engine.getStringOrSymbol(uint32(namePtr))
 	if err != nil {
-		panic(fmt.Errorf("could not find handle: %w", err))
+		panic(fmt.Errorf("could not get symbol name"))
 	}
 
 	switch name {
