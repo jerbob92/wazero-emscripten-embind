@@ -9,6 +9,7 @@ import (
 	"strings"
 	"unicode"
 
+	"github.com/jerbob92/wazero-emscripten-embind/js"
 	"github.com/jerbob92/wazero-emscripten-embind/types"
 
 	"github.com/tetratelabs/wazero/api"
@@ -1234,8 +1235,97 @@ var EmvalEquals = api.GoModuleFunc(func(ctx context.Context, mod api.Module, sta
 })
 
 var EmvalGetModuleProperty = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
-	// @todo: implement me.
-	panic("EmvalGetModuleProperty call unimplemented")
+	engine := MustGetEngineFromContext(ctx, mod).(*engine)
+	namePtr := api.DecodeI32(stack[0])
+	name, err := engine.getStringOrSymbol(uint32(namePtr))
+	if err != nil {
+		panic(fmt.Errorf("could not find handle: %w", err))
+	}
+
+	switch name {
+	case "HEAP8":
+		typedMemoryView, ok := allMemoryAs[int8](mod.Memory(), 1)
+		if !ok {
+			panic(fmt.Errorf("could not create memory view"))
+		}
+		stack[0] = api.EncodeI32(engine.emvalEngine.toHandle(js.Int8Array{
+			Buffer: typedMemoryView,
+			Length: len(typedMemoryView),
+		}))
+		return
+	case "HEAP16":
+		typedMemoryView, ok := allMemoryAs[int16](mod.Memory(), 2)
+		if !ok {
+			panic(fmt.Errorf("could not create memory view"))
+		}
+		stack[0] = api.EncodeI32(engine.emvalEngine.toHandle(js.Int16Array{
+			Buffer: typedMemoryView,
+			Length: len(typedMemoryView),
+		}))
+		return
+	case "HEAPU8":
+		typedMemoryView, ok := allMemoryAs[uint8](mod.Memory(), 1)
+		if !ok {
+			panic(fmt.Errorf("could not create memory view"))
+		}
+		stack[0] = api.EncodeI32(engine.emvalEngine.toHandle(js.Uint8Array{
+			Buffer: typedMemoryView,
+			Length: len(typedMemoryView),
+		}))
+		return
+	case "HEAPU16":
+		typedMemoryView, ok := allMemoryAs[uint16](mod.Memory(), 2)
+		if !ok {
+			panic(fmt.Errorf("could not create memory view"))
+		}
+		stack[0] = api.EncodeI32(engine.emvalEngine.toHandle(js.Uint16Array{
+			Buffer: typedMemoryView,
+			Length: len(typedMemoryView),
+		}))
+		return
+	case "HEAP32":
+		typedMemoryView, ok := allMemoryAs[int32](mod.Memory(), 4)
+		if !ok {
+			panic(fmt.Errorf("could not create memory view"))
+		}
+		stack[0] = api.EncodeI32(engine.emvalEngine.toHandle(js.Int32Array{
+			Buffer: typedMemoryView,
+			Length: len(typedMemoryView),
+		}))
+		return
+	case "HEAPU32":
+		typedMemoryView, ok := allMemoryAs[uint32](mod.Memory(), 4)
+		if !ok {
+			panic(fmt.Errorf("could not create memory view"))
+		}
+		stack[0] = api.EncodeI32(engine.emvalEngine.toHandle(js.Uint32Array{
+			Buffer: typedMemoryView,
+			Length: len(typedMemoryView),
+		}))
+		return
+	case "HEAPF32":
+		typedMemoryView, ok := allMemoryAs[float32](mod.Memory(), 4)
+		if !ok {
+			panic(fmt.Errorf("could not create memory view"))
+		}
+		stack[0] = api.EncodeI32(engine.emvalEngine.toHandle(js.Float32Array{
+			Buffer: typedMemoryView,
+			Length: len(typedMemoryView),
+		}))
+		return
+	case "HEAPF64":
+		typedMemoryView, ok := allMemoryAs[float64](mod.Memory(), 8)
+		if !ok {
+			panic(fmt.Errorf("could not create memory view"))
+		}
+		stack[0] = api.EncodeI32(engine.emvalEngine.toHandle(js.Float64Array{
+			Buffer: typedMemoryView,
+			Length: len(typedMemoryView),
+		}))
+		return
+	}
+
+	panic(fmt.Errorf("could not find module property: %s", name))
 })
 
 var EmvalIn = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
