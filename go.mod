@@ -7,7 +7,7 @@ require (
 	github.com/onsi/gomega v1.30.0
 	github.com/tetratelabs/wazero v1.5.0
 	golang.org/x/text v0.14.0
-	golang.org/x/tools v0.16.0
+	golang.org/x/tools v0.17.0
 )
 
 require (
@@ -16,7 +16,7 @@ require (
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/pprof v0.0.0-20210407192527-94a9f03dee38 // indirect
 	golang.org/x/mod v0.14.0 // indirect
-	golang.org/x/net v0.19.0 // indirect
-	golang.org/x/sys v0.15.0 // indirect
+	golang.org/x/net v0.20.0 // indirect
+	golang.org/x/sys v0.16.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
