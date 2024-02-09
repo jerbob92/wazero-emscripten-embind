@@ -21,10 +21,10 @@ jobs:
       COVERAGE_GO_VERSION: "1.22"
     runs-on: ${{ matrix.os }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
 
       - name: Set up Go
-        uses: actions/setup-go@v3
+        uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go }}
       - name: Vet all packages
@@ -48,6 +48,6 @@ jobs:
           path: ./coverage.out
       - name: Upload coverage to Codecov
         if: matrix.os == 'ubuntu-latest' && matrix.go == env.COVERAGE_GO_VERSION
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           files: coverage.out
