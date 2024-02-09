@@ -4,7 +4,7 @@ go 1.20
 
 require (
 	github.com/onsi/ginkgo/v2 v2.15.0
-	github.com/onsi/gomega v1.30.0
+	github.com/onsi/gomega v1.31.1
 	github.com/tetratelabs/wazero v1.6.0
 	golang.org/x/text v0.14.0
 	golang.org/x/tools v0.17.0
