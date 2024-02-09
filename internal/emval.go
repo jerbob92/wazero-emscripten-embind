@@ -454,28 +454,36 @@ func (e *emvalEngine) callMethod(ctx context.Context, mod api.Module, registered
 	return res, nil
 }
 
-var RegisterEmval = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
-	engine := MustGetEngineFromContext(ctx, mod).(*engine)
+var RegisterEmval = func(hasName bool) api.GoModuleFunc {
+	return api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
+		engine := MustGetEngineFromContext(ctx, mod).(*engine)
 
-	rawType := api.DecodeI32(stack[0])
-	name, err := engine.readCString(uint32(api.DecodeI32(stack[1])))
-	if err != nil {
-		panic(fmt.Errorf("could not read name: %w", err))
-	}
+		rawType := api.DecodeI32(stack[0])
 
-	err = engine.registerType(rawType, &emvalType{
-		baseType: baseType{
-			rawType:        rawType,
-			name:           name,
-			argPackAdvance: GenericWireTypeSize,
-		},
-	}, &registerTypeOptions{
-		ignoreDuplicateRegistrations: true,
+		// Hardcoded since Emscripten 3.1.53.
+		name := "emscripten::val"
+		var err error
+		if hasName {
+			name, err = engine.readCString(uint32(api.DecodeI32(stack[1])))
+			if err != nil {
+				panic(fmt.Errorf("could not read name: %w", err))
+			}
+		}
+
+		err = engine.registerType(rawType, &emvalType{
+			baseType: baseType{
+				rawType:        rawType,
+				name:           name,
+				argPackAdvance: GenericWireTypeSize,
+			},
+		}, &registerTypeOptions{
+			ignoreDuplicateRegistrations: true,
+		})
+		if err != nil {
+			panic(fmt.Errorf("could not register: %w", err))
+		}
 	})
-	if err != nil {
-		panic(fmt.Errorf("could not register: %w", err))
-	}
-})
+}
 
 var EmvalTakeValue = api.GoModuleFunc(func(ctx context.Context, mod api.Module, stack []uint64) {
 	engine := MustGetEngineFromContext(ctx, mod).(*engine)

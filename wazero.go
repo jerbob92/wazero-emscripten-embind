@@ -134,11 +134,24 @@ func (e functionExporter) ExportFunctions(b wazero.HostModuleBuilder) error {
 		WithGoModuleFunction(internal.RegisterMemoryView, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{}).
 		Export("_embind_register_memory_view")
 
-	b.NewFunctionBuilder().
-		WithName("_embind_register_emval").
-		WithParameterNames("rawType", "name").
-		WithGoModuleFunction(internal.RegisterEmval, []api.ValueType{api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{}).
-		Export("_embind_register_emval")
+	importedEmbindRegisterEmval := e.GetImportedFunction("_embind_register_emval")
+	if importedEmbindRegisterEmval != nil {
+		// Since Emscripten 3.1.53, the name parameter has been removed.
+		emvalHasNameArgument := len(importedEmbindRegisterEmval.ParamTypes()) == 2
+		if emvalHasNameArgument {
+			b.NewFunctionBuilder().
+				WithName("_embind_register_emval").
+				WithParameterNames("rawType", "name").
+				WithGoModuleFunction(internal.RegisterEmval(true), []api.ValueType{api.ValueTypeI32, api.ValueTypeI32}, []api.ValueType{}).
+				Export("_embind_register_emval")
+		} else {
+			b.NewFunctionBuilder().
+				WithName("_embind_register_emval").
+				WithParameterNames("rawType").
+				WithGoModuleFunction(internal.RegisterEmval(false), []api.ValueType{api.ValueTypeI32}, []api.ValueType{}).
+				Export("_embind_register_emval")
+		}
+	}
 
 	b.NewFunctionBuilder().
 		WithName("_embind_register_constant").
