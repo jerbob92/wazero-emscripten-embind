@@ -72,6 +72,17 @@ func memoryAs[T any](memory api.Memory, offset uint32, elementSize uint32, lengt
 	return unsafe.Slice((*T)(unsafe.Pointer(&memoryView[0])), length), true
 }
 
+func allMemoryAs[T any](memory api.Memory, elementSize uint32) ([]T, bool) {
+	memoryView, ok := memory.Read(0, memory.Size())
+	if !ok {
+		return nil, ok
+	}
+
+	length := memory.Size() / elementSize
+
+	return unsafe.Slice((*T)(unsafe.Pointer(&memoryView[0])), length), true
+}
+
 func (mvt *memoryViewType) ToWireType(ctx context.Context, mod api.Module, destructors *[]*destructorFunc, o any) (uint64, error) {
 	return 0, fmt.Errorf("ToWireType is not supported for memory views")
 }
